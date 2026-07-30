@@ -1,13 +1,15 @@
 # Gameplay
 
+> **Note:** This document describes the full vision for *Elderville*. Features will be added incrementally as development progresses.
+
 ## Overview
 
-*Elderville* is a classic top-down pixel-art action RPG. You play as **Minslaire**, a young villager living with your younger brother **Tinslaire** in the red house west of the council's Blue House. The elders—who secretly activated the Scrap Bots to trigger the blue light beacon revealing the artifact's location—have tasked you with retrieving the **Elemental Box**. 
+*Elderville* is a classic top-down pixel-art action RPG with a whimsical tone and deep lore. You play as **Minslaire**, a young villager living with your younger brother **Tinslaire** in the red house west of the council's Blue House. The elders—who secretly activated the Scrap Bots to trigger the blue light beacon revealing the artifact's location—have tasked you with retrieving the **Elemental Box**. 
 
 This begins an epic trilogy:
 - **Game 1 (Elderville):** The elders betray you, using the box to upgrade themselves and lay waste to villages. You blow up the box, granting everyone elemental powers as you awaken with the powers of all elements.
 - **Game 2:** You wake up 5 years later to fight **Neegabla** (your nihilistic brother Tinslaire who overthrew the elders and wields all elements). After defeating him, you reconcile and vow to find life's purpose.
-- **Game 3:** Your journey for purpose culminates in finding Islam.
+- **Game 3:** Your journey for purpose culminates in discovering the truth of Islam, the ultimate answer to your quest for meaning.
 
 ## Controls
 
@@ -15,8 +17,10 @@ This begins an epic trilogy:
 |--------|--------|
 | Move | `WASD` or `Arrow Keys` |
 | Attack | `SPACE` or `J` |
+| Dodge | `SHIFT` + Direction |
+| Block | `R` |
 | Interact / Talk | `E` |
-| Sprint | `SHIFT` (while moving) |
+| Sprint | `SHIFT` (while moving, when not dodging) |
 | Enter / Exit Houses | Walk into a door tile |
 | Advance/Close Dialogue | `SPACE` or `E` |
 
@@ -25,23 +29,23 @@ This begins an epic trilogy:
 The user interface displays three important stats:
 
 - **HP (Health)** — Reduced when enemies touch you. If it reaches zero, you respawn at the Safe Camp.
-- **ST (Stamina)** — Used while sprinting. Recovers slowly over time when not sprinting.
+- **ST (Stamina)** — Used while sprinting or dodging. Recovers slowly over time when not in use.
 - **Beasts Slain** — A running count of scrap bots you have defeated.
 - **Mission Bar** (top right) — Shows your current objective and progress.
 
 ## Mission System
 
-The game guides you through Elderville with a series of missions. A yellow mission bar in the top right corner displays your current objective, a description, and progress.
+The game guides you through Elderville with a series of missions. A glowing **yellow arrow** appears on screen pointing toward your current goal when it's off-screen. When you're near the objective, the arrow disappears.
 
-A glowing **yellow arrow** appears on screen pointing toward your current goal when it's off-screen. When you're near the objective, the arrow disappears.
-
-### Village Side Quests (Pre-Adventure)
-Before embarking on the dangerous journey into the Eastern Forest, Minslaire can take on optional side quests across the massive settlement of Elderville:
+### Village Side Quests (Required Pre-Adventure)
+Before embarking on the dangerous journey into the Eastern Forest, Minslaire must complete the following side quests across the massive settlement of Elderville:
 
 1. **Tinslaire's Keepsake** — Help your younger brother find his carved wooden toy near the Greenhouse Terraces.
 2. **The Well’s Echo** — Investigate strange mechanical rumblings beneath the Central Well with Elder Sage.
 3. **Perimeter Sweep** — Assist Elder Moss by clearing out stray scrap drones hovering near the Eastern Gate.
 4. **Marketplace Supply Run** — Gather rare crop ingredients from the Agricultural Outskirts for the Bazaar traders.
+
+> **Note:** These side quests are required to unlock the main mission chain and prepare you for the journey ahead.
 
 ### Main Mission List
 
@@ -63,11 +67,13 @@ Complete all missions to retrieve the Elemental Box and save Elderville.
 ## Combat
 
 - Press `SPACE` or `J` to swing your sword in the direction you are facing.
-- Each slash deals **20 damage** and pushes enemies back slightly.
-- You cannot attack again until the cooldown finishes.
+  - Each slash deals **20 damage** and pushes enemies back slightly.
+  - You cannot attack again until the cooldown finishes.
+- **Dodge:** Press `SHIFT` + a direction to quickly roll in that direction. Grants brief invincibility (0.5 seconds) but consumes stamina.
+- **Block:** Hold `R` to raise your guard. Reduces incoming damage by **50%** while active, but drains stamina slowly.
 - Enemies take damage and flash red when hit.
-- If an enemy touches you, you lose **12 HP** and become briefly invulnerable.
-- Against formidable foes like the Heavy Mech guarding the river, there are no environmental shortcuts—you have to lock in and master direct melee combat.
+- If an enemy touches you, you lose **12 HP** and become briefly invulnerable (unless blocking).
+- Against formidable foes like the Heavy Mech guarding the river, mastering dodging and blocking is key to survival.
 - Right before locating the Elemental Box in the far forest, you must survive a grueling combat gauntlet.
 
 ## Enemy Types
@@ -81,10 +87,10 @@ Complete all missions to retrieve the Elemental Box and save Elderville.
 
 ## Characters
 
-- **Tinslaire** — Minslaire's younger brother. Found in the Red House. He's too young to fight but encourages you before your quest.
-- **Elder Moss** — The watcher. He found the old records mentioning the Elemental Box. Found near the Blue House.
+- **Tinslaire** — Minslaire's younger brother. Found in the Red House. He's too young to fight but encourages you before your quest. His innocence hides a future as Neegabla, the nihilistic ruler of Game 2.
+- **Elder Moss** — The watcher. He found the old records mentioning the Elemental Box. Found near the Blue House. His urgency to retrieve the box hides a darker motive.
 - **Elder Sage** — The scholar. She studies the life suits and believes the box holds the key. Found near the garden.
-- **Elder Thorn** — The protector. He warns against recklessness but trusts the council's judgment.
+- **Elder Thorn** — The protector. He warns against recklessness but trusts the council's judgment. His loyalty will be tested.
 
 ## Houses and Resting
 
@@ -103,7 +109,7 @@ Resting is the only reliable way to recover health besides respawning.
 
 ## Death and Respawn
 
-If your health drops to zero, your **life suit** revives you at the **Safe Camp** (inside the Red House) with full HP. Defeated enemies respawn, so be prepared to fight them again if you return to dangerous areas.
+If your health drops to zero, your **life suit** revives you at the **Safe Camp** (inside the Red House) with full HP. **Only the player respawns**—defeated enemies remain defeated, so you won’t have to fight them again unless you restart the game.
 
 ## Objective
 

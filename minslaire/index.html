@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elderville - Tile Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header id="hud">
+            <div class="stat">HP: <span id="hp">100</span>/100</div>
+            <div class="stat">ST: <span id="st">100</span>/100</div>
+            <div class="stat">Location: <span id="location-name">Elderville Village</span></div>
+        </header>
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas" width="480" height="320"></canvas>
+        </div>
+        <footer id="controls-hint">
+            <strong>Move:</strong> WASD / Arrow Keys | <strong>Interact:</strong> E | <strong>Attack:</strong> Space
+        </footer>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

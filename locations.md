@@ -2,9 +2,13 @@
 
 > **Note:** This document describes the full vision for *Elderville*. Locations and features will be added incrementally as development progresses.
 
+## The World
+
+The world is uninhabitable due to **toxic air** from nuclear war (World War 3). The only way to survive is with **life suits**—bio-synthetic membranes engineered by governments as a last resort. They bond to the skin at birth, filtering the air and sustaining life. The suits are maintained through simple, communal means—no advanced technology is required.
+
 ## Elderville (Massive Settlement Layout)
 
-Elderville has expanded from a humble hamlet into a massive, sprawling settlement nestled between the western hills and the eastern forest. It is divided into several distinct districts, connected by winding dirt paths and wooden walkways:
+Elderville is a **massive, sprawling settlement** nestled between the western hills and the eastern forest. It is divided into several distinct districts, connected by winding dirt paths and wooden walkways:
 
 ### 1. The Upper Ward (Administrative Center)
 - **The Blue House**: The largest building in Elderville, painted deep blue. This is where the Council of Elders gathers around a massive oak table and hearth. Confronting the elders here transforms the interior into a vast combat arena.
@@ -15,7 +19,7 @@ Elderville has expanded from a humble hamlet into a massive, sprawling settlemen
 - **Neighboring Homesteads**: Dozens of wooden family homes where villagers live, sleep, and maintain their life suits.
 
 ### 3. The Agricultural Outskirts (Greenhouse Terraces)
-- **The Grand Gardens**: Managed by Elder Sage, producing crop yields essential for village survival under the canopy.
+- **The Grand Gardens**: Producing crop yields essential for village survival under the canopy.
 - **The Central Well**: A deep water source near the treeline hiding strange mechanical reverberations. The source of the **Well’s Echo** side quest.
 
 ### 4. The Artisan & Blacksmith District
@@ -35,10 +39,14 @@ The deeper you go, the more dangerous it becomes. Vanguard Bots are rumored to p
 
 ## The Elemental Box
 
-A mysterious artifact sealed deep in the eastern forest, beyond the river and the heaviest machine patrols. Its location was revealed through a blue light beacon that the elders have had since World War 3. This beacon has a dual function: it can both activate the Elemental Box (revealing its location) and trigger the Scrap Bots to awaken and patrol the forest. 
+A mysterious artifact sealed deep in the eastern forest, beyond the river and the heaviest machine patrols. Its location was revealed through a blue light beacon that the elders have had since World War 3. This beacon has a dual function: it can both activate the Elemental Box (revealing its location) and trigger the Scrap Bots to awaken and patrol the forest.
 
 The elders were waiting for someone like Minslaire to fight the robots as part of their plan. The beacon was created by the same people who made the life suits—it was designed to guard the Elemental Box until someone capable of fighting the bots could retrieve it. The elders possess a remote control for it. The box holds the technology required to upgrade life suits, granting people elemental powers.
 
 ## Safe Camp
 
 A small clearing west of the village where fallen wanderers wake up. The life suits have a failsafe—when the wearer's body gives out, the suit pulls them back here, repairing the damage and restarting the heart. No one knows how or why it works, but every villager has woken up at the Safe Camp at least once. In the current prototype, the Safe Camp is located inside the **Red House**.
+
+## Game 3: The Faraway Place
+
+A distant, isolated location where Minslaire and Tinslaire find their **father**, trapped but alive. This area is far from Elderville, hidden in the ruins of the old world. It is here that the truth of Islam is revealed, and the purpose of their journey becomes clear.

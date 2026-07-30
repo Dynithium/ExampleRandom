@@ -106,6 +106,10 @@ let canInteract = true;
 function updateCamera() {
     camera.x = Math.max(0, Math.min(MAP_WIDTH - camera.width, player.tileX - Math.floor(camera.width / 2)));
     camera.y = Math.max(0, Math.min(MAP_HEIGHT - camera.height, player.tileY - Math.floor(camera.height / 2)));
+    
+    // CRITICAL FIX: Snap camera to integer values to prevent sub-pixel rendering glitches
+    camera.x = Math.floor(camera.x);
+    camera.y = Math.floor(camera.y);
 }
 
 function isSolid(tileX, tileY) {
@@ -207,6 +211,9 @@ function updatePlayer() {
 }
 
 function drawTile(tileType, screenX, screenY) {
+    // Disable image smoothing for crisp pixel art
+    ctx.imageSmoothingEnabled = false;
+    
     switch (tileType) {
         case 0: // Grass - Detailed pixel art with variation
             ctx.fillStyle = '#2d5a1e';

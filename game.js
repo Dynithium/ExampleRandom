@@ -28,17 +28,17 @@ function buildVillageMap() {
         }
     }
 
-    // Buildings are 15x10 tiles, exactly matching their interiors
-    rect(3, 3, 3, 15, 10);    // Council of Elders (Blue House)
-    rect(4, 28, 3, 15, 10);   // Minslaire's home (Red House)
-    rect(20, 3, 15, 15, 10);  // Farmer's Homestead
-    rect(20, 28, 15, 15, 10); // Weaver's Homestead
+    // Buildings are 5x5 tiles on the outside; interiors are 15x10 (bigger inside)
+    rect(3, 6, 3, 5, 5);    // Council of Elders (Blue House)
+    rect(4, 28, 3, 5, 5);   // Minslaire's home (Red House)
+    rect(20, 6, 16, 5, 5);  // Farmer's Homestead
+    rect(20, 28, 16, 5, 5); // Weaver's Homestead
 
     // Building doors (bottom center of each footprint)
-    m[12][10] = 15;
-    m[12][35] = 15;
-    m[24][10] = 15;
-    m[24][35] = 15;
+    m[7][8] = 15;
+    m[7][30] = 15;
+    m[20][8] = 15;
+    m[20][30] = 15;
 
     // The Forge & workshops (artisan district)
     rect(12, 22, 4, 3, 2);
@@ -138,17 +138,17 @@ const homesteadBMap = [
 ];
 
 const interiors = {
-    home:       { name: 'Your Home',          map: homeMap,       outside: [35, 13] },
-    council:    { name: 'Council Hall',       map: councilMap,    outside: [10, 13] },
-    homesteadA: { name: "Farmer's Homestead", map: homesteadAMap, outside: [10, 25] },
-    homesteadB: { name: "Weaver's Homestead", map: homesteadBMap, outside: [35, 25] }
+    home:       { name: 'Your Home',          map: homeMap,       outside: [30, 8] },
+    council:    { name: 'Council Hall',       map: councilMap,    outside: [8, 8] },
+    homesteadA: { name: "Farmer's Homestead", map: homesteadAMap, outside: [8, 21] },
+    homesteadB: { name: "Weaver's Homestead", map: homesteadBMap, outside: [30, 21] }
 };
 
 const villageDoors = [
-    { tx: 10, ty: 12, interior: 'council' },
-    { tx: 35, ty: 12, interior: 'home' },
-    { tx: 10, ty: 24, interior: 'homesteadA' },
-    { tx: 35, ty: 24, interior: 'homesteadB' }
+    { tx: 8,  ty: 7,  interior: 'council' },
+    { tx: 30, ty: 7,  interior: 'home' },
+    { tx: 8,  ty: 20, interior: 'homesteadA' },
+    { tx: 30, ty: 20, interior: 'homesteadB' }
 ];
 
 // Current area: 'village' or 'interior'
@@ -249,8 +249,8 @@ const npcs = [
     {
         id: 'tinslaire',
         name: 'Tinslaire',
-        tileX: 34,
-        tileY: 14,
+        tileX: 30,
+        tileY: 9,
         color: '#4a90d9',
         dialog: [
             "Brother! You're finally awake.",
@@ -266,8 +266,8 @@ const npcs = [
     {
         id: 'elder1',
         name: 'Elder Marcus',
-        tileX: 9,
-        tileY: 14,
+        tileX: 8,
+        tileY: 9,
         color: '#8b7355',
         dialog: [
             "Ah, Minslaire. The chosen one.",
@@ -316,6 +316,15 @@ function isSolid(tileX, tileY) {
     if (tileX < 0 || tileX >= MAP_WIDTH || tileY < 0 || tileY >= MAP_HEIGHT) return true;
     const t = map[tileY][tileX];
     return t === 1 || t === 3 || t === 4 || t === 5 || t === 7 || t === 8 || t === 9 || t === 20;
+}
+
+// NPCs block movement in the village (they are solid obstacles)
+function npcOccupied(tileX, tileY) {
+    if (currentArea !== 'village') return false;
+    for (const npc of npcs) {
+        if (npc.tileX === tileX && npc.tileY === tileY) return true;
+    }
+    return false;
 }
 
 function getNearbyNPC() {
@@ -400,7 +409,7 @@ function handleInput() {
         const nextTileX = player.tileX + dx;
         const nextTileY = player.tileY + dy;
 
-        if (!isSolid(nextTileX, nextTileY)) {
+        if (!isSolid(nextTileX, nextTileY) && !npcOccupied(nextTileX, nextTileY)) {
             player.tileX = nextTileX;
             player.tileY = nextTileY;
             player.targetX = player.tileX * TILE_SIZE;
@@ -1224,7 +1233,7 @@ function drawTiles() {
     }
 }
 
-// Buildings occupy a 15x10 footprint, exactly matching their interiors.
+// Buildings are 5x5 tiles on the outside, but their interiors are 15x10.
 // Each building is drawn as one unit from its root tile so it can be seen
 // even when the camera only shows part of it.
 function drawBuilding(screenX, screenY, type) {
@@ -1234,8 +1243,8 @@ function drawBuilding(screenX, screenY, type) {
         20: { wall: '#c0a078', wallDark: '#a58560', roof: '#5c6b2a', roofLight: '#6e7d36' }
     }[type];
 
-    const bw = 15 * TILE_SIZE;
-    const bh = 10 * TILE_SIZE;
+    const bw = 5 * TILE_SIZE;
+    const bh = 5 * TILE_SIZE;
 
     // Grass base
     ctx.fillStyle = '#2d5a1e';
@@ -1243,46 +1252,46 @@ function drawBuilding(screenX, screenY, type) {
 
     // Walls
     ctx.fillStyle = c.wall;
-    ctx.fillRect(screenX, screenY + 100, bw, bh - 112);
+    ctx.fillRect(screenX, screenY + 96, bw, bh - 96);
     // Wall shading and trim
     ctx.fillStyle = c.wallDark;
-    ctx.fillRect(screenX, screenY + 160, bw, 3);
-    ctx.fillRect(screenX, screenY + bh - 24, bw, 12);
+    ctx.fillRect(screenX, screenY + 96, bw, 3);
+    ctx.fillRect(screenX, screenY + bh - 16, bw, 8);
     // Foundation
     ctx.fillStyle = '#6b5344';
-    ctx.fillRect(screenX, screenY + bh - 14, bw, 14);
+    ctx.fillRect(screenX, screenY + bh - 10, bw, 10);
 
     // Roof
     ctx.fillStyle = c.roof;
     ctx.beginPath();
-    ctx.moveTo(screenX + 6, screenY + 100);
+    ctx.moveTo(screenX + 4, screenY + 96);
     ctx.lineTo(screenX + bw / 2, screenY + 30);
-    ctx.lineTo(screenX + bw - 6, screenY + 100);
+    ctx.lineTo(screenX + bw - 4, screenY + 96);
     ctx.fill();
     ctx.fillStyle = c.roofLight;
     ctx.beginPath();
-    ctx.moveTo(screenX + bw / 2 - 70, screenY + 82);
+    ctx.moveTo(screenX + bw / 2 - 40, screenY + 82);
     ctx.lineTo(screenX + bw / 2, screenY + 42);
-    ctx.lineTo(screenX + bw / 2 + 70, screenY + 82);
+    ctx.lineTo(screenX + bw / 2 + 40, screenY + 82);
     ctx.fill();
 
     // Chimney
     ctx.fillStyle = '#7a5c4a';
-    ctx.fillRect(screenX + bw - 130, screenY + 48, 22, 34);
+    ctx.fillRect(screenX + bw - 66, screenY + 46, 18, 28);
     ctx.fillStyle = '#5c4033';
-    ctx.fillRect(screenX + bw - 130, screenY + 48, 22, 6);
+    ctx.fillRect(screenX + bw - 66, screenY + 46, 18, 5);
 
     // Windows
-    for (let i = 0; i < 5; i++) {
-        const wx = screenX + 40 + i * 86;
-        const wy = screenY + 124;
+    for (let i = 0; i < 2; i++) {
+        const wx = screenX + 22 + i * 82;
+        const wy = screenY + 112;
         ctx.fillStyle = type === 4 ? '#ffd93d' : '#87ceeb';
-        ctx.fillRect(wx, wy, 44, 34);
+        ctx.fillRect(wx, wy, 34, 26);
         ctx.fillStyle = '#bde3ff';
-        ctx.fillRect(wx, wy, 44, 3);
+        ctx.fillRect(wx, wy, 34, 3);
         ctx.fillStyle = c.wallDark;
-        ctx.fillRect(wx + 21, wy, 3, 34);
-        ctx.fillRect(wx, wy + 15, 44, 3);
+        ctx.fillRect(wx + 15, wy, 3, 26);
+        ctx.fillRect(wx, wy + 11, 34, 3);
     }
 }
 
@@ -1296,8 +1305,8 @@ function drawBuildings() {
 
             const bx = tx * TILE_SIZE - camera.x * TILE_SIZE;
             const by = ty * TILE_SIZE - camera.y * TILE_SIZE;
-            const bw = 15 * TILE_SIZE;
-            const bh = 10 * TILE_SIZE;
+            const bw = 5 * TILE_SIZE;
+            const bh = 5 * TILE_SIZE;
             if (bx + bw < 0 || bx > canvas.width || by + bh < 0 || by > canvas.height) continue;
             drawBuilding(bx, by, t);
         }

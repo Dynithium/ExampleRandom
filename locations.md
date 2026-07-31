@@ -4,14 +4,14 @@
 
 ## Current In-Game Layout (Village Prototype)
 
-The playable village is a **48x30 tile map** where every building's exterior footprint is exactly **15x10 tiles** — the same size as its interior. The four buildings and their front doors:
+The playable village is a **48x30 tile map**. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. The four buildings and their front doors:
 
-| Building | Footprint (x, y) | Door Tile (x, y) | Interior |
+| Building | Exterior Footprint (x, y) | Door Tile (x, y) | Interior Size |
 |---|---|---|---|
-| Council of Elders (Blue House) | (3, 3) | (10, 12) | `council` |
-| Minslaire & Tinslaire's House (Red House) | (28, 3) | (35, 12) | `home` |
-| Farmer's Homestead | (3, 15) | (10, 24) | `homesteadA` |
-| Weaver's Homestead | (28, 15) | (35, 24) | `homesteadB` |
+| Council of Elders (Blue House) | (6, 3) | (8, 7) | 15x10 (`council`) |
+| Minslaire & Tinslaire's House (Red House) | (28, 3) | (30, 7) | 15x10 (`home`) |
+| Farmer's Homestead | (6, 16) | (8, 20) | 15x10 (`homesteadA`) |
+| Weaver's Homestead | (28, 16) | (30, 20) | 15x10 (`homesteadB`) |
 
 Walk into a door tile to enter; walk onto the door mat inside to exit back to the same spot outside.
 
@@ -27,7 +27,7 @@ District tiles currently placed on the map:
 - **Village Pond** — water at (40, 26), tile `5`.
 - **Roads** — dirt paths at row 13, row 25, and columns 2, 18, 21 connecting all districts.
 
-NPCs currently stand at: **Tinslaire** (34, 14), **Elder Marcus** (9, 14), **Elder Sarah** (23, 14).
+NPCs currently stand at: **Tinslaire** (30, 9), **Elder Marcus** (8, 9), **Elder Sarah** (23, 14). NPCs are solid and block player movement.
 
 ## The World
 

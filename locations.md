@@ -2,6 +2,33 @@
 
 > **Note:** This document describes the full vision for *Elderville*. Locations and features will be added incrementally as development progresses.
 
+## Current In-Game Layout (Village Prototype)
+
+The playable village is a **48x30 tile map** where every building's exterior footprint is exactly **15x10 tiles** — the same size as its interior. The four buildings and their front doors:
+
+| Building | Footprint (x, y) | Door Tile (x, y) | Interior |
+|---|---|---|---|
+| Council of Elders (Blue House) | (3, 3) | (10, 12) | `council` |
+| Minslaire & Tinslaire's House (Red House) | (28, 3) | (35, 12) | `home` |
+| Farmer's Homestead | (3, 15) | (10, 24) | `homesteadA` |
+| Weaver's Homestead | (28, 15) | (35, 24) | `homesteadB` |
+
+Walk into a door tile to enter; walk onto the door mat inside to exit back to the same spot outside.
+
+District tiles currently placed on the map:
+
+- **Red House (home)** — interior has two beds and the heirloom sword in its glass case; Minslaire wakes up here.
+- **Blue House (council)** — interior has the council table, benches, and bookshelves.
+- **Grand Gardens** — crop terraces at (22, 18) using tile `10`.
+- **The Forge & Workshops** — at (22, 4), tile `12`.
+- **Central Well** — at (24, 16), tile `11`.
+- **Southern Marketplace & Bazaar** — stalls at (22, 26), tile `13`.
+- **Watchtower & Eastern Gate** — watchtower at (44, 6), tile `14`; the gate gap in the eastern tree line is the path at rows 8–9.
+- **Village Pond** — water at (40, 26), tile `5`.
+- **Roads** — dirt paths at row 13, row 25, and columns 2, 18, 21 connecting all districts.
+
+NPCs currently stand at: **Tinslaire** (34, 14), **Elder Marcus** (9, 14), **Elder Sarah** (23, 14).
+
 ## The World
 
 The world is uninhabitable due to **toxic air** from nuclear war (World War 3). The only way to survive is with **life suits**—bio-synthetic membranes engineered by governments as a last resort. They bond to the skin at birth, filtering the air and sustaining life. The suits are maintained through simple, communal means—no advanced technology is required.

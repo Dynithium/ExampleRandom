@@ -6,34 +6,86 @@ let MAP_WIDTH = 25;
 let MAP_HEIGHT = 20;
 const MOVE_SPEED = 4;
 
-// Tile types: 0=Grass, 1=Tree, 2=Path, 3=Blue House, 4=Red House, 5=Water
-const villageMap = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1],
-    [1,0,3,3,3,0,0,0,0,0,1,1,1,1,1,0,4,4,0,0,0,0,0,0,1],
-    [1,0,3,3,3,0,0,0,0,0,0,2,2,2,0,0,4,4,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
-    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,0,0,2,2,2,0,0,1,1,1,1,1,1,1,1,1],
-    [1,5,5,5,5,5,5,5,5,5,5,2,2,2,5,5,5,5,5,5,5,5,5,5,1],
-    [1,5,5,5,5,5,5,5,5,5,5,2,2,2,5,5,5,5,5,5,5,5,5,5,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-];
+// Tile types: 0=Grass, 1=Tree, 2=Path, 3=Council (Blue House), 4=Home (Red House),
+// 5=Water, 6=Wood Floor, 7=Wall, 8=Bed, 9=Sword Case, 10=Crops, 11=Well,
+// 12=Forge, 13=Market Stall, 14=Watchtower, 15=Village Door, 16=Exit Mat,
+// 17=Table, 18=Chair, 19=Bookshelf, 20=Homestead
+const VILLAGE_W = 48;
+const VILLAGE_H = 30;
 
+function buildVillageMap() {
+    const m = [];
+    for (let y = 0; y < VILLAGE_H; y++) {
+        m.push(new Array(VILLAGE_W).fill(0));
+    }
+    // Border trees
+    for (let x = 0; x < VILLAGE_W; x++) { m[0][x] = 1; m[VILLAGE_H - 1][x] = 1; }
+    for (let y = 0; y < VILLAGE_H; y++) { m[y][0] = 1; m[y][VILLAGE_W - 1] = 1; }
+
+    function rect(tile, x1, y1, w, h) {
+        for (let y = y1; y < y1 + h; y++) {
+            for (let x = x1; x < x1 + w; x++) m[y][x] = tile;
+        }
+    }
+
+    // Buildings are 15x10 tiles, exactly matching their interiors
+    rect(3, 3, 3, 15, 10);    // Council of Elders (Blue House)
+    rect(4, 28, 3, 15, 10);   // Minslaire's home (Red House)
+    rect(20, 3, 15, 15, 10);  // Farmer's Homestead
+    rect(20, 28, 15, 15, 10); // Weaver's Homestead
+
+    // Building doors (bottom center of each footprint)
+    m[12][10] = 15;
+    m[12][35] = 15;
+    m[24][10] = 15;
+    m[24][35] = 15;
+
+    // The Forge & workshops (artisan district)
+    rect(12, 22, 4, 3, 2);
+
+    // Grand Gardens (greenhouse terraces)
+    rect(10, 22, 18, 5, 6);
+
+    // Central Well (agricultural outskirts)
+    m[16][24] = 11;
+
+    // Southern Marketplace & Bazaar
+    rect(13, 22, 26, 5, 2);
+
+    // Pond
+    rect(5, 40, 26, 3, 3);
+
+    // Eastern forest with a gate gap
+    for (let y = 2; y < VILLAGE_H - 1; y++) {
+        for (let x = 44; x <= 46; x++) {
+            m[y][x] = (y >= 8 && y <= 9) ? 2 : 1;
+        }
+    }
+
+    // Watchtower guarding the Eastern Gate
+    m[6][44] = 14;
+
+    // Roads
+    for (let x = 2; x <= 44; x++) { m[13][x] = 2; m[25][x] = 2; }
+    for (let y = 1; y <= 28; y++) { m[y][2] = 2; }
+    for (let y = 3; y <= 25; y++) { m[y][18] = 2; }
+    for (let y = 4; y <= 23; y++) { m[y][21] = 2; }
+    for (let y = 8; y <= 13; y++) { m[y][44] = 2; }
+
+    // Scattered trees
+    m[2][21] = 1;
+    m[26][4] = 1;
+    m[26][15] = 1;
+    m[28][20] = 1;
+
+    return m;
+}
+
+const villageMap = buildVillageMap();
 let map = villageMap;
 
-// Interior tiles: 6=Wooden Floor, 7=Wall, 8=Bed, 9=Father's Sword Case
-const interiorMap = [
+// Interior maps (all 15x10, matching their exterior footprints)
+const homeMap = [
     [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
     [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
     [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
@@ -43,11 +95,65 @@ const interiorMap = [
     [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
     [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
     [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
-    [7,7,7,7,7,7,7,6,7,7,7,7,7,7,7]
+    [7,7,7,7,7,7,7,16,7,7,7,7,7,7,7]
 ];
 
-// Current area: 'home' (interior) or 'village'
-let currentArea = 'home';
+const councilMap = [
+    [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+    [7,6,6,19,19,19,19,19,19,19,19,19,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,18,6,6,6,6,6,6,6,6,6,18,6,7],
+    [7,6,6,17,17,17,17,17,17,17,17,17,6,6,7],
+    [7,6,6,17,17,17,17,17,17,17,17,17,6,6,7],
+    [7,6,6,17,17,17,17,17,17,17,17,17,6,6,7],
+    [7,6,18,6,6,6,6,6,6,6,6,6,18,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,7,7,7,7,7,7,16,7,7,7,7,7,7,7]
+];
+
+const homesteadAMap = [
+    [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,8,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,18,17,17,18,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,7,7,7,7,7,7,16,7,7,7,7,7,7,7]
+];
+
+const homesteadBMap = [
+    [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,8,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,18,17,17,18,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,19,6,6,6,6,6,6,6,6,6,6,7],
+    [7,6,6,6,6,6,6,6,6,6,6,6,6,6,7],
+    [7,7,7,7,7,7,7,16,7,7,7,7,7,7,7]
+];
+
+const interiors = {
+    home:       { name: 'Your Home',          map: homeMap,       outside: [35, 13] },
+    council:    { name: 'Council Hall',       map: councilMap,    outside: [10, 13] },
+    homesteadA: { name: "Farmer's Homestead", map: homesteadAMap, outside: [10, 25] },
+    homesteadB: { name: "Weaver's Homestead", map: homesteadBMap, outside: [35, 25] }
+};
+
+const villageDoors = [
+    { tx: 10, ty: 12, interior: 'council' },
+    { tx: 35, ty: 12, interior: 'home' },
+    { tx: 10, ty: 24, interior: 'homesteadA' },
+    { tx: 35, ty: 24, interior: 'homesteadB' }
+];
+
+// Current area: 'village' or 'interior'
+let currentArea = 'village';
+let currentInterior = null;
 const locationNameEl = document.getElementById('location-name');
 
 function placePlayer(tileX, tileY, facing) {
@@ -62,24 +168,47 @@ function placePlayer(tileX, tileY, facing) {
 }
 
 function updateHUD() {
-    locationNameEl.textContent = currentArea === 'home' ? 'Your Home' : 'Elderville Village';
+    locationNameEl.textContent = currentArea === 'village' ? 'Elderville Village' : interiors[currentInterior].name;
 }
 
-function setArea(area) {
-    currentArea = area;
-    if (area === 'home') {
-        map = interiorMap;
-        MAP_WIDTH = 15;
-        MAP_HEIGHT = 10;
-        placePlayer(7, 8, 'down');
-    } else {
-        map = villageMap;
-        MAP_WIDTH = 25;
-        MAP_HEIGHT = 20;
-        placePlayer(17, 4, 'down');
-    }
+function enterInterior(key) {
+    const interior = interiors[key];
+    currentInterior = key;
+    currentArea = 'interior';
+    map = interior.map;
+    MAP_WIDTH = interior.map[0].length;
+    MAP_HEIGHT = interior.map.length;
+    placePlayer(7, 8, 'down');
     updateCamera();
     updateHUD();
+}
+
+function exitInterior() {
+    const interior = interiors[currentInterior];
+    currentArea = 'village';
+    map = villageMap;
+    MAP_WIDTH = VILLAGE_W;
+    MAP_HEIGHT = VILLAGE_H;
+    placePlayer(interior.outside[0], interior.outside[1], 'down');
+    updateCamera();
+    updateHUD();
+}
+
+function villageDoorAt(tx, ty) {
+    for (const d of villageDoors) {
+        if (d.tx === tx && d.ty === ty) return d.interior;
+    }
+    return null;
+}
+
+function checkAreaTransitions() {
+    const t = map[player.tileY] && map[player.tileY][player.tileX];
+    if (currentArea === 'village' && t === 15) {
+        const key = villageDoorAt(player.tileX, player.tileY);
+        if (key) enterInterior(key);
+    } else if (currentArea === 'interior' && t === 16) {
+        exitInterior();
+    }
 }
 
 function nearSwordCase() {
@@ -90,13 +219,6 @@ function nearSwordCase() {
         }
     }
     return false;
-}
-
-function getNearbyHouseEntry() {
-    if (player.tileY === 4 && (player.tileX === 16 || player.tileX === 17) && player.facing === 'up') {
-        return true;
-    }
-    return null;
 }
 
 // Player state
@@ -127,8 +249,8 @@ const npcs = [
     {
         id: 'tinslaire',
         name: 'Tinslaire',
-        tileX: 17,
-        tileY: 3,
+        tileX: 34,
+        tileY: 14,
         color: '#4a90d9',
         dialog: [
             "Brother! You're finally awake.",
@@ -144,8 +266,8 @@ const npcs = [
     {
         id: 'elder1',
         name: 'Elder Marcus',
-        tileX: 3,
-        tileY: 3,
+        tileX: 9,
+        tileY: 14,
         color: '#8b7355',
         dialog: [
             "Ah, Minslaire. The chosen one.",
@@ -161,8 +283,8 @@ const npcs = [
     {
         id: 'elder2',
         name: 'Elder Sarah',
-        tileX: 4,
-        tileY: 3,
+        tileX: 23,
+        tileY: 14,
         color: '#73558b',
         dialog: [
             "The Scrap Bots have been restless lately...",
@@ -193,7 +315,7 @@ function updateCamera() {
 function isSolid(tileX, tileY) {
     if (tileX < 0 || tileX >= MAP_WIDTH || tileY < 0 || tileY >= MAP_HEIGHT) return true;
     const t = map[tileY][tileX];
-    return t === 1 || t === 3 || t === 4 || t === 5 || t === 7 || t === 8 || t === 9;
+    return t === 1 || t === 3 || t === 4 || t === 5 || t === 7 || t === 8 || t === 9 || t === 20;
 }
 
 function getNearbyNPC() {
@@ -224,35 +346,26 @@ window.addEventListener('keydown', (e) => {
                 currentDialog = null;
                 dialogIndex = 0;
             }
-        } else if (currentArea === 'home') {
-            if (player.tileX === 7 && player.tileY === 9) {
-                setArea('village');
-            } else if (nearSwordCase()) {
+        } else if (currentArea === 'interior' && nearSwordCase()) {
+            currentDialog = {
+                source: { spoken: true },
+                name: 'Sword Case',
+                dialog: [
+                    "Your father's blade...",
+                    "Encased in glass the day he and mother vanished.",
+                    "It waits for its master."
+                ]
+            };
+            dialogIndex = 0;
+        } else if (currentArea === 'village') {
+            const npc = getNearbyNPC();
+            if (npc) {
                 currentDialog = {
-                    source: { spoken: true },
-                    name: 'Sword Case',
-                    dialog: [
-                        "Your father's blade...",
-                        "Encased in glass the day he and mother vanished.",
-                        "It waits for its master."
-                    ]
+                    source: npc,
+                    name: npc.name,
+                    dialog: npc.spoken ? (npc.repeatDialog || ['...']) : npc.dialog
                 };
                 dialogIndex = 0;
-            }
-        } else {
-            // Village: enter the red house, otherwise talk to NPCs
-            if (getNearbyHouseEntry()) {
-                setArea('home');
-            } else {
-                const npc = getNearbyNPC();
-                if (npc) {
-                    currentDialog = {
-                        source: npc,
-                        name: npc.name,
-                        dialog: npc.spoken ? (npc.repeatDialog || ['...']) : npc.dialog
-                    };
-                    dialogIndex = 0;
-                }
             }
         }
     }
@@ -413,109 +526,12 @@ function drawTile(tileType, tileX, tileY) {
             ctx.fillRect(screenX + 9, screenY + 9, 2, 6);
             ctx.fillRect(screenX + 17, screenY + 10, 2, 5);
             break;
-        case 3: // Blue House - Council of Elders
+        case 3: // Council (Blue House) - drawn as a full building pass
+        case 4: // Home (Red House)
+        case 20: // Homestead
+            // The building itself is drawn in drawBuildings(); tiles just ground it
             ctx.fillStyle = '#2d5a1e';
             ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Chimney
-            ctx.fillStyle = '#7a5c4a';
-            ctx.fillRect(screenX + 4, screenY + 2, 6, 10);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 4, screenY + 2, 6, 2);
-            // House base
-            ctx.fillStyle = '#4a6fa5';
-            ctx.fillRect(screenX + 2, screenY + 12, 28, 18);
-            // Base shading
-            ctx.fillStyle = '#3d5c8a';
-            ctx.fillRect(screenX + 2, screenY + 26, 28, 4);
-            // Roof
-            ctx.fillStyle = '#8b4513';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 1, screenY + 12);
-            ctx.lineTo(screenX + 16, screenY + 2);
-            ctx.lineTo(screenX + 31, screenY + 12);
-            ctx.fill();
-            ctx.fillStyle = '#a05a1e';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 5, screenY + 9);
-            ctx.lineTo(screenX + 16, screenY + 4);
-            ctx.lineTo(screenX + 27, screenY + 9);
-            ctx.fill();
-            // Door
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 12, screenY + 20, 8, 10);
-            ctx.fillStyle = '#6e4f3e';
-            ctx.fillRect(screenX + 12, screenY + 20, 8, 2);
-            ctx.fillStyle = '#c8a23a';
-            ctx.fillRect(screenX + 18, screenY + 25, 1, 1);
-            // Windows
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(screenX + 6, screenY + 16, 6, 6);
-            ctx.fillRect(screenX + 20, screenY + 16, 6, 6);
-            ctx.fillStyle = '#bde3ff';
-            ctx.fillRect(screenX + 6, screenY + 16, 6, 1);
-            ctx.fillRect(screenX + 20, screenY + 16, 6, 1);
-            // Window panes
-            ctx.fillStyle = '#4a6fa5';
-            ctx.fillRect(screenX + 8, screenY + 16, 2, 6);
-            ctx.fillRect(screenX + 22, screenY + 16, 2, 6);
-            ctx.fillRect(screenX + 6, screenY + 18, 6, 2);
-            ctx.fillRect(screenX + 20, screenY + 18, 6, 2);
-            // Window sills
-            ctx.fillStyle = '#3d5c8a';
-            ctx.fillRect(screenX + 5, screenY + 22, 8, 1);
-            ctx.fillRect(screenX + 19, screenY + 22, 8, 1);
-            break;
-        case 4: // Red House - Minslaire's home
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Chimney
-            ctx.fillStyle = '#7a5c4a';
-            ctx.fillRect(screenX + 4, screenY + 2, 6, 10);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 4, screenY + 2, 6, 2);
-            // House base
-            ctx.fillStyle = '#a54a4a';
-            ctx.fillRect(screenX + 2, screenY + 12, 28, 18);
-            // Base shading
-            ctx.fillStyle = '#8a3a3a';
-            ctx.fillRect(screenX + 2, screenY + 26, 28, 4);
-            // Roof
-            ctx.fillStyle = '#6b2323';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 1, screenY + 12);
-            ctx.lineTo(screenX + 16, screenY + 2);
-            ctx.lineTo(screenX + 31, screenY + 12);
-            ctx.fill();
-            ctx.fillStyle = '#843030';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 5, screenY + 9);
-            ctx.lineTo(screenX + 16, screenY + 4);
-            ctx.lineTo(screenX + 27, screenY + 9);
-            ctx.fill();
-            // Door
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX + 12, screenY + 20, 8, 10);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 12, screenY + 20, 8, 2);
-            ctx.fillStyle = '#c8a23a';
-            ctx.fillRect(screenX + 18, screenY + 25, 1, 1);
-            // Windows with warm light
-            ctx.fillStyle = '#ffd93d';
-            ctx.fillRect(screenX + 6, screenY + 16, 6, 6);
-            ctx.fillRect(screenX + 20, screenY + 16, 6, 6);
-            ctx.fillStyle = '#ffe98a';
-            ctx.fillRect(screenX + 6, screenY + 16, 6, 1);
-            ctx.fillRect(screenX + 20, screenY + 16, 6, 1);
-            // Window panes
-            ctx.fillStyle = '#a54a4a';
-            ctx.fillRect(screenX + 8, screenY + 16, 2, 6);
-            ctx.fillRect(screenX + 22, screenY + 16, 2, 6);
-            ctx.fillRect(screenX + 6, screenY + 18, 6, 2);
-            ctx.fillRect(screenX + 20, screenY + 18, 6, 2);
-            // Window sills
-            ctx.fillStyle = '#8a3a3a';
-            ctx.fillRect(screenX + 5, screenY + 22, 8, 1);
-            ctx.fillRect(screenX + 19, screenY + 22, 8, 1);
             break;
         case 5: // Water - Animated waves with depth
             ctx.fillStyle = '#1e4a5c';
@@ -535,6 +551,173 @@ function drawTile(tileType, tileX, tileY) {
             ctx.fillStyle = '#5a9cc0';
             ctx.fillRect(screenX + 4 + waveOffset * 2, screenY + 6, 3, 1);
             ctx.fillRect(screenX + 20 + waveOffset * 2, screenY + 12, 2, 1);
+            break;
+        case 10: // Grand Gardens - crop rows on dirt
+            ctx.fillStyle = '#5c4326';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#4a3620';
+            ctx.fillRect(screenX, screenY + 15, TILE_SIZE, 2);
+            // Crop rows
+            ctx.fillStyle = '#3a7a2a';
+            ctx.fillRect(screenX + 3, screenY + 4, 3, 11);
+            ctx.fillRect(screenX + 12, screenY + 4, 3, 11);
+            ctx.fillRect(screenX + 21, screenY + 4, 3, 11);
+            ctx.fillStyle = '#2d5a1e';
+            ctx.fillRect(screenX + 3, screenY + 4, 1, 4);
+            ctx.fillRect(screenX + 12, screenY + 4, 1, 4);
+            ctx.fillRect(screenX + 21, screenY + 4, 1, 4);
+            break;
+        case 11: // Central Well
+            ctx.fillStyle = '#2d5a1e';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            // Stone rim
+            ctx.fillStyle = '#8a8a8a';
+            ctx.fillRect(screenX + 6, screenY + 14, 20, 14);
+            ctx.fillStyle = '#a0a0a0';
+            ctx.fillRect(screenX + 6, screenY + 14, 20, 3);
+            ctx.fillStyle = '#5a5a5a';
+            ctx.fillRect(screenX + 6, screenY + 24, 20, 4);
+            // Dark water
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(screenX + 9, screenY + 17, 14, 7);
+            // Posts and roof
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 8, screenY + 2, 3, 12);
+            ctx.fillRect(screenX + 21, screenY + 2, 3, 12);
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(screenX + 4, screenY, 24, 4);
+            // Bucket
+            ctx.fillStyle = '#3a3a3a';
+            ctx.fillRect(screenX + 14, screenY + 8, 4, 5);
+            break;
+        case 12: // The Forge
+            ctx.fillStyle = '#2d5a1e';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            // Chimney
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(screenX + 20, screenY + 6, 8, 10);
+            ctx.fillStyle = '#8a5a2a';
+            ctx.fillRect(screenX + 20, screenY + 8, 8, 2);
+            // Stone base
+            ctx.fillStyle = '#5a5a5a';
+            ctx.fillRect(screenX + 4, screenY + 16, 24, 14);
+            ctx.fillStyle = '#6e6e6e';
+            ctx.fillRect(screenX + 4, screenY + 16, 24, 2);
+            // Fire opening
+            ctx.fillStyle = '#2a0f0f';
+            ctx.fillRect(screenX + 8, screenY + 20, 16, 8);
+            ctx.fillStyle = '#ff8c2a';
+            ctx.fillRect(screenX + 10, screenY + 22, 12, 4);
+            ctx.fillStyle = '#ffd93d';
+            ctx.fillRect(screenX + 12, screenY + 24, 8, 2);
+            // Anvil
+            ctx.fillStyle = '#3a3a3a';
+            ctx.fillRect(screenX + 2, screenY + 20, 5, 8);
+            ctx.fillStyle = '#555';
+            ctx.fillRect(screenX + 1, screenY + 18, 7, 3);
+            break;
+        case 13: // Market stall
+            ctx.fillStyle = '#2d5a1e';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            // Counter
+            ctx.fillStyle = '#6b4a2f';
+            ctx.fillRect(screenX + 2, screenY + 18, 28, 10);
+            ctx.fillStyle = '#7a5c3a';
+            ctx.fillRect(screenX + 2, screenY + 18, 28, 2);
+            // Goods
+            ctx.fillStyle = '#ff6b9d';
+            ctx.fillRect(screenX + 6, screenY + 14, 4, 4);
+            ctx.fillStyle = '#ffd93d';
+            ctx.fillRect(screenX + 12, screenY + 14, 4, 4);
+            ctx.fillStyle = '#7cc86b';
+            ctx.fillRect(screenX + 18, screenY + 14, 4, 4);
+            // Awning
+            ctx.fillStyle = '#c93838';
+            ctx.fillRect(screenX + 2, screenY + 4, 28, 8);
+            ctx.fillStyle = '#e05656';
+            ctx.fillRect(screenX + 2, screenY + 4, 28, 2);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(screenX + 2, screenY + 10, 28, 2);
+            break;
+        case 14: // Watchtower
+            ctx.fillStyle = '#2d5a1e';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            // Lookout platform
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 6, screenY, 20, 3);
+            // Tower base
+            ctx.fillStyle = '#8a6a44';
+            ctx.fillRect(screenX + 8, screenY + 14, 16, 16);
+            ctx.fillStyle = '#9a7a54';
+            ctx.fillRect(screenX + 8, screenY + 14, 16, 2);
+            // Ladder
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 9, screenY + 2, 2, 12);
+            ctx.fillRect(screenX + 21, screenY + 2, 2, 12);
+            ctx.fillStyle = '#6e4f3e';
+            for (let r = 2; r <= 12; r += 3) {
+                ctx.fillRect(screenX + 9, screenY + r, 14, 2);
+            }
+            break;
+        case 15: // Village door - drawn in drawDoors() after buildings
+            break;
+        case 16: // Exit mat (interior door)
+            ctx.fillStyle = '#7a5c3a';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            // Door frame
+            ctx.fillStyle = '#4a3020';
+            ctx.fillRect(screenX, screenY, 2, TILE_SIZE);
+            ctx.fillRect(screenX + 30, screenY, 2, TILE_SIZE);
+            // Mat
+            ctx.fillStyle = '#3d2b1e';
+            ctx.fillRect(screenX + 5, screenY + 12, 22, 16);
+            ctx.fillStyle = '#5a3f2a';
+            ctx.fillRect(screenX + 7, screenY + 14, 18, 12);
+            ctx.fillStyle = '#4a3020';
+            ctx.fillRect(screenX + 9, screenY + 16, 14, 2);
+            ctx.fillRect(screenX + 9, screenY + 21, 14, 2);
+            break;
+        case 17: // Table
+            ctx.fillStyle = '#7a5c3a';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#8a6a44';
+            ctx.fillRect(screenX + 4, screenY + 12, 24, 6);
+            ctx.fillStyle = '#9a7a54';
+            ctx.fillRect(screenX + 4, screenY + 12, 24, 2);
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 6, screenY + 18, 3, 12);
+            ctx.fillRect(screenX + 23, screenY + 18, 3, 12);
+            break;
+        case 18: // Chair
+            ctx.fillStyle = '#7a5c3a';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#8a6a44';
+            ctx.fillRect(screenX + 8, screenY + 18, 16, 6);
+            ctx.fillStyle = '#6b4a2f';
+            ctx.fillRect(screenX + 8, screenY + 8, 4, 10);
+            ctx.fillRect(screenX + 20, screenY + 8, 4, 10);
+            ctx.fillRect(screenX + 8, screenY + 8, 16, 2);
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 9, screenY + 24, 2, 6);
+            ctx.fillRect(screenX + 21, screenY + 24, 2, 6);
+            break;
+        case 19: // Bookshelf
+            ctx.fillStyle = '#7a5c3a';
+            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(screenX + 4, screenY + 2, 24, 28);
+            ctx.fillStyle = '#6e4f3e';
+            ctx.fillRect(screenX + 4, screenY + 2, 24, 2);
+            const bookColors = ['#c93838', '#4a6fa5', '#7cc86b', '#ffd93d', '#8b7355'];
+            for (let row = 0; row < 3; row++) {
+                const by = screenY + 5 + row * 8;
+                ctx.fillStyle = '#5c4033';
+                ctx.fillRect(screenX + 6, by, 20, 6);
+                for (let b = 0; b < 4; b++) {
+                    ctx.fillStyle = bookColors[(b + row) % bookColors.length];
+                    ctx.fillRect(screenX + 7 + b * 5, by + 1, 4, 5);
+                }
+            }
             break;
         case 6: // Wooden floor
             ctx.fillStyle = '#7a5c3a';
@@ -1014,18 +1197,10 @@ function drawInteractPrompt() {
     if (currentDialog || player.isMoving) return;
 
     let label = null;
-    if (currentArea === 'home') {
-        if (player.tileX === 7 && player.tileY === 9) {
-            label = '[E] Leave Home';
-        } else if (nearSwordCase()) {
-            label = '[E] Inspect';
-        }
-    } else {
-        if (getNearbyHouseEntry()) {
-            label = '[E] Enter';
-        } else if (getNearbyNPC()) {
-            label = '[E] Talk';
-        }
+    if (currentArea === 'interior') {
+        if (nearSwordCase()) label = '[E] Inspect';
+    } else if (getNearbyNPC()) {
+        label = '[E] Talk';
     }
 
     if (label) {
@@ -1049,13 +1224,115 @@ function drawTiles() {
     }
 }
 
+// Buildings occupy a 15x10 footprint, exactly matching their interiors.
+// Each building is drawn as one unit from its root tile so it can be seen
+// even when the camera only shows part of it.
+function drawBuilding(screenX, screenY, type) {
+    const c = {
+        3: { wall: '#4a6fa5', wallDark: '#3d5c8a', roof: '#8b4513', roofLight: '#a05a1e' },
+        4: { wall: '#a54a4a', wallDark: '#8a3a3a', roof: '#6b2323', roofLight: '#843030' },
+        20: { wall: '#c0a078', wallDark: '#a58560', roof: '#5c6b2a', roofLight: '#6e7d36' }
+    }[type];
+
+    const bw = 15 * TILE_SIZE;
+    const bh = 10 * TILE_SIZE;
+
+    // Grass base
+    ctx.fillStyle = '#2d5a1e';
+    ctx.fillRect(screenX, screenY, bw, bh);
+
+    // Walls
+    ctx.fillStyle = c.wall;
+    ctx.fillRect(screenX, screenY + 100, bw, bh - 112);
+    // Wall shading and trim
+    ctx.fillStyle = c.wallDark;
+    ctx.fillRect(screenX, screenY + 160, bw, 3);
+    ctx.fillRect(screenX, screenY + bh - 24, bw, 12);
+    // Foundation
+    ctx.fillStyle = '#6b5344';
+    ctx.fillRect(screenX, screenY + bh - 14, bw, 14);
+
+    // Roof
+    ctx.fillStyle = c.roof;
+    ctx.beginPath();
+    ctx.moveTo(screenX + 6, screenY + 100);
+    ctx.lineTo(screenX + bw / 2, screenY + 30);
+    ctx.lineTo(screenX + bw - 6, screenY + 100);
+    ctx.fill();
+    ctx.fillStyle = c.roofLight;
+    ctx.beginPath();
+    ctx.moveTo(screenX + bw / 2 - 70, screenY + 82);
+    ctx.lineTo(screenX + bw / 2, screenY + 42);
+    ctx.lineTo(screenX + bw / 2 + 70, screenY + 82);
+    ctx.fill();
+
+    // Chimney
+    ctx.fillStyle = '#7a5c4a';
+    ctx.fillRect(screenX + bw - 130, screenY + 48, 22, 34);
+    ctx.fillStyle = '#5c4033';
+    ctx.fillRect(screenX + bw - 130, screenY + 48, 22, 6);
+
+    // Windows
+    for (let i = 0; i < 5; i++) {
+        const wx = screenX + 40 + i * 86;
+        const wy = screenY + 124;
+        ctx.fillStyle = type === 4 ? '#ffd93d' : '#87ceeb';
+        ctx.fillRect(wx, wy, 44, 34);
+        ctx.fillStyle = '#bde3ff';
+        ctx.fillRect(wx, wy, 44, 3);
+        ctx.fillStyle = c.wallDark;
+        ctx.fillRect(wx + 21, wy, 3, 34);
+        ctx.fillRect(wx, wy + 15, 44, 3);
+    }
+}
+
+function drawBuildings() {
+    for (let ty = 0; ty < MAP_HEIGHT; ty++) {
+        for (let tx = 0; tx < MAP_WIDTH; tx++) {
+            const t = map[ty][tx];
+            if (t !== 3 && t !== 4 && t !== 20) continue;
+            if (map[ty - 1] && map[ty - 1][tx] === t) continue;
+            if (map[ty] && map[ty][tx - 1] === t) continue;
+
+            const bx = tx * TILE_SIZE - camera.x * TILE_SIZE;
+            const by = ty * TILE_SIZE - camera.y * TILE_SIZE;
+            const bw = 15 * TILE_SIZE;
+            const bh = 10 * TILE_SIZE;
+            if (bx + bw < 0 || bx > canvas.width || by + bh < 0 || by > canvas.height) continue;
+            drawBuilding(bx, by, t);
+        }
+    }
+}
+
+function drawDoor(screenX, screenY) {
+    // Open doorway over the building wall
+    ctx.fillStyle = '#1a120c';
+    ctx.fillRect(screenX + 5, screenY + 4, 22, 26);
+    ctx.fillStyle = '#2a1d14';
+    ctx.fillRect(screenX + 7, screenY + 6, 18, 22);
+    // Threshold
+    ctx.fillStyle = '#8a8a8a';
+    ctx.fillRect(screenX + 2, screenY + 29, 28, 3);
+}
+
+function drawDoors() {
+    for (const d of villageDoors) {
+        const sx = d.tx * TILE_SIZE - camera.x * TILE_SIZE;
+        const sy = d.ty * TILE_SIZE - camera.y * TILE_SIZE;
+        if (sx < -TILE_SIZE || sx > canvas.width || sy < -TILE_SIZE || sy > canvas.height) continue;
+        drawDoor(sx, sy);
+    }
+}
+
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawTiles();
 
-    // NPCs only exist in the village, never inside interiors
+    // Buildings, doors, and NPCs only exist in the village
     if (currentArea === 'village') {
+        drawBuildings();
+        drawDoors();
         for (const npc of npcs) {
             drawNPC(npc);
         }
@@ -1074,6 +1351,7 @@ function render() {
 function update() {
     handleInput();
     updatePlayer();
+    checkAreaTransitions();
 }
 
 function loop() {
@@ -1082,5 +1360,5 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-setArea('home');
+enterInterior('home');
 loop();

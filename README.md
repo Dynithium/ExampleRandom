@@ -4,9 +4,9 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 
 ## Features
 - Wake up inside Minslaire's home, with two beds and your father's sword in a glass case
-- Walk around a village with houses
-- Talk to NPCs (Elder Moss, Elder Sage, Elder Thorn, Tinslaire)
-- Enter and exit your home (press E in front of the door)
+- Walk around a village with districts: Council of Elders (Blue House), Red House, homesteads, Grand Gardens, Central Well, Forge, Marketplace, and the Eastern Gate Watchtower
+- Enter and exit buildings by walking through their doors
+- Talk to NPCs (Tinslaire, Elder Marcus, Elder Sarah)
 - Fight Scrap Bots with sword combat, dodging, and blocking
 - Complete missions guided by the yellow arrow
 - Respawn at the Safe Camp (Red House) if defeated
@@ -14,11 +14,11 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 ## Controls
 - **Arrow Keys** or **WASD**: Move
 - **SPACE** or **J**: Attack
-- **E**: Talk / Interact
+- **E**: Talk / Inspect
 - **SHIFT + Direction**: Dodge
 - **R**: Block
 - **SHIFT (while moving)**: Sprint
-- **E**: Enter/exit your home
+- Walk onto a door tile to enter/exit buildings
 
 ## Run
 Open `index.html` in your browser.

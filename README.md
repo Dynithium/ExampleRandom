@@ -3,9 +3,10 @@
 A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots, and survive in your life suit. This is the **prototype** for a larger trilogy—see [gameplay.md](gameplay.md), [story.md](story.md), and [locations.md](locations.md) for the full vision.
 
 ## Features
+- Wake up inside Minslaire's home, with two beds and your father's sword in a glass case
 - Walk around a village with houses
 - Talk to NPCs (Elder Moss, Elder Sage, Elder Thorn, Tinslaire)
-- Enter houses (walk into door tiles)
+- Enter and exit your home (press E in front of the door)
 - Fight Scrap Bots with sword combat, dodging, and blocking
 - Complete missions guided by the yellow arrow
 - Respawn at the Safe Camp (Red House) if defeated
@@ -17,7 +18,7 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 - **SHIFT + Direction**: Dodge
 - **R**: Block
 - **SHIFT (while moving)**: Sprint
-- **Walk into door**: Enter/Exit houses
+- **E**: Enter/exit your home
 
 ## Run
 Open `index.html` in your browser.

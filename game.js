@@ -67,6 +67,9 @@ const npcs = [
             "They speak of an ancient artifact... the Elemental Box.",
             "Please, be careful out there."
         ],
+        repeatDialog: [
+            "Speak with the Elders when you're ready."
+        ],
         spoken: false
     },
     {
@@ -81,6 +84,9 @@ const npcs = [
             "The time has come to retrieve it.",
             "Follow the path north. The box awaits."
         ],
+        repeatDialog: [
+            "The Elemental Box awaits. Follow the path north."
+        ],
         spoken: false
     },
     {
@@ -94,6 +100,9 @@ const npcs = [
             "Something stirs in the old ruins.",
             "Trust in your blade, young one.",
             "And trust in us."
+        ],
+        repeatDialog: [
+            "Trust in your blade, young one."
         ],
         spoken: false
     }
@@ -142,6 +151,7 @@ window.addEventListener('keydown', (e) => {
             // Advance dialog
             dialogIndex++;
             if (dialogIndex >= currentDialog.dialog.length) {
+                currentDialog.source.spoken = true;
                 currentDialog = null;
                 dialogIndex = 0;
             }
@@ -149,7 +159,11 @@ window.addEventListener('keydown', (e) => {
             // Try to start dialog
             const npc = getNearbyNPC();
             if (npc) {
-                currentDialog = npc;
+                currentDialog = {
+                    source: npc,
+                    name: npc.name,
+                    dialog: npc.spoken ? (npc.repeatDialog || ['...']) : npc.dialog
+                };
                 dialogIndex = 0;
             }
         }

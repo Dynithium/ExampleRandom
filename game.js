@@ -734,10 +734,7 @@ function drawInteractPrompt() {
     }
 }
 
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw visible tiles
+function drawTiles() {
     for (let ty = 0; ty < camera.height; ty++) {
         for (let tx = 0; tx < camera.width; tx++) {
             const mapX = camera.x + tx;
@@ -748,10 +745,18 @@ function render() {
             }
         }
     }
+}
 
-    // Draw NPCs
-    for (const npc of npcs) {
-        drawNPC(npc);
+function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawTiles();
+
+    // NPCs only exist in the village, never inside interiors
+    if (currentArea === 'village') {
+        for (const npc of npcs) {
+            drawNPC(npc);
+        }
     }
 
     // Draw player

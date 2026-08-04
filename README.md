@@ -1,6 +1,6 @@
-# Elderville - Village Prototype
+# Minslaire - Village Prototype
 
-A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots, and survive in your life suit. This is the **prototype** for a larger trilogy—see [gameplay.md](gameplay.md), [story.md](story.md), and [locations.md](locations.md) for the full vision.
+A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots, and survive in your life suit. This is the **prototype** for the first entry of a trilogy—*Minslaire*, *Minslaire II: Ascendence*, and *Minslaire III: Transcendence*. See [gameplay.md](gameplay.md), [story.md](story.md), and [locations.md](locations.md) for the full vision.
 
 ## Features
 - Wake up inside Minslaire's home, with two beds and your father's sword in a glass case
@@ -24,7 +24,7 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 Open `index.html` in your browser.
 
 ## Full Vision
-This prototype is the first step toward a **three-game trilogy** with a deep narrative, expanded locations, and elemental powers. See the design docs for details:
+This prototype is the first step toward the **Minslaire trilogy**—*Minslaire*, *Minslaire II: Ascendence*, *Minslaire III: Transcendence*—with a deep narrative, expanded locations, and elemental powers. See the design docs for details:
 - [Gameplay & Mechanics](gameplay.md)
 - [Story & Lore](story.md)
 - [Locations & World](locations.md)

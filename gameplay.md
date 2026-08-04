@@ -1,15 +1,96 @@
 # Gameplay
 
-> **Note:** This document describes the full vision for *Elderville*. Features will be added incrementally as development progresses.
+> **Note:** This document describes the full vision for the *Minslaire* trilogy. Features will be added incrementally as development progresses.
 
 ## Overview
 
-*Elderville* is a classic top-down pixel-art action RPG with a whimsical tone and deep lore. You play as **Minslaire**, a young villager living with your younger brother **Tinslaire** in the red house west of the council's Blue House. The elders—who secretly activated the Scrap Bots to trigger the blue light beacon revealing the artifact's location—have tasked you with retrieving the **Elemental Box**. 
+*Minslaire* is a classic top-down pixel-art action RPG with a whimsical tone and deep lore. You play as **Minslaire**, a young villager living with your younger brother **Tinslaire** in the red house west of the council's Blue House. The elders—who secretly activated the Scrap Bots to trigger the blue light beacon revealing the artifact's location—have tasked you with retrieving the **Elemental Box**.
 
 This begins an epic trilogy:
-- **Game 1 (Elderville):** The elders betray you, using the box to upgrade themselves. You blow up the box, granting everyone elemental powers, but only you and Tinslaire absorb all the elements. Tinslaire kills the elders, and you are blasted into a remote mountain village.
-- **Game 2:** You wake up 5 years later to fight **Neegabla** (your nihilistic brother Tinslaire who overthrew the elders and wields all elements). After defeating him, you reconcile and vow to find life's purpose.
-- **Game 3:** Your journey for purpose culminates in discovering the truth of Islam, the ultimate answer to your quest for meaning.
+- **Minslaire (The Betrayal):** The elders betray you, using the box to upgrade themselves. You blow up the box, granting everyone elemental powers, but only you and Tinslaire absorb all the elements. Tinslaire kills the elders, and you are blasted into a remote mountain village.
+- **Minslaire II: Ascendence:** You wake up 5 years later to fight **Neegabla** (your nihilistic brother Tinslaire who overthrew the elders and wields all elements). After defeating him, you reconcile and vow to find life's purpose.
+- **Minslaire III: Transcendence:** Your journey for purpose culminates in discovering the truth of Islam, the ultimate answer to your quest for meaning.
+
+---
+
+# Minslaire — The Betrayal: Complete Design
+
+## Progression Model
+
+Minslaire is built around **one loop** that deepens as it repeats:
+
+1. **Learn** — talk to someone, hear the hum, find a new tool or technique.
+2. **Help** — serve the village (side quests), earn trust and gear.
+3. **Hunt** — push into the forest, fight the machines.
+4. **Return** — bring something back (a lesson, a keepsake, the box).
+5. **The twist** — the loop's reward is stolen, and the story turns.
+
+The player is guided by the **yellow arrow** and the **mission bar** (top right). Missed/optional content is marked with a soft white arrow instead of yellow.
+
+## Act 1 — The Calling (Village, tutorial + prep)
+
+### Opening: Wake in the Red House
+- Spawn at the Red House interior. Two beds, father's sword in a glass case, the table with Tinslaire's wooden bird.
+- **Tutorial beats (scripted, unmissable):**
+  1. *Move* — walk to the window and back.
+  2. *Talk* — interact with Tinslaire (E). He gives you the wooden bird, which becomes an inventory keepsake.
+  3. *Leave* — exit the door. A short auto-dialogue marks the meeting at the Blue House.
+
+### Required Side Quests (unlock the main chain)
+> The four quests teach combat, stamina, blocking, and dodging while weaving the world's themes. They must be completed to open the Eastern Gate.
+
+| Quest | Giver | Objective | Teaches | Theme Seed |
+|---|---|---|---|---|
+| **Tinslaire's Keepsake** | Tinslaire | Find his wooden bird near the Grand Gardens | Movement, E-interact with world objects | Trust; love that returns |
+| **The Well's Echo** | Elder Moss | Investigate rumblings beneath the Central Well | Stealth-ish approach, careful observation | The elders are hiding something; the village is not as peaceful as it seems |
+| **Perimeter Sweep** | Elder Thorn | Defeat 2 Scrap Drones near the Eastern Gate | First combat, dodge, basic slash | Your strength is a debt to the village |
+| **Marketplace Supply Run** | Bazaar Trader | Carry crops from the Grand Gardens to the Market stalls | Stamina management, sprint | Provision; the hum guides you home |
+
+### The Pre-Forest Hinge
+After all four quests, meet Elder Thorn at the **Watchtower** at night. He admits he voted against sending you and warns: *"Whatever is out there, Minslaire, it is not the danger. We are."* This is the first hard seed of the betrayal. The gate opens.
+
+## Act 2 — The Forest (combat gauntlet)
+
+Four linked zones with an escalating boss. Each zone ends with a **quiet beat** (a forced stop, a found object, a moment of stillness) that reinforces the themes without combat.
+
+| Zone | Enemies | Mini/Boss | Quiet Beat |
+|---|---|---|---|
+| **The Outskirts** | Scrap Drones (x2–3) | — | A child's shoe in a mossy clearing |
+| **The Midden** | Rust Bots (x2), mixed drones | Rust Watcher (elite Rust Bot) | **The Stillness** — your suit goes silent for one breath |
+| **The River Crossing** | Drones + Rust Bots | **Heavy Mech** (boss) | The fallen bridge; the water below |
+| **The Far Forest** | Vanguard Bots (x2–3), watchers | Vanguard patrol (two simultaneously) | The box's grove; the hum changes |
+
+### Boss: Heavy Mech
+- 60 HP. Very slow, one-shots if it lands a hit.
+- **Patterns:** (1) slow wind-up charge (dodge sideways), (2) sweeping arm arc (block), (3) exposed core after a miss (attack window).
+- **Lesson:** patience. The fight is won by *not* swinging first.
+
+### The Elemental Box (scripted scene)
+- No combat. Walking to the pedestal triggers a cutscene: the grove goes silent, the suit's hum leans toward the box, the box opens on its own.
+- The voice speaks: *"You were told this was a vessel of power... The ones who sent you will show you what they truly serve."*
+- The return trip has **no random encounters** — the machines go still, as if waiting. This should feel *wrong*.
+
+## Act 3 — The Ambush (the turn)
+
+### The Blue House Confrontation
+- Entering the Blue House with the box locks the doors and triggers the scene: Moss cold, Sage reading from the recovered vault screen, Thorn silent.
+- **The Struggle (QT event):** Hold E to keep hold of the box. If released, the elders take it first (a failure variant that still leads to the detonation, just with the box in Moss's hands).
+- **The Detonation (scripted):** The box explodes into elemental energy. Cutscene only. You and Tinslaire absorb all elements; the elders get fragments (Moss=fire/unstable, Sage=air/half-formed, Thorn=nothing).
+
+### Boss: The Elders
+- **Fight type:** Arena battle inside the Blue House (interior transforms into a combat arena).
+- **Stages:**
+  1. **Elder Moss** (fire, unstable) — telegraphed flame columns, staggers himself after each cast. 40 HP.
+  2. **Elder Sage** (air, half-formed) — gusts that push you, but his own attacks knock him off-balance. 30 HP.
+  3. **Elder Thorn** (no power) — fights with grief and a blade. He doesn't want to hurt you; his HP is the lowest (25) and he stops when Tinslaire arrives.
+- **Cutscene:** Moss's final fire blast → **Tinslaire steps in front of it** → the elements answer his grief and the elders fall. Tinslaire's first kill is a mercy he did not intend.
+
+### The Exile (epilogue)
+- A wave of energy throws you out of the Blue House, over the hills. Screen fades.
+- **Wake:** remote mountain village, suit hums, wooden bird on your chest, Tinslaire absent.
+- **Post-credits hook (text):** *"Five years later, in the ruins of the Blue House, a name is whispered: Neegabla."*
+
+---
 
 ## Controls
 
@@ -31,6 +112,8 @@ This begins an epic trilogy:
 - **Central Well**: Mechanical rumblings (foreshadowing Scrap Bots).
 - **Combat**: Sword slashes, enemy clanks, dodge rolls, blocking sounds.
 - **Eastern Forest**: Wind howling, distant metallic scrapes.
+- **The Stillness**: In the Midden, the hum drops out for one breath — pure wind and heartbeat.
+- **The Box**: A deep, breathing hum that overrides the suit's hum during the grove scene.
 
 ## HUD
 
@@ -40,22 +123,13 @@ The user interface displays three important stats:
 - **ST (Stamina)** — Used while sprinting or dodging. Recovers slowly over time when not in use.
 - **Beasts Slain** — A running count of scrap bots you have defeated.
 - **Mission Bar** (top right) — Shows your current objective and progress.
+- **Soft goal marker (white arrow)** — optional/side content only.
 
 ## Mission System
 
 The game guides you through Elderville with a series of missions. A glowing **yellow arrow** appears on screen pointing toward your current goal when it's off-screen. When you're near the objective, the arrow disappears.
 
-### Village Side Quests (Required Pre-Adventure)
-Before embarking on the dangerous journey into the Eastern Forest, Minslaire must complete the following side quests across the massive settlement of Elderville:
-
-1. **Tinslaire's Keepsake** — Help your younger brother find his carved wooden toy near the Greenhouse Terraces.
-2. **The Well’s Echo** — Investigate strange mechanical rumblings beneath the Central Well with Elder Moss.
-3. **Perimeter Sweep** — Assist Elder Moss by clearing out stray scrap drones hovering near the Eastern Gate.
-4. **Marketplace Supply Run** — Gather rare crop ingredients from the Agricultural Outskirts for the Bazaar traders.
-
-> **Note:** These side quests are required to unlock the main mission chain and prepare you for the journey ahead.
-
-### Main Mission List
+### Minslaire Main Mission List (full chain)
 
 | # | Mission | Description |
 |---|---------|-------------|
@@ -63,14 +137,16 @@ Before embarking on the dangerous journey into the Eastern Forest, Minslaire mus
 | 2 | Talk to Elder Moss | The council has called a meeting. Find Elder Moss near the Blue House. |
 | 3 | Talk to Elder Sage | Elder Sage has studied the old records. He waits near the garden. |
 | 4 | Talk to Elder Thorn | Elder Thorn has final words for you before you enter the forest. |
-| 5 | Enter the Forest | Cross into the eastern forest. Defeat 2 Scrap Drones. |
-| 6 | Push Deeper | Rust Bots guard the middle forest. Clear a path. |
-| 7 | Cross the River | A Heavy Mech blocks the river crossing. Defeat it to proceed. |
-| 8 | Reach the Far Forest | Vanguard Bots patrol the far side. Push through to find the box. |
-| 9 | Find the Elemental Box | You've cleared the forest. Search for the artifact at the river's end. |
-| 10 | Return to Elderville | You have the box. Bring it home to upgrade your life suit with elemental powers. |
-
-Complete all missions to retrieve the Elemental Box and save Elderville.
+| 5 | Complete the Village Tasks | Help Tinslaire, the well, the gate, and the marketplace. *(opens the gate)* |
+| 6 | Talk to Elder Thorn at the Watchtower | His warning at night; the gate opens. |
+| 7 | Enter the Forest | Cross into the eastern forest. Defeat 2 Scrap Drones. |
+| 8 | Push Deeper | Rust Bots guard the middle forest. Clear a path. |
+| 9 | Cross the River | A Heavy Mech blocks the river crossing. Defeat it to proceed. |
+| 10 | Reach the Far Forest | Vanguard Bots patrol the far side. Push through to find the box. |
+| 11 | Find the Elemental Box | You've cleared the forest. Search for the artifact at the river's end. |
+| 12 | Return to Elderville | You have the box. Bring it home. *(the ambush begins on arrival)* |
+| 13 | The Blue House | Face the council. *(arena boss)* |
+| 14 | The Exile | End of Minslaire. |
 
 ## Combat
 
@@ -83,6 +159,7 @@ Complete all missions to retrieve the Elemental Box and save Elderville.
 - If an enemy touches you, you lose **12 HP** and become briefly invulnerable (unless blocking).
 - Against formidable foes like the Heavy Mech guarding the river, mastering dodging and blocking is key to survival.
 - Right before locating the Elemental Box in the far forest, you must survive a grueling combat gauntlet.
+- **The final fight is not about skill alone** — it is a boss the story turns around. The Elders fight is the emotional and mechanical climax; the dodge/block muscle memory the player built against the machines is what lets them survive the council's elemental flailing.
 
 ## Enemy Types
 
@@ -92,13 +169,17 @@ Complete all missions to retrieve the Elemental Box and save Elderville.
 | Rust Bot | 35 | Slow | Sturdy walker that wanders until it spots you | Block their charges |
 | Vanguard Bot | 40 | Medium | Agile sentinel found near the eastern river | Stagger if hit twice in quick succession |
 | Heavy Mech | 60 | Very Slow | Powerful tank with high health; one-shots if it lands a hit | Dodge its charged attack |
+| Rust Watcher | 45 | Slow | Elite Rust Bot guarding the Midden | Break its guard with two hits |
+| Elder Moss | 40 | Medium | Fire columns, staggers after casting | Attack during his stagger |
+| Elder Sage | 30 | Medium | Air gusts that push you | His attacks knock him off-balance |
+| Elder Thorn | 25 | Fast | Blade fighter, grief-stricken | Outlast; he stops when Tinslaire arrives |
 
 ## Characters
 
-- **Tinslaire** — Minslaire's younger brother. Found in the Red House. He's too young to fight but encourages you before your quest. His innocence hides a future as Neegabla, the nihilistic ruler of Game 2.
-- **Elder Moss** — The watcher. He found the old records mentioning the Elemental Box. Found near the Blue House. His urgency to retrieve the box hides a darker motive.
-- **Elder Sage** — The scholar. He studies the life suits and believes the box holds the key. Found near the garden.
-- **Elder Thorn** — The protector. He warns against recklessness but trusts the council's judgment. His loyalty will be tested.
+- **Tinslaire** — Minslaire's younger brother. Found in the Red House. He's too young to fight but encourages you before your quest. His innocence hides a future as Neegabla, the nihilistic ruler of Minslaire II: Ascendence.
+- **Elder Moss** — The watcher. He found the old records mentioning the Elemental Box. Found near the Blue House. His urgency to retrieve the box hides a darker motive. In Minslaire he is the architect of the betrayal and the first elder to fall.
+- **Elder Sage** — The scholar. He studies the life suits and believes the box holds the key. Found near the garden. He deciphered the vault records and confirms the box's power—right up to the moment he reaches for it.
+- **Elder Thorn** — The protector. He warns against recklessness but trusts the council's judgment. His loyalty will be tested. He is the conflicted elder: he voted against sending you, warns you at the watchtower, and falls last—without power, holding only grief.
 
 ## Elderville: Village Layout
 
@@ -106,7 +187,7 @@ Elderville is a **massive, sprawling settlement** divided into distinct district
 
 ### 1. The Upper Ward (Administrative Center)
 - **The Blue House**: The largest building in Elderville, painted deep blue. This is where the Council of Elders gathers around a massive oak table and hearth. Confronting the elders here transforms the interior into a combat arena.
-- **The Council Archives**: A subterranean vault containing pre-WW3 records and the dual-function remote beacon used to trigger the Scrap Bots and reveal the Elemental Box.
+- **The Council Archives**: A subterranean vault containing pre-WW3 records and the dual-function remote beacon used to trigger the Scrap Bots and reveal the Elemental Box. The records Elder Sage reads from in the ambush scene come from here.
 
 ### 2. The Residential Quarters (The Red District)
 - **Minslaire & Tinslaire's House (Red House)**: A cozy, worn home with two beds and a family heirloom blade by the door. This is also the **Safe Camp**, where Minslaire respawns if defeated.
@@ -114,13 +195,13 @@ Elderville is a **massive, sprawling settlement** divided into distinct district
 
 ### 3. The Agricultural Outskirts (Greenhouse Terraces)
 - **The Grand Gardens**: Producing crop yields essential for village survival under the canopy.
-- **The Central Well**: A deep water source near the treeline hiding strange mechanical reverberations. The source of the **Well’s Echo** side quest.
+- **The Central Well**: A deep water source near the treeline hiding strange mechanical reverberations. The source of the **Well's Echo** side quest.
 
 ### 4. The Artisan & Blacksmith District
 - **The Forge & Workshops**: Where villagers repair tools, forge basic melee weapons, and craft gear for the brave ones venturing out.
 
 ### 5. The Eastern Gate & Guard Post
-- **The Watchtower**: Stationed by Elder Moss, overlooking the barricaded border leading directly into the dangerous Eastern Forest. The starting point for the **Perimeter Sweep** side quest.
+- **The Watchtower**: Stationed by Elder Moss, overlooking the barricaded border leading directly into the dangerous Eastern Forest. The starting point for the **Perimeter Sweep** side quest and the site of Elder Thorn's night warning.
 
 ### 6. The Southern Marketplace & Bazaar
 - **The Trading Post**: A lively plaza where villagers trade supplies, share rumors, and pick up local community tasks and side quests from the village board. The hub for the **Marketplace Supply Run** side quest.
@@ -130,16 +211,16 @@ Elderville is a **massive, sprawling settlement** divided into distinct district
 1. **Wake Up in Red House**: Minslaire starts in his home. Tinslaire is asleep or playing with a wooden toy.
    - **Tutorial**: Move around (WASD/arrows), talk to Tinslaire (E), exit the house (walk into door).
 
-2. **Explore the Village**: Talk to villagers to learn about the life suits, the elders’ meeting, and the strange noises in the well.
-   - **Optional**: Complete **Tinslaire’s Keepsake** (find his toy near the Grand Gardens) to unlock a hint about the elders’ betrayal (e.g., Tinslaire says, *"Elder Moss was acting weird yesterday…"*).
+2. **Explore the Village**: Talk to villagers to learn about the life suits, the elders' meeting, and the strange noises in the well.
+   - **Optional**: Complete **Tinslaire's Keepsake** (find his toy near the Grand Gardens) to unlock a hint about the elders' betrayal (e.g., Tinslaire says, *"Elder Moss was acting weird yesterday…"*).
 
 3. **Meet the Elders**:
    - Elder Moss near the Blue House gives the first mission: *"The council has called a meeting. Talk to Elder Sage."*
    - Elder Sage reveals the **Elemental Box** and its location in the Eastern Forest.
-   - Elder Thorn warns: *"The forest is deadly. But if you’re to go, you’ll need to be prepared."*
+   - Elder Thorn warns: *"The forest is deadly. But if you're to go, you'll need to be prepared."*
 
 4. **Side Quests (Required)**:
-   - **The Well’s Echo**: Investigate the Central Well with Elder Moss. Discover mechanical rumblings (Scrap Bots stirring).
+   - **The Well's Echo**: Investigate the Central Well with Elder Moss. Discover mechanical rumblings (Scrap Bots stirring).
    - **Perimeter Sweep**: Assist Elder Moss by clearing 2 Scrap Drones near the Eastern Gate (first combat tutorial).
    - **Marketplace Supply Run**: Gather crops for the Bazaar. Introduces stamina management (sprinting with SHIFT).
 
@@ -162,9 +243,13 @@ Walking into a door transports you inside, where you can:
 
 Resting is the only reliable way to recover health besides respawning.
 
+> **Note:** Before Act 3, the Blue House interior is a rest area. Entering it with the box in Act 3 instead locks the doors and becomes the arena — a deliberate reversal of a safe space.
+
 ## Death and Respawn
 
-If your health drops to zero, your **life suit** revives you at the **Safe Camp** (inside the Red House) with full HP. **Only the player respawns**—defeated enemies remain defeated, so you won’t have to fight them again unless you restart the game.
+If your health drops to zero, your **life suit** revives you at the **Safe Camp** (inside the Red House) with full HP. **Only the player respawns**—defeated enemies remain defeated, so you won't have to fight them again unless you restart the game.
+
+> **Theme note:** This mechanic is *the* piece of the world that no one can explain, and it is the seam through which the truth of Minslaire III: Transcendence is sewn — mercy you did not earn, returning you when you could not return yourself. It is never spoken of as strange in the fiction; the player is simply left to wonder.
 
 ## Objective
 

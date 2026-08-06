@@ -22,7 +22,7 @@ The suits have a **failsafe**: when a wearer's body gives out, the suit pulls th
 
 ## The Coming of the Scrap
 
-The machines are a secret the village has not yet woken to. Deep in the eastern forest, twisted relics of the old world stir—broken drones, rusted walkers, and heavy mechs with glowing crimson eyes. The villagers will come to call them **Scrap Bots**. No one in Elderville has seen one yet.
+The machines are a secret the village has not yet woken to. In the **cave on the outskirts of town**, where the forest begins, the elders have awakened one of them—a rusted thing with red eyes, placed there to test whoever comes. When it falls, the path to the **Elemental Box** will open. Deeper in the eastern forest, more of them stir: broken drones, rusted walkers, and heavy mechs with glowing crimson eyes. The villagers will come to call them **Scrap Bots**. No one in Elderville has seen one yet.
 
 The dark truth is a plot twist: the elders of the village **activated the Scrap Bots themselves**. They used a **blue light beacon** to reveal the hidden location of the **Elemental Box**, knowing that the machines would stir in response. Their plan was to send someone to retrieve the box, then **steal it for themselves**.
 
@@ -34,11 +34,11 @@ You live with your younger brother **Tinslaire**, a bright-eyed boy who looks up
 
 ## The Elemental Box
 
-The elders have called a meeting—a rare thing, and the whole village is talking about it. Something has been found deep in the eastern forest, an artifact from the old world, before the suits, before the scrap. They call it the **Elemental Box**.
+The elders come to your door at sunrise—a rare honor, and a stranger one. They say they heard sounds from the **cave on the outskirts of town**, where the forest begins, and they want you to investigate. Take your sword, they say.
 
-Elder Moss says the old records mention it only in fragments: *"a vessel of power, sealed by those who came before."* The true secret of the Elemental Box is that it can be used to **upgrade the life suits**, granting people powerful elemental abilities. Elder Thorn warns that the forest is not what it once was—no one who has gone deep has ever come back—but the council has made their decision. Someone must go.
+Only after that cave is cleared—only after something rusted and red-eyed falls to your blade—does the path to the **Elemental Box** open. It is an artifact from the old world, before the suits, before the scrap, sealed deep in the eastern forest. Elder Moss says the old records mention it only in fragments: *"a vessel of power, sealed by those who came before."* The true secret of the Elemental Box is that it can be used to **upgrade the life suits**, granting people powerful elemental abilities.
 
-That someone is you.
+Someone must retrieve it. That someone is you.
 
 ---
 
@@ -56,45 +56,67 @@ Dust motes drift in the light from the shuttered window. Two beds, a table, your
 
 Tinslaire sits on the edge of his bed, wooden bird in his hands. He's been waiting.
 
-- **Tinslaire:** "You're up! Did you hear? The elders called a meeting. They never call meetings."
+- **Tinslaire:** "You're up! The elders are at the door. The actual elders! They came to our house!"
 
 He's excited—this is the most interesting thing to happen in weeks. It's morning in the village. Everything is peaceful: fields, dirt paths, the quiet hum, the smell of bread from the Grand Gardens.
 
 Before you leave, he presses the wooden bird into your hands. *"For luck,"* he says. *"Mother's bird. It always came back."*
 
-### Scene 2: The Village Wakes
+### Scene 2: The Elders at the Door
 
-Elderville is waking, the way it always does. Villagers greet you by name. By the well there's talk, but it's the good kind—wonder, not worry. The elders never call anyone to the Blue House. Today they called you. The whole village wants to know why.
+Tinslaire comes to you in the kitchen, giddy: *"The elders are at the door! The actual elders! They came to *our* house!"*
 
-**Worldbuilding beats woven into dialogue:**
-- A villager by the well: *"You ever wonder what the suits were made for? I mean—before. What did people breathe?"*
-- A child chasing a scrap of paper: *"Miss my suit hum sometimes. When it's quiet, it's too quiet."*
-- An old woman tending the Grand Gardens: *"The suit carries you your whole life, and you never once say thank you. Mind that, young one."* *(Seed: gratitude.)*
+The three of them stand on your doorstep like it's the most ordinary thing in the world: Elder **Moss** (the watcher), Elder **Sage** (the scholar), and Elder **Thorn** (the protector), in their plain wool robes.
 
-### Scene 3: The Council
+- **Elder Moss:** "Good morning, Minslaire. We heard sounds from the cave—the old one, on the outskirts of town, where the forest begins. Something's stirring in there that shouldn't be. Go and investigate it. But take your sword."
 
-The Blue House is full. Elder **Moss** (the watcher), Elder **Sage** (the scholar), and Elder **Thorn** (the protector) sit behind the great oak table. The meeting is short and already decided.
+He glances up at the glass case above your door as he says it. Just for a moment.
 
-- **Elder Moss:** "Deep in the eastern forest there is something the old world left behind. The records call it the Elemental Box. Sealed by those who came before."
-- **Elder Sage:** "The fragments suggest it holds the key to our suits—an upgrade. Power enough to change everything. To keep our children safe, and our village safe, forever."
-- **Elder Thorn:** *(quietly, without meeting your eyes)* "The forest is not what it was. It is deep, and dark, and no one has gone far in and come back to tell of it. If the council is resolved, then it falls on someone young and strong enough to make the crossing."
-- **Elder Moss:** "It falls on you, Minslaire."
+*(The truth you don't know yet: the elders activated the machine in that cave themselves. It is their test, and their key. When it dies, the path to the Elemental Box opens. Right now, they only want to see what you're made of.)*
 
-The council will not take no for an answer. Elder Moss hands you a **cloth satchel** and tells you to prepare—to help the village, to learn the way of the blade, to make ready for the forest. The villagers will help you before you go.
+### Scene 3: The Elders' Trials (the tests)
 
-### Scene 4: The Gifts of Elderville (Side Quests)
+Before they hand you a sword, the elders want to know what kind of person they're sending into that cave. Each one gives you a small task—and each task is a test you don't know you're taking.
+
+1. **The Well's Echo — with Elder Moss (tests observation, and obedience).** Moss sends you to the Central Well to check on the rope. What you find instead is a low, grinding rumble under the earth—nothing in Elderville makes a sound like that. It rises and falls like something breathing. When you report it, Moss is quick, too quick: *"Nothing. There's nothing down there. Forget it."* *(Seed: the elders are hiding something; the village is not as peaceful as it seems.)*
+
+2. **The Scholar's Request — with Elder Sage (tests wits).** Sage needs a jar of rare herbs from the top shelf of his study—"too high for old bones"—or a scroll wedged behind the bookcase, the one he "never quite figured out." A small, quiet puzzle. He watches how long you'll sit with it before giving up. *(Seed: knowledge is a trust, not a trophy.)*
+
+3. **The Widow's Task — with Elder Thorn (tests the heart).** Thorn sends you to carry grain sacks for old Widow Oren, or to fetch her water from the well. It's not your problem. He watches whether you do it with resentment or with grace. *(Seed: your strength is a debt; service without reward.)*
+
+4. **The Honest Change — with the whole council watching (tests honesty).** A trader at the Bazaar overpays you by mistake. Do you pocket it, or walk it back? The elders see it either way—someone always sees. *(Seed: integrity; being seen by something higher.)*
+
+When the four tasks are done, the elders confer in low voices behind the Blue House door. Whatever they decide, they come out with a nod.
+
+### Scene 4: The Elders' Test
+
+Now they lead you to the training clearing behind the Blue House, where the dummies stand. A proper trial:
+
+- **Sword test, with Elder Thorn** — he walks you through the slash, the stance, the rhythm. *"Don't swing to hurt—swing like it means something."* You cut down a row of dummies. *(Tutorial: attack, facing, cooldown.)*
+- **Bow test, with Elder Sage** — *"The blade is for when they get close. This is for when they don't."* Still targets, then moving ones. *(Tutorial: bow, aim, range.)*
+- **Dodge and block, with Elder Thorn again** — he feints with a padded staff. *"Block. Roll. Block again. Your suit will carry you, but only if you don't ask it to do everything."* *(Tutorial: dodge, block, stamina.)*
+
+When you're done, the elders exchange a look. Thorn nods—once. Moss smiles thinly.
+
+- **Elder Moss:** "Good. You'll do. Now go see what's making that noise."
+
+*(Elder Thorn says nothing, and that silence stays with you.)*
+
+### Scene 5: The Cave
+
+*(To be written as the walkthrough continues — Minslaire takes his father's blade down from the case and enters the cave on the outskirts. Inside waits the machine the elders woke, and killing it is what opens the path to the Elemental Box.)*
+
+### Scene 6: The Gifts of Elderville (Village Tasks)
 
 Before the forest, the village teaches you what it means to be one of them. Each task plants a theme.
 
 1. **Tinslaire's Keepsake** — Tinslaire lost his wooden bird near the Grand Gardens. When you find it, he hugs you hard. *"You always find it,"* he says. *"You always bring it back."* *(Seed: trust, returning.)*
 
-2. **The Well's Echo** — Elder Moss takes you to the Central Well. Deep below, a low grinding rumble—nothing in Elderville makes a sound like that. It rises and falls like something breathing under the earth. Moss is quick to quiet you: *"Nothing. There's nothing down there. Forget it."* *(Seed: the elders are hiding something; the village is not as peaceful as it seems.)*
+2. **Perimeter Sweep** — Near the Eastern Gate, something new drifts out of the treeline—rusted metal things with red eyes, the first machines since the cave. With Elder Thorn you cut them down—your first real combat against the scrap. Thorn watches your form and says, *"Good. You move like someone who owes the village their life."* *(Seed: your strength is a debt, not a right.)*
 
-3. **Perimeter Sweep** — Near the Eastern Gate, something new drifts out of the treeline—rusted metal things with red eyes, the first anyone in the village has ever seen. With Elder Thorn you cut them down—your first real combat, and the first crack in the peace. Thorn watches your form and says, *"Good. You move like someone who owes the village their life."* *(Seed: your strength is a debt, not a right.)*
+3. **Marketplace Supply Run** — The Bazaar traders need crops from the Grand Gardens carried back through the village. Runners trade breath for coin, sprinting the dirt paths. A trader pays you and says, *"Take the blessing. The suit's hum will guide you home."* *(Seed: provision, guidance.)*
 
-4. **Marketplace Supply Run** — The Bazaar traders need crops from the Grand Gardens carried back through the village. Runners trade breath for coin, sprinting the dirt paths. A trader pays you and says, *"Take the blessing. The suit's hum will guide you home."* *(Seed: provision, guidance.)*
-
-### Scene 5: The Watchtower
+### Scene 7: The Watchtower
 
 The night before you leave, Elder Thorn finds you at the Eastern Gate watchtower. He is the only elder who looks troubled.
 
@@ -129,7 +151,7 @@ When it falls, it collapses into the water with a sound like a building giving w
 
 The Vanguard Bots patrol here—faster, sharper, guarding something. The air is colder. The trees are so old they seem to watch. And then, at the river's end, beneath a canopy that never lets in light:
 
-### Scene 6: The Elemental Box
+### Scene 8: The Elemental Box
 
 It sits on a stone pedestal in a grove, half-sunk in moss. It is not machine, not wood, not stone. It hums—not like your suit. Like something **breathing**. When you touch it, the grove goes silent, and the hum of every life suit in your body leans toward it.
 
@@ -144,7 +166,7 @@ The box closes. The hum of the forest returns. You carry it back through the dea
 
 ## Act 3 — The Ambush
 
-### Scene 7: The Return
+### Scene 9: The Return
 
 You return through the Eastern Gate at dusk. The village is quiet. Too quiet. The streets are empty, and the Blue House is lit from within. You walk in holding the box, and the door closes behind you.
 
@@ -154,7 +176,7 @@ The council is waiting. Moss, Sage, Thorn. Behind them, the **Arsenal**—the va
 - **Elder Sage:** *(reading from a cracked screen recovered from the vault)* "The box upgrades the suits. Elemental control. We have the means, the artifact, and the moment. The age of the council is over."
 - **Elder Moss:** "We will not share it, Minslaire. You are strong. That is why you were chosen to bring it to us. That is all you were for."
 
-### Scene 8: The Struggle
+### Scene 10: The Struggle
 
 Elder Moss reaches for the box. You don't let go. In the struggle, something snaps—the seal, the strain, the box itself—and the Elemental Box **detonates** in a storm of raw elemental energy.
 
@@ -163,7 +185,7 @@ The light floods the Blue House. The air screams. And when it fades:
 - **You and Tinslaire**—who has run to the Blue House door, who could not bear to wait outside—**absorb all of the elements**. Fire, water, earth, air, light—the full spectrum, woven into your suits.
 - **The elders** receive only fragments: Moss takes fire, unstable. Sage takes air, half-formed. Thorn takes nothing—he shielded his face from the blast, and in the shards he only sees.
 
-### Scene 9: The Fall of the Elders
+### Scene 11: The Fall of the Elders
 
 The elders, seared and burning, lash out. Moss hurls a column of fire at you—and **Tinslaire steps in front of it**. He is a boy. He should be ash. Instead, the fire bends around him, and his eyes open full of light.
 
@@ -172,7 +194,7 @@ The elders, seared and burning, lash out. Moss hurls a column of fire at you—a
 
 Elder Moss, dying, laughs: *"Sealed by those who came before... and you still walked into it. The box was never power, boy. It was a test. And you passed the wrong way."*
 
-### Scene 10: The Exile
+### Scene 12: The Exile
 
 The Blue House is burning. The village is coming. And the power in your suit is still settling, still too raw to control. A wave of energy throws you through the wall of the Blue House—past the village, over the hills, into the dark—
 

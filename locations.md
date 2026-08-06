@@ -78,7 +78,13 @@ Epilogue: `The Mountain Village` (new map, reached by cutscene at the end of Act
 
 - **The Trading Post**: A lively plaza where villagers trade supplies and share rumors. Hub of the **Marketplace Supply Run**. A trader's farewell line becomes a theme seed: *"Take the blessing. The suit's hum will guide you home."*
 
-## 7. The Eastern Forest (four zones)
+## 7. The Cave on the Outskirts
+
+The old cave where the forest begins, on the edge of town. The elders send Minslaire here at sunrise to investigate "sounds." It is **dark** — you must carry a **torch** to see, it grows deeper and darker the further in you go, and the light flickers off wet rock.
+
+Deeper still, two **red eyes blink open** in the dark: the Cave Machine, a rusted scrap bot — the first machine anyone in the village has ever seen, placed there by the elders as their test and their key. When it falls, a **glowing path** opens, guiding you through the woods toward the Elemental Box. *(Minslaire doesn't know this yet.)*
+
+## 8. The Eastern Forest (four zones)
 
 ### Zone 1 — The Outskirts
 The treeline swallows the sun immediately past the gate. Rusted husks of old machines lie half-buried in the dirt; the forest floor is still the wreck of an old road. **Enemies:** 2–3 Scrap Drones.
@@ -100,7 +106,7 @@ The trees grow older and taller; the canopy blocks all light. Vanguard Bots patr
 A small stone clearing, half-sunk in moss, where the trees are so old they seem to watch. At its center, on a low stone pedestal: the **Elemental Box** — not machine, not wood, not stone, warm to the touch.
 - **Scripted scene (no combat):** the grove goes silent; the suit's hum leans toward the box; the box opens on its own. The voice speaks the warning. On the return trip through all four zones, the machines stand still — as if waiting. This should read as *wrong*.
 
-## 8. The Mountain Village (epilogue)
+## 9. The Mountain Village (epilogue)
 
 A remote settlement in the western hills, reached only by cutscene after the exile. Unknown to Minslaire, high in the mountains, far from Elderville's smoke. Cold air that the suit filters without effort, stone homes, and quiet.
 - **Post-credits text:** *"Five years later, in the ruins of the Blue House, a name is whispered: Neegabla."*

@@ -31,23 +31,43 @@ The player is guided by the **yellow arrow** and the **mission bar** (top right)
 
 ### Opening: Wake in the Red House
 - Spawn at the Red House interior. Two beds, father's sword in a glass case, the table with Tinslaire's wooden bird.
+- **Opening cutscene:** the memory of your father's blade lesson (*purpose, the sheath, the fear of war*) plays as you get out of bed.
 - **Tutorial beats (scripted, unmissable):**
   1. *Move* — walk to the window and back.
-  2. *Talk* — interact with Tinslaire (E). He gives you the wooden bird, which becomes an inventory keepsake.
-  3. *Leave* — exit the door. A short auto-dialogue marks the meeting at the Blue House.
+  2. *Talk* — interact with Tinslaire (E). He tells you the elders are at the door.
+  3. *Open the door* — meet the elders. They ask you to investigate the **cave on the outskirts**.
 
-### Required Side Quests (unlock the main chain)
-> The four quests teach combat, stamina, blocking, and dodging while weaving the world's themes. They must be completed to open the Eastern Gate.
+### The Elders' Trials (character tests — before combat)
+Before they hand you a sword, the elders test *who you are*, not what you can swing. Four small tasks, each quietly judging a virtue:
+
+| Trial | Giver | Objective | Tests | Theme Seed |
+|---|---|---|---|---|
+| **The Well's Echo** | Elder Moss | Check the rope at the Central Well; find the rumble beneath | Observation; obedience (do you drop it?) | The elders are hiding something |
+| **The Scholar's Request** | Elder Sage | Retrieve rare herbs / a stuck scroll from his study | Wits; patience | Knowledge is a trust, not a trophy |
+| **The Widow's Task** | Elder Thorn | Carry grain / fetch water for Widow Oren | The heart; grace in service | Your strength is a debt; service without reward |
+| **The Honest Change** | The Council | A trader overpays you at the Bazaar — keep it or return it? | Honesty | Integrity; being seen by something higher |
+
+### The Elders' Test (combat tutorial)
+Now they test your skills in the training clearing behind the Blue House:
+- **Sword test (with Elder Thorn)** — attack, facing, cooldown. Cut down a row of dummies.
+- **Bow test (with Elder Sage)** — aim, range. Still targets, then moving ones.
+- **Dodge & block (with Elder Thorn)** — dodge rolls, blocking, stamina.
+- *(First-time players learn all core combat here; the cave then demands they use it.)*
+
+### The Cave (Act 1 boss — first machine)
+Take your father's blade down from the case and enter the cave on the outskirts. It's dark — use your torch to see. Deeper and deeper, until two red eyes blink open in the dark. Defeat the **Cave Machine**. When it falls, a **glowing path** opens, guiding you into the woods toward the Elemental Box.
+
+### Village Tasks (unlock the main chain)
+> Three tasks the village needs before you go, completed before the forest expedition. They must be done to open the Eastern Gate.
 
 | Quest | Giver | Objective | Teaches | Theme Seed |
 |---|---|---|---|---|
 | **Tinslaire's Keepsake** | Tinslaire | Find his wooden bird near the Grand Gardens | Movement, E-interact with world objects | Trust; love that returns |
-| **The Well's Echo** | Elder Moss | Investigate rumblings beneath the Central Well | Stealth-ish approach, careful observation | The elders are hiding something; the village is not as peaceful as it seems |
-| **Perimeter Sweep** | Elder Thorn | Defeat 2 Scrap Drones near the Eastern Gate | First combat, dodge, basic slash | Your strength is a debt to the village |
+| **Perimeter Sweep** | Elder Thorn | Defeat 2 Scrap Drones near the Eastern Gate | First real combat against the scrap | Your strength is a debt to the village |
 | **Marketplace Supply Run** | Bazaar Trader | Carry crops from the Grand Gardens to the Market stalls | Stamina management, sprint | Provision; the hum guides you home |
 
 ### The Pre-Forest Hinge
-After all four quests, meet Elder Thorn at the **Watchtower** at night. He admits he voted against sending you and warns: *"Whatever is out there, Minslaire, it is not the danger. We are."* This is the first hard seed of the betrayal. The gate opens.
+After the village tasks, meet Elder Thorn at the **Watchtower** at night. He admits he voted against sending you and warns: *"Whatever is out there, Minslaire, it is not the danger. We are."* This is the first hard seed of the betrayal. The gate opens.
 
 ## Act 2 — The Forest (combat gauntlet)
 
@@ -97,7 +117,8 @@ Four linked zones with an escalating boss. Each zone ends with a **quiet beat** 
 | Action | Key(s) |
 |--------|--------|
 | Move | `WASD` or `Arrow Keys` |
-| Attack | `SPACE` or `J` |
+| Attack (Sword) | `SPACE` or `J` |
+| Shoot (Bow) | `K` *(design target)* |
 | Dodge | `SHIFT` + Direction |
 | Block | `R` |
 | Interact / Talk | `E` |
@@ -133,26 +154,28 @@ The game guides you through Elderville with a series of missions. A glowing **ye
 
 | # | Mission | Description |
 |---|---------|-------------|
-| 1 | Speak with Tinslaire | Your brother is awake. Talk to him before heading out. |
-| 2 | Talk to Elder Moss | The council has called a meeting. Find Elder Moss near the Blue House. |
-| 3 | Talk to Elder Sage | Elder Sage has studied the old records. He waits near the garden. |
-| 4 | Talk to Elder Thorn | Elder Thorn has final words for you before you enter the forest. |
-| 5 | Complete the Village Tasks | Help Tinslaire, the well, the gate, and the marketplace. *(opens the gate)* |
-| 6 | Talk to Elder Thorn at the Watchtower | His warning at night; the gate opens. |
-| 7 | Enter the Forest | Cross into the eastern forest. Defeat 2 Scrap Drones. |
-| 8 | Push Deeper | Rust Bots guard the middle forest. Clear a path. |
-| 9 | Cross the River | A Heavy Mech blocks the river crossing. Defeat it to proceed. |
-| 10 | Reach the Far Forest | Vanguard Bots patrol the far side. Push through to find the box. |
-| 11 | Find the Elemental Box | You've cleared the forest. Search for the artifact at the river's end. |
-| 12 | Return to Elderville | You have the box. Bring it home. *(the ambush begins on arrival)* |
-| 13 | The Blue House | Face the council. *(arena boss)* |
-| 14 | The Exile | End of Minslaire. |
+| 1 | Speak with Tinslaire | Your brother tells you the elders are at the door. |
+| 2 | Meet the Elders | Open the door. They ask you to investigate the cave on the outskirts. |
+| 3 | The Elders' Trials | Pass the four small tests: the well, the scholar, the widow, the honest change. |
+| 4 | The Elders' Test | Prove your sword and bow skills in the training clearing. |
+| 5 | Investigate the Cave | Enter the cave on the outskirts. Slay the Cave Machine. *(its death opens the glowing path to the box)* |
+| 6 | Complete the Village Tasks | Help Tinslaire, the gate, and the marketplace. *(opens the gate)* |
+| 7 | Talk to Elder Thorn at the Watchtower | His warning at night; the gate opens. |
+| 8 | Enter the Forest | Follow the glowing path into the eastern forest. Defeat 2 Scrap Drones. |
+| 9 | Push Deeper | Rust Bots guard the middle forest. Clear a path. |
+| 10 | Cross the River | A Heavy Mech blocks the river crossing. Defeat it to proceed. |
+| 11 | Reach the Far Forest | Vanguard Bots patrol the far side. Push through to find the box. |
+| 12 | Find the Elemental Box | You've cleared the forest. Search for the artifact at the river's end. |
+| 13 | Return to Elderville | You have the box. Bring it home. *(the ambush begins on arrival)* |
+| 14 | The Blue House | Face the council. *(arena boss)* |
+| 15 | The Exile | End of Minslaire. |
 
 ## Combat
 
 - Press `SPACE` or `J` to swing your sword in the direction you are facing.
   - Each slash deals **20 damage** and pushes enemies back slightly.
   - You cannot attack again until the cooldown finishes.
+- **Bow:** Press `K` to draw and loose an arrow in the direction you are facing. Arrows deal **12 damage** and can hit from range, but take time to draw — you're vulnerable while aiming. *(Design target.)*
 - **Dodge:** Press `SHIFT` + a direction to quickly roll in that direction. Grants brief invincibility (0.5 seconds) but consumes stamina.
 - **Block:** Hold `R` to raise your guard. Reduces incoming damage by **50%** while active, but drains stamina slowly.
 - Enemies take damage and flash red when hit.
@@ -169,6 +192,7 @@ The game guides you through Elderville with a series of missions. A glowing **ye
 | Rust Bot | 35 | Slow | Sturdy walker that wanders until it spots you | Block their charges |
 | Vanguard Bot | 40 | Medium | Agile sentinel found near the eastern river | Stagger if hit twice in quick succession |
 | Heavy Mech | 60 | Very Slow | Powerful tank with high health; one-shots if it lands a hit | Dodge its charged attack |
+| Cave Machine | 40 | Medium | The rusted bot in the cave, first in the village | Use the bow to chip it, the blade to finish |
 | Rust Watcher | 45 | Slow | Elite Rust Bot guarding the Midden | Break its guard with two hits |
 | Elder Moss | 40 | Medium | Fire columns, staggers after casting | Attack during his stagger |
 | Elder Sage | 30 | Medium | Air gusts that push you | His attacks knock him off-balance |
@@ -208,25 +232,28 @@ Elderville is a **massive, sprawling settlement** divided into distinct district
 
 ## Early Gameplay Loop
 
-1. **Wake Up in Red House**: Minslaire starts in his home. Tinslaire is asleep or playing with a wooden toy.
-   - **Tutorial**: Move around (WASD/arrows), talk to Tinslaire (E), exit the house (walk into door).
+1. **Wake Up in Red House**: Minslaire starts in his home. Tinslaire tells you the elders are at the door.
+   - **Tutorial**: Move around (WASD/arrows), talk to Tinslaire (E), exit the door to meet the elders.
+   - **Opening cutscene**: your father's blade lesson plays as you get out of bed.
 
-2. **Explore the Village**: Talk to villagers to learn about the life suits, the elders' meeting, and the strange noises in the well.
-   - **Optional**: Complete **Tinslaire's Keepsake** (find his toy near the Grand Gardens) to unlock a hint about the elders' betrayal (e.g., Tinslaire says, *"Elder Moss was acting weird yesterday…"*).
+2. **The Elders' Trials (character tests)**: Before combat, the elders test who you are:
+   - **The Well's Echo** — find the rumble beneath the Central Well; Moss dismisses it.
+   - **The Scholar's Request** — a small puzzle for Elder Sage.
+   - **The Widow's Task** — serve Widow Oren for Elder Thorn.
+   - **The Honest Change** — a trader overpays you; integrity is watched.
 
-3. **Meet the Elders**:
-   - Elder Moss near the Blue House gives the first mission: *"The council has called a meeting. Talk to Elder Sage."*
-   - Elder Sage reveals the **Elemental Box** and its location in the Eastern Forest.
-   - Elder Thorn warns: *"The forest is deadly. But if you're to go, you'll need to be prepared."*
+3. **The Elders' Test (combat tutorial)**: Sword, bow, dodge, and block against the training dummies behind the Blue House.
 
-4. **Side Quests (Required)**:
-   - **The Well's Echo**: Investigate the Central Well with Elder Moss. Discover mechanical rumblings (Scrap Bots stirring).
-   - **Perimeter Sweep**: Assist Elder Moss by clearing 2 Scrap Drones near the Eastern Gate (first combat tutorial).
-   - **Marketplace Supply Run**: Gather crops for the Bazaar. Introduces stamina management (sprinting with SHIFT).
+4. **The Cave (first boss)**: Enter the dark cave with your torch; fight the Cave Machine. Its death opens the **glowing path** into the woods.
 
-5. **Enter the Forest**:
-   - After completing side quests, Elder Thorn gives the final warning: *"The elders have made their decision. Retrieve the box, Minslaire."*
-   - Walk through the Eastern Gate into the Eastern Forest (transition to next area).
+5. **Village Tasks (before the forest)**:
+   - **Tinslaire's Keepsake**: Find his wooden bird near the Grand Gardens.
+   - **Perimeter Sweep**: Clear 2 Scrap Drones near the Eastern Gate (first combat against the scrap).
+   - **Marketplace Supply Run**: Gather crops for the Bazaar (stamina management).
+
+6. **Enter the Forest**:
+   - After the village tasks, Elder Thorn gives the final warning at the Watchtower.
+   - Walk through the Eastern Gate and follow the glowing path into the Eastern Forest (transition to next area).
 
 ## Houses and Resting
 

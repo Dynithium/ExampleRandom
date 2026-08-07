@@ -1,10 +1,133 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+// GBA-style crisp pixels (no smoothing, integer coords only)
+ctx.imageSmoothingEnabled = false;
 
-const TILE_SIZE = 32;
+const TILE_SIZE = 32; // 16px GBA tile at 2x (canvas is 2x GBA 240x160)
 let MAP_WIDTH = 25;
 let MAP_HEIGHT = 20;
 const MOVE_SPEED = 4;
+
+// ------------------------------------------------------------------
+// Game Boy Advance / Pokémon FireRed palette (limited, warm, soft)
+// ------------------------------------------------------------------
+const P = {
+    // Outdoors
+    grass:      '#48a028',
+    grassDark:  '#308018',
+    grassLight: '#68c040',
+    grassDeep:  '#206010',
+    path:       '#e0c878',
+    pathDark:   '#c8a858',
+    pathLight:  '#f0d890',
+    pathEdge:   '#b09048',
+    water:      '#3890c8',
+    waterDark:  '#2870a8',
+    waterDeep:  '#185888',
+    waterLight: '#68b8e0',
+    waterFoam:  '#a8d8f0',
+    // Trees
+    leaf:       '#208028',
+    leafDark:   '#106018',
+    leafLight:  '#40a038',
+    trunk:      '#906030',
+    trunkDark:  '#684020',
+    // Buildings
+    roofRed:    '#c04038',
+    roofRedD:   '#902828',
+    roofRedL:   '#e05848',
+    roofBlue:   '#4068a8',
+    roofBlueD:  '#284888',
+    roofBlueL:  '#5888c0',
+    roofGreen:  '#508028',
+    roofGreenD: '#386018',
+    wallBlue:   '#6890c0',
+    wallBlueD:  '#4870a0',
+    wallBlueL:  '#88b0d8',
+    wallRed:    '#d07060',
+    wallRedD:   '#a85048',
+    wallRedL:   '#e89080',
+    wallTan:    '#d0b078',
+    wallTanD:   '#b09058',
+    wallTanL:   '#e8c898',
+    found:      '#887868',
+    foundD:     '#685848',
+    window:     '#f8e060',
+    windowBlue: '#90d0f0',
+    door:       '#402818',
+    doorL:      '#604028',
+    // Interiors
+    floor:      '#c89858',
+    floorD:     '#a87840',
+    floorL:     '#d8b070',
+    wallIn:     '#a07048',
+    wallInD:    '#805830',
+    wallInL:    '#b88858',
+    // Furniture / props
+    wood:       '#906848',
+    woodD:      '#684830',
+    woodL:      '#b08860',
+    bed:        '#c05050',
+    bedL:       '#e07068',
+    pillow:     '#f0e8d0',
+    metal:      '#a0a8b0',
+    metalD:     '#687078',
+    metalL:     '#c8d0d8',
+    fire:       '#f87828',
+    fireL:      '#f8d038',
+    crop:       '#48a028',
+    cropD:      '#287018',
+    dirt:       '#a87840',
+    dirtD:      '#886030',
+    // Characters
+    outline:    '#201810',
+    skin:       '#f0c090',
+    skinD:      '#d0a070',
+    hair:       '#503828',
+    hairD:      '#302018',
+    hairL:      '#705040',
+    hairGray:   '#c0c0c0',
+    red:        '#d03838',
+    redD:       '#982828',
+    redL:       '#e86058',
+    suit:       '#282830',
+    suitL:      '#404048',
+    glow:       '#48a0f0',
+    glowL:      '#98d0f8',
+    pants:      '#703040',
+    pantsD:     '#502028',
+    boot:       '#282020',
+    bootL:      '#484038',
+    gold:       '#e8b040',
+    // UI (Pokémon-style dialog)
+    uiWhite:    '#f8f8f0',
+    uiCream:    '#f0e8c8',
+    uiBlue:     '#4868a0',
+    uiBlueD:    '#203868',
+    uiBlack:    '#181818',
+    uiText:     '#181818',
+    uiName:     '#2868c0',
+    uiHint:     '#687888',
+    shadow:     '#183010'
+};
+
+/** Fill a solid pixel rect (integer coords only). */
+function px(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
+}
+
+/** Classic GBA oval shadow made of stacked rects (no ellipse). */
+function pixelShadow(cx, cy) {
+    px(cx - 8, cy, 16, 2, P.shadow);
+    px(cx - 6, cy + 2, 12, 1, P.shadow);
+    px(cx - 4, cy - 1, 8, 1, P.shadow);
+}
+
+/** Deterministic 0..n-1 hash from tile coords. */
+function tileVar(tx, ty, n) {
+    return Math.abs((tx * 17 + ty * 31 + tx * ty * 7) | 0) % n;
+}
 
 // Tile types: 0=Grass, 1=Tree, 2=Path, 3=Council (Blue House), 4=Home (Red House),
 // 5=Water, 6=Wood Floor, 7=Wall, 8=Bed, 9=Sword Case, 10=Crops, 11=Well,
@@ -434,712 +557,473 @@ function updatePlayer() {
     }
 }
 
-function drawTile(tileType, tileX, tileY) {
-    // Disable image smoothing for crisp pixel art
-    ctx.imageSmoothingEnabled = false;
+// ------------------------------------------------------------------
+// Tile drawing — pure fillRect GBA / FireRed style
+// ------------------------------------------------------------------
 
+function drawGrassBase(sx, sy, mapX, mapY) {
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.grass);
+    const v = tileVar(mapX, mapY, 8);
+    // Dark mottles (FireRed ground grass)
+    px(sx + (v % 4) * 8, sy + ((v * 3) % 4) * 8, 6, 4, P.grassDark);
+    px(sx + ((v + 2) % 4) * 8 + 2, sy + ((v + 1) % 4) * 8 + 2, 4, 4, P.grassDeep);
+    // Light speckles
+    px(sx + 4 + (v % 3) * 8, sy + 6 + (v % 2) * 10, 2, 2, P.grassLight);
+    px(sx + 18 + (v % 2) * 6, sy + 20, 2, 2, P.grassLight);
+    px(sx + 10, sy + 14 + (v % 3) * 4, 2, 2, P.grassLight);
+    // Occasional flower (very FireRed)
+    if (v === 1 || v === 5) {
+        const fx = sx + 8 + (v % 3) * 6;
+        const fy = sy + 18;
+        px(fx, fy, 2, 2, v === 1 ? '#f07090' : '#f0d040');
+        px(fx, fy, 1, 1, '#f8f8f0');
+    }
+}
+
+function drawTree(sx, sy, mapX, mapY) {
+    drawGrassBase(sx, sy, mapX, mapY);
+    // FireRed-style round canopy (blocky circles, not pine triangles)
+    // Bottom canopy ring
+    px(sx + 4, sy + 14, 24, 10, P.leafDark);
+    px(sx + 2, sy + 16, 28, 6, P.leafDark);
+    // Mid canopy
+    px(sx + 6, sy + 8, 20, 10, P.leaf);
+    px(sx + 4, sy + 10, 24, 6, P.leaf);
+    // Top canopy
+    px(sx + 8, sy + 4, 16, 8, P.leaf);
+    px(sx + 10, sy + 2, 12, 4, P.leafLight);
+    // Highlights
+    px(sx + 12, sy + 6, 4, 2, P.leafLight);
+    px(sx + 18, sy + 10, 3, 2, P.leafLight);
+    // Trunk
+    px(sx + 13, sy + 22, 6, 8, P.trunk);
+    px(sx + 13, sy + 22, 2, 8, P.trunkDark);
+    px(sx + 14, sy + 24, 2, 2, P.woodL);
+    // Root shadow on grass
+    px(sx + 10, sy + 29, 12, 2, P.grassDeep);
+}
+
+function drawPath(sx, sy, mapX, mapY) {
+    // Sandy dirt path like Route 1 / town roads in FireRed
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.path);
+    const v = tileVar(mapX, mapY, 6);
+    px(sx + 2, sy + 2, 10, 8, P.pathLight);
+    px(sx + 16, sy + 4, 12, 6, P.pathDark);
+    px(sx + 4, sy + 14, 14, 8, P.pathDark);
+    px(sx + 18, sy + 18, 10, 8, P.pathLight);
+    // Edge scuffs
+    px(sx, sy, TILE_SIZE, 2, P.pathEdge);
+    px(sx, sy + 30, TILE_SIZE, 2, P.pathEdge);
+    // Tiny pebbles
+    px(sx + 6 + v * 2, sy + 10, 2, 2, P.pathEdge);
+    px(sx + 20 - v, sy + 22, 2, 2, P.found);
+}
+
+function drawWater(sx, sy, mapX, mapY) {
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.water);
+    px(sx, sy + 20, TILE_SIZE, 12, P.waterDark);
+    px(sx, sy + 26, TILE_SIZE, 6, P.waterDeep);
+    // Animated wave bands (2px steps, GBA-friendly)
+    const w = Math.floor(Date.now() / 280) % 4;
+    const ox = w * 2;
+    px(sx + 2 + ox, sy + 6, 10, 2, P.waterLight);
+    px(sx + 14 + ox, sy + 12, 12, 2, P.waterLight);
+    px(sx + 4 + ox, sy + 18, 10, 2, P.waterLight);
+    px(sx + 2 + ox, sy + 6, 4, 1, P.waterFoam);
+    px(sx + 16 + ox, sy + 12, 3, 1, P.waterFoam);
+}
+
+function drawCrops(sx, sy) {
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.dirt);
+    px(sx, sy + 14, TILE_SIZE, 2, P.dirtD);
+    px(sx, sy + 28, TILE_SIZE, 2, P.dirtD);
+    // Crop rows (berry/farm look)
+    for (let i = 0; i < 3; i++) {
+        const cx = sx + 4 + i * 10;
+        px(cx, sy + 6, 4, 10, P.crop);
+        px(cx, sy + 6, 4, 3, P.cropD);
+        px(cx + 1, sy + 4, 2, 2, P.grassLight);
+        px(cx, sy + 18, 4, 8, P.crop);
+        px(cx + 1, sy + 16, 2, 2, P.grassLight);
+    }
+}
+
+function drawWell(sx, sy, mapX, mapY) {
+    drawGrassBase(sx, sy, mapX, mapY);
+    // Stone cylinder
+    px(sx + 6, sy + 14, 20, 14, P.metal);
+    px(sx + 6, sy + 14, 20, 3, P.metalL);
+    px(sx + 6, sy + 25, 20, 3, P.metalD);
+    // Dark water hole
+    px(sx + 10, sy + 17, 12, 6, P.waterDeep);
+    px(sx + 12, sy + 18, 8, 2, P.water);
+    // Posts + roof
+    px(sx + 8, sy + 4, 3, 12, P.woodD);
+    px(sx + 21, sy + 4, 3, 12, P.woodD);
+    px(sx + 4, sy + 2, 24, 4, P.roofRed);
+    px(sx + 4, sy + 2, 24, 1, P.roofRedL);
+    // Bucket
+    px(sx + 14, sy + 8, 4, 5, P.metalD);
+    px(sx + 14, sy + 8, 4, 1, P.metal);
+}
+
+function drawForge(sx, sy, mapX, mapY) {
+    drawGrassBase(sx, sy, mapX, mapY);
+    // Stone forge body
+    px(sx + 4, sy + 14, 24, 16, P.metal);
+    px(sx + 4, sy + 14, 24, 3, P.metalL);
+    px(sx + 4, sy + 27, 24, 3, P.metalD);
+    // Fire mouth
+    px(sx + 10, sy + 18, 12, 8, P.outline);
+    const flicker = Math.floor(Date.now() / 120) % 2;
+    px(sx + 12, sy + 20, 8, 5, flicker ? P.fire : P.fireL);
+    px(sx + 14, sy + 22, 4, 3, flicker ? P.fireL : P.fire);
+    // Chimney
+    px(sx + 20, sy + 4, 8, 12, P.metalD);
+    px(sx + 20, sy + 4, 8, 2, P.metal);
+    // Anvil
+    px(sx + 2, sy + 22, 7, 3, P.metalL);
+    px(sx + 3, sy + 25, 5, 5, P.metalD);
+}
+
+function drawMarket(sx, sy, mapX, mapY) {
+    drawGrassBase(sx, sy, mapX, mapY);
+    // Posts
+    px(sx + 4, sy + 10, 2, 18, P.woodD);
+    px(sx + 26, sy + 10, 2, 18, P.woodD);
+    // Striped awning (FireRed mart vibe)
+    px(sx + 2, sy + 4, 28, 8, P.roofRed);
+    px(sx + 2, sy + 4, 28, 2, P.roofRedL);
+    for (let i = 0; i < 4; i++) {
+        px(sx + 4 + i * 7, sy + 6, 3, 6, P.uiWhite);
+    }
+    // Counter + goods
+    px(sx + 2, sy + 18, 28, 10, P.wood);
+    px(sx + 2, sy + 18, 28, 2, P.woodL);
+    px(sx + 6, sy + 14, 4, 4, '#e05080');
+    px(sx + 12, sy + 14, 4, 4, P.gold);
+    px(sx + 18, sy + 14, 4, 4, P.crop);
+    px(sx + 24, sy + 14, 4, 4, P.windowBlue);
+}
+
+function drawWatchtower(sx, sy, mapX, mapY) {
+    drawGrassBase(sx, sy, mapX, mapY);
+    // Tower body
+    px(sx + 8, sy + 12, 16, 18, P.wallTan);
+    px(sx + 8, sy + 12, 16, 2, P.wallTanL);
+    px(sx + 8, sy + 26, 16, 4, P.wallTanD);
+    // Window slit
+    px(sx + 14, sy + 16, 4, 6, P.window);
+    px(sx + 15, sy + 16, 2, 6, P.outline);
+    // Platform + ladder
+    px(sx + 6, sy + 2, 20, 4, P.woodD);
+    px(sx + 6, sy + 2, 20, 1, P.woodL);
+    px(sx + 10, sy + 6, 2, 8, P.wood);
+    px(sx + 20, sy + 6, 2, 8, P.wood);
+    for (let r = 0; r < 3; r++) {
+        px(sx + 10, sy + 6 + r * 3, 12, 2, P.woodL);
+    }
+}
+
+function drawFloor(sx, sy, mapX, mapY) {
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.floor);
+    // Horizontal planks
+    px(sx, sy + 10, TILE_SIZE, 1, P.floorD);
+    px(sx, sy + 21, TILE_SIZE, 1, P.floorD);
+    // Staggered seams
+    const shift = (mapX + mapY) % 2 === 0 ? 0 : 16;
+    px(sx + shift, sy, 1, 10, P.floorD);
+    px(sx + (16 - shift), sy + 11, 1, 10, P.floorD);
+    px(sx + shift, sy + 22, 1, 10, P.floorD);
+    // Grain
+    px(sx + 4, sy + 4, 6, 1, P.floorL);
+    px(sx + 18, sy + 14, 8, 1, P.floorL);
+}
+
+function drawInteriorWall(sx, sy) {
+    px(sx, sy, TILE_SIZE, TILE_SIZE, P.wallIn);
+    px(sx, sy, TILE_SIZE, 3, P.wallInL);
+    px(sx, sy + 26, TILE_SIZE, 6, P.wallInD);
+    // Panel lines
+    px(sx + 10, sy + 4, 1, 22, P.wallInD);
+    px(sx + 21, sy + 4, 1, 22, P.wallInD);
+}
+
+function drawBed(sx, sy) {
+    drawFloor(sx, sy, 0, 0);
+    // Headboard
+    px(sx + 2, sy + 2, 28, 5, P.woodD);
+    px(sx + 2, sy + 2, 28, 1, P.woodL);
+    // Frame
+    px(sx + 3, sy + 7, 26, 22, P.wood);
+    // Blanket
+    px(sx + 5, sy + 10, 22, 16, P.bed);
+    px(sx + 5, sy + 20, 22, 6, P.bedL);
+    // Pillow
+    px(sx + 6, sy + 9, 10, 6, P.pillow);
+    px(sx + 6, sy + 9, 10, 1, P.uiWhite);
+}
+
+function drawSwordCase(sx, sy, mapX, mapY) {
+    drawFloor(sx, sy, mapX, mapY);
+    const caseTop = map[mapY - 1] && map[mapY - 1][mapX] === 9;
+    const caseBelow = map[mapY + 1] && map[mapY + 1][mapX] === 9;
+    // Glass frame (solid pixel border, no alpha)
+    if (caseBelow || !caseTop) {
+        // Top tile: upper glass + blade tip
+        px(sx + 6, sy + 4, 20, 28, P.windowBlue);
+        px(sx + 8, sy + 6, 16, 24, P.uiCream);
+        // Blade
+        px(sx + 14, sy + 8, 4, 22, P.metalL);
+        px(sx + 15, sy + 8, 2, 22, P.metal);
+        px(sx + 14, sy + 6, 4, 2, P.metalL); // tip block
+        px(sx + 15, sy + 4, 2, 2, P.metalL);
+        // Frame outline
+        px(sx + 6, sy + 4, 20, 2, P.metal);
+        px(sx + 6, sy + 4, 2, 28, P.metal);
+        px(sx + 24, sy + 4, 2, 28, P.metal);
+    }
+    if (caseTop) {
+        // Bottom tile: lower glass + hilt + pedestal
+        px(sx + 6, sy, 20, 22, P.windowBlue);
+        px(sx + 8, sy, 16, 18, P.uiCream);
+        px(sx + 14, sy, 4, 14, P.metalL);
+        px(sx + 15, sy, 2, 14, P.metal);
+        // Crossguard + hilt
+        px(sx + 10, sy + 12, 12, 3, P.gold);
+        px(sx + 14, sy + 15, 4, 6, P.woodD);
+        // Pedestal
+        px(sx + 8, sy + 22, 16, 3, P.wood);
+        px(sx + 4, sy + 25, 24, 5, P.woodD);
+        px(sx + 4, sy + 25, 24, 1, P.woodL);
+        // Frame
+        px(sx + 6, sy, 2, 22, P.metal);
+        px(sx + 24, sy, 2, 22, P.metal);
+        px(sx + 6, sy + 20, 20, 2, P.metal);
+    }
+}
+
+function drawTable(sx, sy) {
+    drawFloor(sx, sy, 0, 0);
+    px(sx + 4, sy + 10, 24, 8, P.wood);
+    px(sx + 4, sy + 10, 24, 2, P.woodL);
+    px(sx + 6, sy + 18, 3, 10, P.woodD);
+    px(sx + 23, sy + 18, 3, 10, P.woodD);
+}
+
+function drawChair(sx, sy) {
+    drawFloor(sx, sy, 0, 0);
+    px(sx + 8, sy + 8, 4, 12, P.woodD);
+    px(sx + 20, sy + 8, 4, 12, P.woodD);
+    px(sx + 8, sy + 8, 16, 3, P.wood);
+    px(sx + 8, sy + 18, 16, 6, P.woodL);
+    px(sx + 9, sy + 24, 2, 6, P.woodD);
+    px(sx + 21, sy + 24, 2, 6, P.woodD);
+}
+
+function drawBookshelf(sx, sy) {
+    drawFloor(sx, sy, 0, 0);
+    px(sx + 4, sy + 2, 24, 28, P.woodD);
+    px(sx + 4, sy + 2, 24, 2, P.woodL);
+    const books = [P.red, P.glow, P.crop, P.gold, P.wallBlue];
+    for (let row = 0; row < 3; row++) {
+        const by = sy + 5 + row * 8;
+        px(sx + 6, by, 20, 7, P.wood);
+        for (let b = 0; b < 4; b++) {
+            px(sx + 7 + b * 5, by + 1, 4, 5, books[(b + row) % books.length]);
+        }
+    }
+}
+
+function drawExitMat(sx, sy) {
+    drawFloor(sx, sy, 0, 0);
+    // Door frame sides
+    px(sx, sy, 3, TILE_SIZE, P.wallInD);
+    px(sx + 29, sy, 3, TILE_SIZE, P.wallInD);
+    // Doormat
+    px(sx + 6, sy + 10, 20, 18, P.woodD);
+    px(sx + 8, sy + 12, 16, 14, P.wood);
+    px(sx + 10, sy + 14, 12, 2, P.woodD);
+    px(sx + 10, sy + 20, 12, 2, P.woodD);
+}
+
+function drawTile(tileType, tileX, tileY) {
     const screenX = tileX * TILE_SIZE;
     const screenY = tileY * TILE_SIZE;
+    // map coords for variation (tileX/Y here are screen tile indices)
+    const mapX = camera.x + tileX;
+    const mapY = camera.y + tileY;
 
     switch (tileType) {
-        case 0: // Grass - mottled with per-tile variation
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            const gv = (tileX * 7 + tileY * 13) % 4;
-            // Mottled patches
-            ctx.fillStyle = '#265018';
-            ctx.fillRect(screenX + ((gv + 1) % 4) * 8, screenY + (gv * 3 % 4) * 8, 8, 8);
-            ctx.fillStyle = '#356b22';
-            ctx.fillRect(screenX + ((gv + 3) % 4) * 8, screenY + ((gv + 1) % 4) * 8, 6, 6);
-            // Grass blades
-            ctx.fillStyle = '#3a7a2a';
-            ctx.fillRect(screenX + 2, screenY + 4, 2, 6);
-            ctx.fillRect(screenX + 8, screenY + 2, 2, 8);
-            ctx.fillRect(screenX + 14, screenY + 5, 2, 5);
-            ctx.fillRect(screenX + 20, screenY + 3, 2, 7);
-            ctx.fillRect(screenX + 26, screenY + 6, 2, 5);
-            // Blade highlights
-            ctx.fillStyle = '#4a9440';
-            ctx.fillRect(screenX + 3, screenY + 5, 1, 4);
-            ctx.fillRect(screenX + 15, screenY + 6, 1, 3);
-            ctx.fillRect(screenX + 21, screenY + 4, 1, 5);
-            // Small flowers (position varies by tile)
-            const gfx = [6, 22, 12, 26][gv];
-            const gfy = [18, 22, 10, 14][gv];
-            ctx.fillStyle = gv % 2 ? '#ff6b9d' : '#ffd93d';
-            ctx.fillRect(screenX + gfx, screenY + gfy, 2, 2);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(screenX + gfx, screenY + gfy, 1, 1);
+        case 0: drawGrassBase(screenX, screenY, mapX, mapY); break;
+        case 1: drawTree(screenX, screenY, mapX, mapY); break;
+        case 2: drawPath(screenX, screenY, mapX, mapY); break;
+        case 3:
+        case 4:
+        case 20:
+            drawGrassBase(screenX, screenY, mapX, mapY);
             break;
-        case 1: // Tree - layered pine with grass base
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Grass base around trunk
-            ctx.fillStyle = '#3a7a2a';
-            ctx.fillRect(screenX + 4, screenY + 24, 24, 6);
-            ctx.fillRect(screenX + 8, screenY + 26, 16, 4);
-            // Trunk
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 13, screenY + 20, 6, 10);
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX + 13, screenY + 20, 2, 10);
-            // Tree layers
-            ctx.fillStyle = '#1e4d2b';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 16, screenY + 3);
-            ctx.lineTo(screenX + 28, screenY + 18);
-            ctx.lineTo(screenX + 4, screenY + 18);
-            ctx.fill();
-            ctx.fillStyle = '#2a6b3a';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 16, screenY + 8);
-            ctx.lineTo(screenX + 24, screenY + 16);
-            ctx.lineTo(screenX + 8, screenY + 16);
-            ctx.fill();
-            ctx.fillStyle = '#1e4d2b';
-            ctx.beginPath();
-            ctx.moveTo(screenX + 16, screenY + 11);
-            ctx.lineTo(screenX + 20, screenY + 15);
-            ctx.lineTo(screenX + 12, screenY + 15);
-            ctx.fill();
-            // Highlights
-            ctx.fillStyle = '#3d8f4d';
-            ctx.fillRect(screenX + 14, screenY + 8, 3, 2);
-            ctx.fillRect(screenX + 17, screenY + 11, 2, 2);
-            ctx.fillRect(screenX + 13, screenY + 14, 3, 2);
-            break;
-        case 2: // Path - Cobblestone with light/dark stone variation
-            ctx.fillStyle = '#8b7355';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Cobblestone pattern
-            ctx.fillStyle = '#a08060';
-            ctx.fillRect(screenX + 2, screenY + 2, 6, 5);
-            ctx.fillRect(screenX + 10, screenY + 2, 8, 6);
-            ctx.fillRect(screenX + 20, screenY + 2, 6, 5);
-            ctx.fillRect(screenX + 2, screenY + 9, 7, 6);
-            ctx.fillRect(screenX + 11, screenY + 10, 6, 5);
-            ctx.fillRect(screenX + 19, screenY + 9, 8, 6);
-            ctx.fillRect(screenX + 2, screenY + 17, 8, 6);
-            ctx.fillRect(screenX + 12, screenY + 17, 6, 5);
-            ctx.fillRect(screenX + 20, screenY + 17, 7, 6);
-            // Stone highlights
-            ctx.fillStyle = '#b89a78';
-            ctx.fillRect(screenX + 3, screenY + 3, 4, 2);
-            ctx.fillRect(screenX + 12, screenY + 3, 4, 2);
-            ctx.fillRect(screenX + 3, screenY + 18, 4, 2);
-            ctx.fillRect(screenX + 21, screenY + 18, 4, 2);
-            // Mortar lines
-            ctx.fillStyle = '#6b5344';
-            ctx.fillRect(screenX + 8, screenY + 2, 2, 5);
-            ctx.fillRect(screenX + 18, screenY + 2, 2, 5);
-            ctx.fillRect(screenX + 9, screenY + 9, 2, 6);
-            ctx.fillRect(screenX + 17, screenY + 10, 2, 5);
-            break;
-        case 3: // Council (Blue House) - drawn as a full building pass
-        case 4: // Home (Red House)
-        case 20: // Homestead
-            // The building itself is drawn in drawBuildings(); tiles just ground it
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            break;
-        case 5: // Water - Animated waves with depth
-            ctx.fillStyle = '#1e4a5c';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Depth shading
-            ctx.fillStyle = '#183b4a';
-            ctx.fillRect(screenX, screenY + 24, TILE_SIZE, 8);
-            // Wave highlights
-            ctx.fillStyle = '#3d7a9c';
-            const waveOffset = Math.floor(Date.now() / 200) % 4;
-            ctx.fillRect(screenX + 2 + waveOffset * 2, screenY + 6, 8, 2);
-            ctx.fillRect(screenX + 12 + waveOffset * 2, screenY + 12, 8, 2);
-            ctx.fillRect(screenX + 4 + waveOffset * 2, screenY + 18, 8, 2);
-            ctx.fillRect(screenX + 18 + waveOffset * 2, screenY + 8, 6, 2);
-            ctx.fillRect(screenX + 8 + waveOffset * 2, screenY + 22, 6, 2);
-            // Sparkles
-            ctx.fillStyle = '#5a9cc0';
-            ctx.fillRect(screenX + 4 + waveOffset * 2, screenY + 6, 3, 1);
-            ctx.fillRect(screenX + 20 + waveOffset * 2, screenY + 12, 2, 1);
-            break;
-        case 10: // Grand Gardens - crop rows on dirt
-            ctx.fillStyle = '#5c4326';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#4a3620';
-            ctx.fillRect(screenX, screenY + 15, TILE_SIZE, 2);
-            // Crop rows
-            ctx.fillStyle = '#3a7a2a';
-            ctx.fillRect(screenX + 3, screenY + 4, 3, 11);
-            ctx.fillRect(screenX + 12, screenY + 4, 3, 11);
-            ctx.fillRect(screenX + 21, screenY + 4, 3, 11);
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX + 3, screenY + 4, 1, 4);
-            ctx.fillRect(screenX + 12, screenY + 4, 1, 4);
-            ctx.fillRect(screenX + 21, screenY + 4, 1, 4);
-            break;
-        case 11: // Central Well
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Stone rim
-            ctx.fillStyle = '#8a8a8a';
-            ctx.fillRect(screenX + 6, screenY + 14, 20, 14);
-            ctx.fillStyle = '#a0a0a0';
-            ctx.fillRect(screenX + 6, screenY + 14, 20, 3);
-            ctx.fillStyle = '#5a5a5a';
-            ctx.fillRect(screenX + 6, screenY + 24, 20, 4);
-            // Dark water
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(screenX + 9, screenY + 17, 14, 7);
-            // Posts and roof
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 8, screenY + 2, 3, 12);
-            ctx.fillRect(screenX + 21, screenY + 2, 3, 12);
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(screenX + 4, screenY, 24, 4);
-            // Bucket
-            ctx.fillStyle = '#3a3a3a';
-            ctx.fillRect(screenX + 14, screenY + 8, 4, 5);
-            break;
-        case 12: // The Forge
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Chimney
-            ctx.fillStyle = '#4a4a4a';
-            ctx.fillRect(screenX + 20, screenY + 6, 8, 10);
-            ctx.fillStyle = '#8a5a2a';
-            ctx.fillRect(screenX + 20, screenY + 8, 8, 2);
-            // Stone base
-            ctx.fillStyle = '#5a5a5a';
-            ctx.fillRect(screenX + 4, screenY + 16, 24, 14);
-            ctx.fillStyle = '#6e6e6e';
-            ctx.fillRect(screenX + 4, screenY + 16, 24, 2);
-            // Fire opening
-            ctx.fillStyle = '#2a0f0f';
-            ctx.fillRect(screenX + 8, screenY + 20, 16, 8);
-            ctx.fillStyle = '#ff8c2a';
-            ctx.fillRect(screenX + 10, screenY + 22, 12, 4);
-            ctx.fillStyle = '#ffd93d';
-            ctx.fillRect(screenX + 12, screenY + 24, 8, 2);
-            // Anvil
-            ctx.fillStyle = '#3a3a3a';
-            ctx.fillRect(screenX + 2, screenY + 20, 5, 8);
-            ctx.fillStyle = '#555';
-            ctx.fillRect(screenX + 1, screenY + 18, 7, 3);
-            break;
-        case 13: // Market stall
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Counter
-            ctx.fillStyle = '#6b4a2f';
-            ctx.fillRect(screenX + 2, screenY + 18, 28, 10);
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX + 2, screenY + 18, 28, 2);
-            // Goods
-            ctx.fillStyle = '#ff6b9d';
-            ctx.fillRect(screenX + 6, screenY + 14, 4, 4);
-            ctx.fillStyle = '#ffd93d';
-            ctx.fillRect(screenX + 12, screenY + 14, 4, 4);
-            ctx.fillStyle = '#7cc86b';
-            ctx.fillRect(screenX + 18, screenY + 14, 4, 4);
-            // Awning
-            ctx.fillStyle = '#c93838';
-            ctx.fillRect(screenX + 2, screenY + 4, 28, 8);
-            ctx.fillStyle = '#e05656';
-            ctx.fillRect(screenX + 2, screenY + 4, 28, 2);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(screenX + 2, screenY + 10, 28, 2);
-            break;
-        case 14: // Watchtower
-            ctx.fillStyle = '#2d5a1e';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Lookout platform
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 6, screenY, 20, 3);
-            // Tower base
-            ctx.fillStyle = '#8a6a44';
-            ctx.fillRect(screenX + 8, screenY + 14, 16, 16);
-            ctx.fillStyle = '#9a7a54';
-            ctx.fillRect(screenX + 8, screenY + 14, 16, 2);
-            // Ladder
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 9, screenY + 2, 2, 12);
-            ctx.fillRect(screenX + 21, screenY + 2, 2, 12);
-            ctx.fillStyle = '#6e4f3e';
-            for (let r = 2; r <= 12; r += 3) {
-                ctx.fillRect(screenX + 9, screenY + r, 14, 2);
-            }
-            break;
-        case 15: // Village door - drawn in drawDoors() after buildings
-            break;
-        case 16: // Exit mat (interior door)
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Door frame
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX, screenY, 2, TILE_SIZE);
-            ctx.fillRect(screenX + 30, screenY, 2, TILE_SIZE);
-            // Mat
-            ctx.fillStyle = '#3d2b1e';
-            ctx.fillRect(screenX + 5, screenY + 12, 22, 16);
-            ctx.fillStyle = '#5a3f2a';
-            ctx.fillRect(screenX + 7, screenY + 14, 18, 12);
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX + 9, screenY + 16, 14, 2);
-            ctx.fillRect(screenX + 9, screenY + 21, 14, 2);
-            break;
-        case 17: // Table
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#8a6a44';
-            ctx.fillRect(screenX + 4, screenY + 12, 24, 6);
-            ctx.fillStyle = '#9a7a54';
-            ctx.fillRect(screenX + 4, screenY + 12, 24, 2);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 6, screenY + 18, 3, 12);
-            ctx.fillRect(screenX + 23, screenY + 18, 3, 12);
-            break;
-        case 18: // Chair
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#8a6a44';
-            ctx.fillRect(screenX + 8, screenY + 18, 16, 6);
-            ctx.fillStyle = '#6b4a2f';
-            ctx.fillRect(screenX + 8, screenY + 8, 4, 10);
-            ctx.fillRect(screenX + 20, screenY + 8, 4, 10);
-            ctx.fillRect(screenX + 8, screenY + 8, 16, 2);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 9, screenY + 24, 2, 6);
-            ctx.fillRect(screenX + 21, screenY + 24, 2, 6);
-            break;
-        case 19: // Bookshelf
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 4, screenY + 2, 24, 28);
-            ctx.fillStyle = '#6e4f3e';
-            ctx.fillRect(screenX + 4, screenY + 2, 24, 2);
-            const bookColors = ['#c93838', '#4a6fa5', '#7cc86b', '#ffd93d', '#8b7355'];
-            for (let row = 0; row < 3; row++) {
-                const by = screenY + 5 + row * 8;
-                ctx.fillStyle = '#5c4033';
-                ctx.fillRect(screenX + 6, by, 20, 6);
-                for (let b = 0; b < 4; b++) {
-                    ctx.fillStyle = bookColors[(b + row) % bookColors.length];
-                    ctx.fillRect(screenX + 7 + b * 5, by + 1, 4, 5);
-                }
-            }
-            break;
-        case 6: // Wooden floor
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Plank seams
-            ctx.fillStyle = '#6b4a2f';
-            ctx.fillRect(screenX, screenY + 15, TILE_SIZE, 2);
-            ctx.fillRect(screenX + 15, screenY, 2, 15);
-            ctx.fillRect(screenX + 30, screenY + 16, 2, 16);
-            // Wood grain
-            ctx.fillStyle = '#8a6a44';
-            ctx.fillRect(screenX + 4, screenY + 4, 6, 2);
-            ctx.fillRect(screenX + 20, screenY + 20, 6, 2);
-            break;
-        case 7: // Wooden wall
-            ctx.fillStyle = '#6b4a2f';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Top trim and baseboard
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX + 2, screenY + 2, 28, 2);
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX, screenY + 26, TILE_SIZE, 6);
-            // Vertical panel lines
-            ctx.fillStyle = '#5c3d26';
-            ctx.fillRect(screenX + 7, screenY + 4, 1, 22);
-            ctx.fillRect(screenX + 15, screenY + 4, 1, 22);
-            ctx.fillRect(screenX + 23, screenY + 4, 1, 22);
-            break;
-        case 8: // Bed
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            // Headboard
-            ctx.fillStyle = '#4a3020';
-            ctx.fillRect(screenX + 2, screenY + 2, 28, 5);
-            // Frame
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(screenX + 2, screenY + 6, 28, 24);
-            // Blanket
-            ctx.fillStyle = '#a0503a';
-            ctx.fillRect(screenX + 4, screenY + 8, 24, 18);
-            ctx.fillStyle = '#b5653f';
-            ctx.fillRect(screenX + 4, screenY + 18, 24, 8);
-            // Pillow
-            ctx.fillStyle = '#f0ead6';
-            ctx.fillRect(screenX + 5, screenY + 9, 10, 6);
-            break;
-        case 9: // Father's sword in a glass case (2 tiles tall)
-            ctx.fillStyle = '#7a5c3a';
-            ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            const caseTop = map[tileY - 1] && map[tileY - 1][tileX] === 9;
-            const caseBelow = map[tileY + 1] && map[tileY + 1][tileX] === 9;
-            // Glass box spans both tiles
-            const glassY = caseTop ? screenY - 28 : screenY + 4;
-            ctx.fillStyle = 'rgba(180, 220, 255, 0.12)';
-            ctx.fillRect(screenX + 3, glassY, 26, 56);
-            ctx.strokeStyle = 'rgba(210, 235, 255, 0.7)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(screenX + 3, glassY, 26, 56);
-            // Pedestal (drawn on the bottom tile)
-            if (caseTop) {
-                ctx.fillStyle = '#5c4033';
-                ctx.fillRect(screenX + 6, screenY + 22, 20, 3);
-                ctx.fillStyle = '#4a3020';
-                ctx.fillRect(screenX + 4, screenY + 25, 24, 6);
-            }
-            // Sword (drawn on the top tile, spans downward)
-            if (caseBelow) {
-                ctx.fillStyle = '#d7dde3';
-                ctx.fillRect(screenX + 14, screenY + 8, 4, 42);
-                ctx.beginPath();
-                ctx.moveTo(screenX + 14, screenY + 8);
-                ctx.lineTo(screenX + 18, screenY + 8);
-                ctx.lineTo(screenX + 16, screenY + 12);
-                ctx.fill();
-                ctx.fillStyle = '#b08d3a';
-                ctx.fillRect(screenX + 12, screenY + 48, 8, 3);
-                ctx.fillStyle = '#4a3020';
-                ctx.fillRect(screenX + 14, screenY + 51, 4, 8);
-            }
-            break;
+        case 5: drawWater(screenX, screenY, mapX, mapY); break;
+        case 6: drawFloor(screenX, screenY, mapX, mapY); break;
+        case 7: drawInteriorWall(screenX, screenY); break;
+        case 8: drawBed(screenX, screenY); break;
+        case 9: drawSwordCase(screenX, screenY, mapX, mapY); break;
+        case 10: drawCrops(screenX, screenY); break;
+        case 11: drawWell(screenX, screenY, mapX, mapY); break;
+        case 12: drawForge(screenX, screenY, mapX, mapY); break;
+        case 13: drawMarket(screenX, screenY, mapX, mapY); break;
+        case 14: drawWatchtower(screenX, screenY, mapX, mapY); break;
+        case 15: break; // door drawn later
+        case 16: drawExitMat(screenX, screenY); break;
+        case 17: drawTable(screenX, screenY); break;
+        case 18: drawChair(screenX, screenY); break;
+        case 19: drawBookshelf(screenX, screenY); break;
+        default: drawGrassBase(screenX, screenY, mapX, mapY); break;
     }
 }
+
+// ------------------------------------------------------------------
+// Sprites — FireRed-style proportions (big head, simple eyes, outlines)
+// ------------------------------------------------------------------
 
 function drawPlayer() {
-    const screenX = player.x - (camera.x * TILE_SIZE);
-    const screenY = player.y - (camera.y * TILE_SIZE);
+    const screenX = Math.floor(player.x - camera.x * TILE_SIZE);
+    const screenY = Math.floor(player.y - camera.y * TILE_SIZE);
 
-    // Animation bobbing when moving
-    let bobOffset = 0;
+    // 2-frame bob while walking (integer pixels only)
+    let bob = 0;
     if (player.isMoving) {
-        player.animFrame = (player.animFrame + 1) % 8;
-        bobOffset = Math.sin(player.animFrame * Math.PI / 4) * 2;
+        player.animFrame = (player.animFrame + 1) % 16;
+        bob = (player.animFrame < 8) ? 0 : -1;
     }
 
-    const px = screenX;
-    const py = screenY + bobOffset;
+    const ox = screenX;
+    const oy = screenY + bob;
+    pixelShadow(ox + 16, oy + 30);
 
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(px + 16, py + 31, 9, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (player.facing === 'down') drawPlayerDown(px, py);
-    else if (player.facing === 'up') drawPlayerUp(px, py);
-    else if (player.facing === 'left') drawPlayerSide(px, py, -1);
-    else drawPlayerSide(px, py, 1);
+    if (player.facing === 'down') drawPlayerDown(ox, oy);
+    else if (player.facing === 'up') drawPlayerUp(ox, oy);
+    else if (player.facing === 'left') drawPlayerSide(ox, oy, -1);
+    else drawPlayerSide(ox, oy, 1);
 }
 
-function drawPlayerDown(px, py) {
-    // Sword sheathed on back (behind everything)
-    ctx.fillStyle = '#4a3020';
-    ctx.fillRect(px + 22, py + 12, 3, 16);
-    ctx.fillStyle = '#2f1f12';
-    ctx.fillRect(px + 24, py + 12, 1, 16);
-    ctx.fillStyle = '#c8a23a';
-    ctx.fillRect(px + 21, py + 11, 5, 2);
-    ctx.fillStyle = '#d7dde3';
-    ctx.fillRect(px + 22, py + 28, 3, 2);
+function drawPlayerDown(ox, oy) {
+    // Sheathed sword (behind)
+    px(ox + 21, oy + 12, 5, 16, P.woodD);
+    px(ox + 22, oy + 12, 2, 16, P.wood);
+    px(ox + 20, oy + 9, 6, 3, P.gold);
 
-    // Shoulders
-    ctx.fillStyle = '#b53030';
-    ctx.fillRect(px + 6, py + 14, 20, 4);
-    ctx.fillStyle = '#e05656';
-    ctx.fillRect(px + 6, py + 14, 20, 1);
-    ctx.fillStyle = '#8f2323';
-    ctx.fillRect(px + 6, py + 17, 20, 1);
+    // Legs / boots
+    px(ox + 10, oy + 25, 5, 5, P.pants);
+    px(ox + 17, oy + 25, 5, 5, P.pants);
+    px(ox + 9, oy + 29, 6, 3, P.boot);
+    px(ox + 17, oy + 29, 6, 3, P.boot);
 
+    // Body outline + tunic
+    px(ox + 8, oy + 14, 16, 13, P.outline);
+    px(ox + 9, oy + 15, 14, 11, P.red);
+    px(ox + 9, oy + 15, 14, 2, P.redL);
     // Arms
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(px + 5, py + 16, 4, 7);
-    ctx.fillRect(px + 23, py + 16, 4, 7);
-    ctx.fillStyle = '#e05656';
-    ctx.fillRect(px + 5, py + 16, 1, 6);
-    ctx.fillRect(px + 26, py + 16, 1, 6);
-    // Gloved hands
-    ctx.fillStyle = '#5a5a5a';
-    ctx.fillRect(px + 5, py + 23, 4, 3);
-    ctx.fillRect(px + 23, py + 23, 4, 3);
-
-    // Torso
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(px + 8, py + 18, 16, 8);
-    // Chest plate
-    ctx.fillStyle = '#d04040';
-    ctx.fillRect(px + 9, py + 18, 14, 3);
-    // Center seam
-    ctx.fillStyle = '#7a1f1f';
-    ctx.fillRect(px + 15, py + 21, 2, 6);
-    // Life-suit breather tube
-    ctx.fillStyle = '#2f2f2f';
-    ctx.fillRect(px + 8, py + 20, 2, 5);
-    ctx.fillStyle = '#3aa8ff';
-    ctx.fillRect(px + 8, py + 21, 1, 3);
-    ctx.fillStyle = '#7cc8ff';
-    ctx.fillRect(px + 8, py + 21, 1, 1);
-
+    px(ox + 6, oy + 16, 3, 8, P.redD);
+    px(ox + 23, oy + 16, 3, 8, P.redD);
+    px(ox + 6, oy + 24, 3, 3, P.skin);
+    px(ox + 23, oy + 24, 3, 3, P.skin);
+    // Life-suit chest plate
+    px(ox + 12, oy + 17, 8, 6, P.suit);
+    px(ox + 13, oy + 18, 2, 4, P.glow);
+    px(ox + 13, oy + 18, 2, 1, P.glowL);
     // Belt
-    ctx.fillStyle = '#3d3d3d';
-    ctx.fillRect(px + 7, py + 25, 18, 3);
-    ctx.fillStyle = '#555';
-    ctx.fillRect(px + 7, py + 25, 18, 1);
-    ctx.fillStyle = '#c8c8c8';
-    ctx.fillRect(px + 14, py + 25, 4, 3);
+    px(ox + 9, oy + 24, 14, 2, P.suit);
+    px(ox + 14, oy + 24, 4, 2, P.gold);
 
-    // Legs
-    ctx.fillStyle = '#8f2b2b';
-    ctx.fillRect(px + 9, py + 28, 6, 2);
-    ctx.fillRect(px + 17, py + 28, 6, 2);
-    // Boots
-    ctx.fillStyle = '#2c2c2c';
-    ctx.fillRect(px + 8, py + 30, 7, 2);
-    ctx.fillRect(px + 17, py + 30, 7, 2);
-
-    // Neck
-    ctx.fillStyle = '#e8b890';
-    ctx.fillRect(px + 13, py + 12, 6, 2);
-    // Face
-    ctx.fillStyle = '#f0c8a0';
-    ctx.fillRect(px + 10, py + 4, 12, 10);
-    ctx.fillStyle = '#e8b890';
-    ctx.fillRect(px + 10, py + 13, 12, 1);
-    // Hair
-    ctx.fillStyle = '#5a3a22';
-    ctx.fillRect(px + 9, py + 2, 14, 4);
-    ctx.fillRect(px + 9, py + 4, 2, 6);
-    ctx.fillRect(px + 21, py + 4, 2, 6);
-    ctx.fillRect(px + 11, py + 5, 2, 3);
-    ctx.fillRect(px + 16, py + 5, 2, 3);
-    ctx.fillStyle = '#3a2417';
-    ctx.fillRect(px + 9, py + 2, 14, 1);
-    // Eyes
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(px + 12, py + 8, 3, 3);
-    ctx.fillRect(px + 18, py + 8, 3, 3);
-    ctx.fillStyle = '#222';
-    ctx.fillRect(px + 13, py + 9, 2, 2);
-    ctx.fillRect(px + 19, py + 9, 2, 2);
+    // Head (large FireRed proportion)
+    px(ox + 10, oy + 4, 12, 11, P.outline);
+    px(ox + 11, oy + 5, 10, 9, P.skin);
+    // Hair cap + sideburns
+    px(ox + 10, oy + 3, 12, 4, P.hair);
+    px(ox + 10, oy + 3, 12, 2, P.hairD);
+    px(ox + 10, oy + 5, 2, 5, P.hair);
+    px(ox + 20, oy + 5, 2, 5, P.hair);
+    px(ox + 12, oy + 4, 3, 2, P.hairL);
+    // Bangs
+    px(ox + 12, oy + 5, 2, 2, P.hair);
+    px(ox + 18, oy + 5, 2, 2, P.hair);
+    // Eyes (simple black dots — classic GBA)
+    px(ox + 13, oy + 8, 2, 2, P.outline);
+    px(ox + 17, oy + 8, 2, 2, P.outline);
     // Mouth
-    ctx.fillStyle = '#c08a68';
-    ctx.fillRect(px + 15, py + 12, 2, 1);
+    px(ox + 15, oy + 11, 2, 1, P.skinD);
 }
 
-function drawPlayerUp(px, py) {
-    // Sword sheathed on back
-    ctx.fillStyle = '#4a3020';
-    ctx.fillRect(px + 22, py + 12, 3, 16);
-    ctx.fillStyle = '#c8a23a';
-    ctx.fillRect(px + 21, py + 11, 5, 2);
-    ctx.fillStyle = '#d7dde3';
-    ctx.fillRect(px + 22, py + 28, 3, 2);
+function drawPlayerUp(ox, oy) {
+    // Legs
+    px(ox + 10, oy + 25, 5, 5, P.pants);
+    px(ox + 17, oy + 25, 5, 5, P.pants);
+    px(ox + 9, oy + 29, 6, 3, P.boot);
+    px(ox + 17, oy + 29, 6, 3, P.boot);
 
-    // Shoulders
-    ctx.fillStyle = '#b53030';
-    ctx.fillRect(px + 6, py + 14, 20, 4);
-    ctx.fillStyle = '#8f2323';
-    ctx.fillRect(px + 6, py + 17, 20, 1);
+    // Body
+    px(ox + 8, oy + 14, 16, 13, P.outline);
+    px(ox + 9, oy + 15, 14, 11, P.redD);
+    px(ox + 9, oy + 15, 14, 2, P.red);
+    px(ox + 6, oy + 16, 3, 8, P.redD);
+    px(ox + 23, oy + 16, 3, 8, P.redD);
+    px(ox + 6, oy + 24, 3, 3, P.skin);
+    px(ox + 23, oy + 24, 3, 3, P.skin);
+    // Back life-suit unit
+    px(ox + 12, oy + 17, 8, 5, P.suit);
+    px(ox + 14, oy + 18, 2, 2, P.glow);
+    px(ox + 9, oy + 24, 14, 2, P.suit);
+    // Sword on back
+    px(ox + 21, oy + 10, 5, 16, P.woodD);
+    px(ox + 20, oy + 7, 6, 3, P.gold);
 
-    // Arms
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(px + 5, py + 16, 4, 7);
-    ctx.fillRect(px + 23, py + 16, 4, 7);
-    ctx.fillStyle = '#5a5a5a';
-    ctx.fillRect(px + 5, py + 23, 4, 3);
-    ctx.fillRect(px + 23, py + 23, 4, 3);
+    // Head from behind (all hair)
+    px(ox + 10, oy + 3, 12, 12, P.outline);
+    px(ox + 11, oy + 4, 10, 10, P.hair);
+    px(ox + 11, oy + 4, 10, 2, P.hairD);
+    px(ox + 13, oy + 6, 3, 2, P.hairL);
+    px(ox + 18, oy + 6, 2, 2, P.hairL);
+}
 
-    // Torso
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(px + 8, py + 18, 16, 8);
-    ctx.fillStyle = '#b53030';
-    ctx.fillRect(px + 8, py + 18, 16, 1);
-    // Life-suit back unit
-    ctx.fillStyle = '#a02828';
-    ctx.fillRect(px + 10, py + 18, 12, 6);
-    ctx.fillStyle = '#3aa8ff';
-    ctx.fillRect(px + 14, py + 19, 2, 2);
-    ctx.fillStyle = '#2f2f2f';
-    ctx.fillRect(px + 13, py + 22, 6, 2);
+function drawPlayerSide(ox, oy, dir) {
+    // dir: 1 = right, -1 = left. Draw relative to center with manual mirror.
+    const m = (x) => (dir === 1 ? ox + 16 + x : ox + 16 - x - 1);
+    const mw = (x, w) => (dir === 1 ? ox + 16 + x : ox + 16 - x - w);
 
-    // Belt
-    ctx.fillStyle = '#3d3d3d';
-    ctx.fillRect(px + 7, py + 25, 18, 3);
-    ctx.fillStyle = '#555';
-    ctx.fillRect(px + 7, py + 25, 18, 1);
+    // Sword behind
+    px(mw(-12, 4), oy + 10, 4, 14, P.woodD);
+    px(mw(-13, 5), oy + 7, 5, 3, P.gold);
 
     // Legs
-    ctx.fillStyle = '#8f2b2b';
-    ctx.fillRect(px + 9, py + 28, 6, 2);
-    ctx.fillRect(px + 17, py + 28, 6, 2);
-    ctx.fillStyle = '#2c2c2c';
-    ctx.fillRect(px + 8, py + 30, 7, 2);
-    ctx.fillRect(px + 17, py + 30, 7, 2);
+    px(mw(-7, 5), oy + 25, 5, 5, P.pants);
+    px(mw(2, 5), oy + 25, 5, 5, P.pants);
+    px(mw(-8, 6), oy + 29, 6, 3, P.boot);
+    px(mw(2, 6), oy + 29, 6, 3, P.boot);
 
-    // Back of head
-    ctx.fillStyle = '#5a3a22';
-    ctx.fillRect(px + 10, py + 3, 12, 11);
-    ctx.fillStyle = '#3a2417';
-    ctx.fillRect(px + 10, py + 3, 12, 2);
-    ctx.fillRect(px + 10, py + 11, 12, 2);
-}
-
-function drawPlayerSide(px, py, f) {
-    // Sword sheathed on the back (opposite side of the face)
-    const sx = f === 1 ? px + 7 : px + 22;
-    ctx.fillStyle = '#4a3020';
-    ctx.fillRect(sx, py + 13, 3, 14);
-    ctx.fillStyle = '#c8a23a';
-    ctx.fillRect(sx - 1, py + 12, 5, 2);
-    ctx.fillStyle = '#d7dde3';
-    ctx.fillRect(sx, py + 27, 3, 1);
-
-    // Shoulders
-    ctx.fillStyle = '#b53030';
-    ctx.fillRect(px + 5, py + 14, 22, 4);
-    ctx.fillStyle = '#e05656';
-    ctx.fillRect(px + 5, py + 14, 22, 1);
-
-    // Arms (back arm darker, front arm lighter)
-    ctx.fillStyle = '#a02828';
-    ctx.fillRect(f === 1 ? px + 6 : px + 23, py + 16, 4, 7);
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(f === 1 ? px + 22 : px + 6, py + 16, 4, 7);
-    ctx.fillStyle = '#5a5a5a';
-    ctx.fillRect(f === 1 ? px + 22 : px + 6, py + 23, 4, 3);
-
-    // Torso
-    ctx.fillStyle = '#c93838';
-    ctx.fillRect(px + 7, py + 18, 18, 8);
-    ctx.fillStyle = '#b53030';
-    ctx.fillRect(px + 7, py + 18, 18, 1);
-    ctx.fillStyle = '#7a1f1f';
-    ctx.fillRect(px + 12, py + 20, 2, 6);
-
-    // Belt
-    ctx.fillStyle = '#3d3d3d';
-    ctx.fillRect(px + 6, py + 25, 20, 3);
-    ctx.fillStyle = '#c8c8c8';
-    ctx.fillRect(px + 13, py + 25, 4, 3);
-
-    // Legs
-    ctx.fillStyle = '#8f2b2b';
-    ctx.fillRect(px + 9, py + 28, 6, 2);
-    ctx.fillRect(px + 17, py + 28, 6, 2);
-    ctx.fillStyle = '#2c2c2c';
-    ctx.fillRect(px + 8, py + 30, 7, 2);
-    ctx.fillRect(px + 17, py + 30, 7, 2);
-
-    // Neck
-    ctx.fillStyle = '#e8b890';
-    ctx.fillRect(px + 13, py + 12, 6, 2);
-    // Face
-    ctx.fillStyle = '#f0c8a0';
-    ctx.fillRect(px + 10, py + 4, 12, 10);
-    ctx.fillStyle = '#e8b890';
-    ctx.fillRect(px + 10, py + 13, 12, 1);
-    // Hair
-    ctx.fillStyle = '#5a3a22';
-    ctx.fillRect(px + 8, py + 2, 16, 4);
-    ctx.fillRect(px + 8, py + 4, 3, 9);
-    ctx.fillRect(px + 21, py + 4, 3, 9);
-    ctx.fillStyle = '#3a2417';
-    ctx.fillRect(px + 8, py + 2, 16, 1);
-    // Eye (facing side)
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(f === 1 ? px + 18 : px + 11, py + 8, 3, 3);
-    ctx.fillStyle = '#222';
-    ctx.fillRect(f === 1 ? px + 19 : px + 12, py + 9, 2, 2);
-    // Mouth
-    ctx.fillStyle = '#c08a68';
-    ctx.fillRect(f === 1 ? px + 17 : px + 14, py + 12, 2, 1);
-}
-
-function drawNPC(npc) {
-    const screenX = npc.tileX * TILE_SIZE - (camera.x * TILE_SIZE);
-    const screenY = npc.tileY * TILE_SIZE - (camera.y * TILE_SIZE);
-
-    // Only draw if visible
-    if (screenX < -TILE_SIZE || screenX > canvas.width || screenY < -TILE_SIZE || screenY > canvas.height) return;
-
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(screenX + 16, screenY + 31, 9, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    const isElder = npc.id.includes('elder');
-    const dark = adjustColor(npc.color, -40);
-    const light = adjustColor(npc.color, 25);
-
-    // Robe
-    ctx.fillStyle = npc.color;
-    ctx.fillRect(screenX + 7, screenY + 14, 18, 17);
-    ctx.fillStyle = light;
-    ctx.fillRect(screenX + 7, screenY + 14, 18, 1);
-    ctx.fillRect(screenX + 9, screenY + 15, 2, 14);
-    // Robe folds
-    ctx.fillStyle = dark;
-    ctx.fillRect(screenX + 12, screenY + 15, 1, 15);
-    ctx.fillRect(screenX + 18, screenY + 15, 1, 15);
-    ctx.fillRect(screenX + 23, screenY + 15, 1, 15);
-    // Hem
-    ctx.fillStyle = dark;
-    ctx.fillRect(screenX + 7, screenY + 28, 18, 3);
-
-    // Collar trim for elders
-    if (isElder) {
-        ctx.fillStyle = '#d0d0d0';
-        ctx.fillRect(screenX + 9, screenY + 14, 14, 2);
-    }
+    // Body
+    px(mw(-8, 16), oy + 14, 16, 13, P.outline);
+    px(mw(-7, 14), oy + 15, 14, 11, P.red);
+    px(mw(-7, 14), oy + 15, 14, 2, P.redL);
+    // Front arm
+    px(mw(6, 3), oy + 16, 3, 8, P.redD);
+    px(mw(6, 3), oy + 24, 3, 3, P.skin);
+    // Life suit side
+    px(mw(0, 5), oy + 17, 5, 6, P.suit);
+    px(mw(1, 2), oy + 18, 2, 3, P.glow);
+    px(mw(-7, 14), oy + 24, 14, 2, P.suit);
 
     // Head
-    ctx.fillStyle = '#e8c4a0';
-    ctx.fillRect(screenX + 10, screenY + 4, 12, 10);
-    ctx.fillStyle = '#d8b090';
-    ctx.fillRect(screenX + 10, screenY + 12, 12, 2);
-
-    if (isElder) {
-        // Bald crown, gray side hair, beard
-        ctx.fillStyle = '#d0d0d0';
-        ctx.fillRect(screenX + 9, screenY + 3, 14, 3);
-        ctx.fillRect(screenX + 8, screenY + 4, 2, 7);
-        ctx.fillRect(screenX + 22, screenY + 4, 2, 7);
-        ctx.fillRect(screenX + 10, screenY + 11, 12, 3);
-        ctx.fillRect(screenX + 11, screenY + 13, 4, 3);
-        ctx.fillRect(screenX + 17, screenY + 13, 4, 3);
-        // Eyes + stern brows
-        ctx.fillStyle = '#222';
-        ctx.fillRect(screenX + 12, screenY + 8, 2, 2);
-        ctx.fillRect(screenX + 18, screenY + 8, 2, 2);
-        ctx.fillStyle = '#9a9a9a';
-        ctx.fillRect(screenX + 11, screenY + 6, 4, 1);
-        ctx.fillRect(screenX + 17, screenY + 6, 4, 1);
-    } else {
-        // Tinslaire: messy young hair
-        ctx.fillStyle = '#5a4030';
-        ctx.fillRect(screenX + 9, screenY + 2, 14, 4);
-        ctx.fillRect(screenX + 9, screenY + 4, 2, 6);
-        ctx.fillRect(screenX + 21, screenY + 4, 2, 6);
-        // Eyes + smile
-        ctx.fillStyle = '#222';
-        ctx.fillRect(screenX + 12, screenY + 8, 2, 2);
-        ctx.fillRect(screenX + 18, screenY + 8, 2, 2);
-        ctx.fillStyle = '#b08060';
-        ctx.fillRect(screenX + 15, screenY + 12, 2, 1);
-    }
-
-    // Name plate
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(screenX + 6, screenY - 8, 20, 9);
-    ctx.fillStyle = '#ffd93d';
-    ctx.font = 'bold 7px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(npc.name, screenX + 16, screenY - 1);
+    px(mw(-6, 12), oy + 4, 12, 11, P.outline);
+    px(mw(-5, 10), oy + 5, 10, 9, P.skin);
+    // Hair
+    px(mw(-6, 12), oy + 2, 12, 4, P.hair);
+    px(mw(-6, 12), oy + 2, 12, 2, P.hairD);
+    px(mw(-6, 2), oy + 4, 2, 6, P.hair);
+    px(mw(3, 3), oy + 4, 3, 3, P.hair); // forelock
+    // Eye facing forward
+    px(m(2), oy + 8, 2, 2, P.outline);
+    px(m(3), oy + 11, 2, 1, P.skinD);
 }
 
 function adjustColor(hex, amount) {
@@ -1150,56 +1034,115 @@ function adjustColor(hex, amount) {
     return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
 }
 
+function drawNPC(npc) {
+    const screenX = npc.tileX * TILE_SIZE - camera.x * TILE_SIZE;
+    const screenY = npc.tileY * TILE_SIZE - camera.y * TILE_SIZE;
+    if (screenX < -TILE_SIZE || screenX > canvas.width || screenY < -TILE_SIZE || screenY > canvas.height) return;
+
+    pixelShadow(screenX + 16, screenY + 30);
+
+    const isElder = npc.id.includes('elder');
+    const robe = npc.color;
+    const robeD = adjustColor(npc.color, -35);
+    const robeL = adjustColor(npc.color, 30);
+
+    // Robe body (FireRed NPC silhouette)
+    px(screenX + 8, screenY + 14, 16, 16, P.outline);
+    px(screenX + 9, screenY + 15, 14, 14, robe);
+    px(screenX + 9, screenY + 15, 14, 2, robeL);
+    px(screenX + 11, screenY + 16, 1, 12, robeD);
+    px(screenX + 20, screenY + 16, 1, 12, robeD);
+    px(screenX + 9, screenY + 27, 14, 2, robeD);
+    if (isElder) {
+        px(screenX + 10, screenY + 14, 12, 2, P.hairGray);
+    }
+
+    // Head
+    px(screenX + 10, screenY + 4, 12, 11, P.outline);
+    px(screenX + 11, screenY + 5, 10, 9, P.skin);
+
+    if (isElder) {
+        // Bald + gray sides + beard
+        px(screenX + 11, screenY + 4, 10, 3, P.skinD);
+        px(screenX + 10, screenY + 5, 2, 6, P.hairGray);
+        px(screenX + 20, screenY + 5, 2, 6, P.hairGray);
+        px(screenX + 12, screenY + 11, 8, 3, P.hairGray);
+        px(screenX + 13, screenY + 13, 3, 2, P.hairGray);
+        px(screenX + 16, screenY + 13, 3, 2, P.hairGray);
+        px(screenX + 13, screenY + 8, 2, 2, P.outline);
+        px(screenX + 17, screenY + 8, 2, 2, P.outline);
+        px(screenX + 12, screenY + 7, 4, 1, P.metalD);
+        px(screenX + 16, screenY + 7, 4, 1, P.metalD);
+    } else {
+        // Tinslaire young hair
+        px(screenX + 10, screenY + 2, 12, 4, P.hair);
+        px(screenX + 10, screenY + 2, 12, 2, P.hairD);
+        px(screenX + 10, screenY + 4, 2, 5, P.hair);
+        px(screenX + 20, screenY + 4, 2, 5, P.hair);
+        px(screenX + 13, screenY + 8, 2, 2, P.outline);
+        px(screenX + 17, screenY + 8, 2, 2, P.outline);
+        px(screenX + 15, screenY + 11, 2, 1, P.skinD);
+    }
+
+    // Name tag (solid, no alpha)
+    const label = npc.name.length > 8 ? npc.name.slice(0, 7) + '.' : npc.name;
+    ctx.font = 'bold 8px monospace';
+    ctx.textAlign = 'center';
+    const tw = Math.ceil(ctx.measureText(label).width) + 6;
+    px(screenX + 16 - tw / 2, screenY - 10, tw, 9, P.uiBlueD);
+    px(screenX + 16 - tw / 2 + 1, screenY - 9, tw - 2, 7, P.uiCream);
+    ctx.fillStyle = P.uiBlueD;
+    ctx.fillText(label, screenX + 16, screenY - 3);
+}
+
 function drawDialog() {
     if (!currentDialog) return;
 
-    // Dialog box background
-    ctx.fillStyle = 'rgba(20, 20, 30, 0.95)';
-    ctx.fillRect(40, canvas.height - 70, canvas.width - 80, 60);
-    
-    // Border
-    ctx.strokeStyle = '#6a8faf';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, canvas.height - 70, canvas.width - 80, 60);
+    // Pokémon FireRed-style text box: cream fill, blue/black double border
+    const boxX = 16;
+    const boxY = canvas.height - 78;
+    const boxW = canvas.width - 32;
+    const boxH = 66;
 
-    // Speaker name
-    ctx.fillStyle = '#ffd93d';
-    ctx.font = 'bold 12px monospace';
+    px(boxX, boxY, boxW, boxH, P.uiBlack);
+    px(boxX + 2, boxY + 2, boxW - 4, boxH - 4, P.uiBlue);
+    px(boxX + 4, boxY + 4, boxW - 8, boxH - 8, P.uiBlack);
+    px(boxX + 6, boxY + 6, boxW - 12, boxH - 12, P.uiCream);
+
+    // Name
+    ctx.fillStyle = P.uiName;
+    ctx.font = 'bold 11px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(currentDialog.name + ':', 50, canvas.height - 52);
+    ctx.fillText(currentDialog.name, boxX + 14, boxY + 20);
 
-    // Dialog text
-    ctx.fillStyle = '#eee';
+    // Body text
+    ctx.fillStyle = P.uiText;
     ctx.font = '11px monospace';
     const text = currentDialog.dialog[dialogIndex];
-    
-    // Word wrap
     const words = text.split(' ');
     let line = '';
-    let lines = [];
-    const maxWidth = canvas.width - 100;
-    
-    for (let word of words) {
-        const testLine = line + word + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && line !== '') {
+    const lines = [];
+    const maxWidth = boxW - 36;
+    for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > maxWidth && line !== '') {
             lines.push(line);
             line = word + ' ';
         } else {
-            line = testLine;
+            line = test;
         }
     }
     lines.push(line);
-
-    // Draw lines
-    for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], 50, canvas.height - 38 + (i * 14));
+    for (let i = 0; i < Math.min(lines.length, 3); i++) {
+        ctx.fillText(lines[i], boxX + 14, boxY + 36 + i * 12);
     }
 
-    // Continue indicator
-    ctx.fillStyle = '#888';
-    ctx.font = '10px monospace';
-    ctx.fillText('[Press E to continue]', canvas.width - 140, canvas.height - 18);
+    // Blink continue arrow (▼)
+    if (Math.floor(Date.now() / 400) % 2 === 0) {
+        px(boxX + boxW - 22, boxY + boxH - 18, 8, 2, P.uiBlueD);
+        px(boxX + boxW - 20, boxY + boxH - 16, 4, 2, P.uiBlueD);
+        px(boxX + boxW - 18, boxY + boxH - 14, 2, 2, P.uiBlueD);
+    }
 }
 
 function drawInteractPrompt() {
@@ -1207,16 +1150,22 @@ function drawInteractPrompt() {
 
     let label = null;
     if (currentArea === 'interior') {
-        if (nearSwordCase()) label = '[E] Inspect';
+        if (nearSwordCase()) label = 'E · Inspect';
     } else if (getNearbyNPC()) {
-        label = '[E] Talk';
+        label = 'E · Talk';
     }
 
     if (label) {
-        ctx.fillStyle = '#ffd93d';
+        // Small FireRed-style prompt pill
         ctx.font = 'bold 10px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(label, canvas.width / 2, 20);
+        const tw = Math.ceil(ctx.measureText(label).width) + 16;
+        const x = canvas.width / 2 - tw / 2;
+        px(x, 8, tw, 14, P.uiBlack);
+        px(x + 1, 9, tw - 2, 12, P.uiBlue);
+        px(x + 2, 10, tw - 4, 10, P.uiCream);
+        ctx.fillStyle = P.uiText;
+        ctx.fillText(label, canvas.width / 2, 18);
     }
 }
 
@@ -1233,65 +1182,70 @@ function drawTiles() {
     }
 }
 
-// Buildings are 5x5 tiles on the outside, but their interiors are 15x10.
-// Each building is drawn as one unit from its root tile so it can be seen
-// even when the camera only shows part of it.
+// Buildings are 5x5 tiles outside; drawn as one unit from the NW root tile.
+// Roofs use stepped horizontal bands (no triangle paths) — pure GBA pixels.
 function drawBuilding(screenX, screenY, type) {
-    const c = {
-        3: { wall: '#4a6fa5', wallDark: '#3d5c8a', roof: '#8b4513', roofLight: '#a05a1e' },
-        4: { wall: '#a54a4a', wallDark: '#8a3a3a', roof: '#6b2323', roofLight: '#843030' },
-        20: { wall: '#c0a078', wallDark: '#a58560', roof: '#5c6b2a', roofLight: '#6e7d36' }
+    const pal = {
+        3:  { wall: P.wallBlue, wallD: P.wallBlueD, wallL: P.wallBlueL, roof: P.roofBlue, roofD: P.roofBlueD, roofL: P.roofBlueL, win: P.windowBlue },
+        4:  { wall: P.wallRed,  wallD: P.wallRedD,  wallL: P.wallRedL,  roof: P.roofRed,  roofD: P.roofRedD,  roofL: P.roofRedL,  win: P.window },
+        20: { wall: P.wallTan,  wallD: P.wallTanD,  wallL: P.wallTanL,  roof: P.roofGreen,roofD: P.roofGreenD,roofL: P.crop,     win: P.window }
     }[type];
 
-    const bw = 5 * TILE_SIZE;
-    const bh = 5 * TILE_SIZE;
+    const bw = 5 * TILE_SIZE; // 160
+    const bh = 5 * TILE_SIZE; // 160
 
-    // Grass base
-    ctx.fillStyle = '#2d5a1e';
-    ctx.fillRect(screenX, screenY, bw, bh);
+    // Grass under footprint
+    px(screenX, screenY, bw, bh, P.grass);
 
-    // Walls
-    ctx.fillStyle = c.wall;
-    ctx.fillRect(screenX, screenY + 96, bw, bh - 96);
-    // Wall shading and trim
-    ctx.fillStyle = c.wallDark;
-    ctx.fillRect(screenX, screenY + 96, bw, 3);
-    ctx.fillRect(screenX, screenY + bh - 16, bw, 8);
-    // Foundation
-    ctx.fillStyle = '#6b5344';
-    ctx.fillRect(screenX, screenY + bh - 10, bw, 10);
-
-    // Roof
-    ctx.fillStyle = c.roof;
-    ctx.beginPath();
-    ctx.moveTo(screenX + 4, screenY + 96);
-    ctx.lineTo(screenX + bw / 2, screenY + 30);
-    ctx.lineTo(screenX + bw - 4, screenY + 96);
-    ctx.fill();
-    ctx.fillStyle = c.roofLight;
-    ctx.beginPath();
-    ctx.moveTo(screenX + bw / 2 - 40, screenY + 82);
-    ctx.lineTo(screenX + bw / 2, screenY + 42);
-    ctx.lineTo(screenX + bw / 2 + 40, screenY + 82);
-    ctx.fill();
+    // ---- Stepped gable roof (FireRed house silhouette) ----
+    // Each band is 8px tall, narrowing toward the peak
+    const roofBaseY = screenY + 72;
+    const bands = [
+        { y: 0,  inset: 56 },
+        { y: 8,  inset: 44 },
+        { y: 16, inset: 32 },
+        { y: 24, inset: 20 },
+        { y: 32, inset: 8 },
+        { y: 40, inset: 0 },
+        { y: 48, inset: 0 },
+        { y: 56, inset: 0 }
+    ];
+    for (let i = 0; i < bands.length; i++) {
+        const b = bands[i];
+        const color = (i % 2 === 0) ? pal.roof : pal.roofD;
+        px(screenX + b.inset, roofBaseY - 56 + b.y, bw - b.inset * 2, 8, color);
+        // highlight on top edge of each band
+        px(screenX + b.inset, roofBaseY - 56 + b.y, bw - b.inset * 2, 2, pal.roofL);
+    }
+    // Roof overhang lip
+    px(screenX - 4, roofBaseY + 8, bw + 8, 6, pal.roofD);
+    px(screenX - 4, roofBaseY + 8, bw + 8, 2, pal.roof);
 
     // Chimney
-    ctx.fillStyle = '#7a5c4a';
-    ctx.fillRect(screenX + bw - 66, screenY + 46, 18, 28);
-    ctx.fillStyle = '#5c4033';
-    ctx.fillRect(screenX + bw - 66, screenY + 46, 18, 5);
+    px(screenX + bw - 40, roofBaseY - 40, 14, 28, P.metal);
+    px(screenX + bw - 40, roofBaseY - 40, 14, 4, P.metalD);
+    px(screenX + bw - 38, roofBaseY - 36, 4, 8, P.metalL);
 
-    // Windows
+    // ---- Walls ----
+    px(screenX, roofBaseY + 14, bw, bh - (roofBaseY - screenY) - 14, pal.wall);
+    px(screenX, roofBaseY + 14, bw, 3, pal.wallL);
+    // Side shading
+    px(screenX, roofBaseY + 14, 4, bh - (roofBaseY - screenY) - 14, pal.wallD);
+    px(screenX + bw - 4, roofBaseY + 14, 4, bh - (roofBaseY - screenY) - 14, pal.wallD);
+    // Foundation
+    px(screenX, screenY + bh - 10, bw, 10, P.found);
+    px(screenX, screenY + bh - 10, bw, 2, P.foundD);
+
+    // Windows (cross-mullion, warm interior glow)
     for (let i = 0; i < 2; i++) {
-        const wx = screenX + 22 + i * 82;
-        const wy = screenY + 112;
-        ctx.fillStyle = type === 4 ? '#ffd93d' : '#87ceeb';
-        ctx.fillRect(wx, wy, 34, 26);
-        ctx.fillStyle = '#bde3ff';
-        ctx.fillRect(wx, wy, 34, 3);
-        ctx.fillStyle = c.wallDark;
-        ctx.fillRect(wx + 15, wy, 3, 26);
-        ctx.fillRect(wx, wy + 11, 34, 3);
+        const wx = screenX + 18 + i * 78;
+        const wy = roofBaseY + 28;
+        px(wx - 2, wy - 2, 36, 28, pal.wallD);
+        px(wx, wy, 32, 24, pal.win);
+        px(wx, wy, 32, 3, P.uiWhite);
+        // Cross
+        px(wx + 14, wy, 4, 24, pal.wallD);
+        px(wx, wy + 10, 32, 4, pal.wallD);
     }
 }
 
@@ -1314,14 +1268,20 @@ function drawBuildings() {
 }
 
 function drawDoor(screenX, screenY) {
-    // Open doorway over the building wall
-    ctx.fillStyle = '#1a120c';
-    ctx.fillRect(screenX + 5, screenY + 4, 22, 26);
-    ctx.fillStyle = '#2a1d14';
-    ctx.fillRect(screenX + 7, screenY + 6, 18, 22);
-    // Threshold
-    ctx.fillStyle = '#8a8a8a';
-    ctx.fillRect(screenX + 2, screenY + 29, 28, 3);
+    // Wooden door inset into building wall (FireRed house door)
+    px(screenX + 4, screenY + 2, 24, 28, P.outline);
+    px(screenX + 6, screenY + 4, 20, 24, P.door);
+    px(screenX + 6, screenY + 4, 20, 2, P.doorL);
+    // Panels
+    px(screenX + 8, screenY + 8, 7, 8, P.doorL);
+    px(screenX + 17, screenY + 8, 7, 8, P.doorL);
+    px(screenX + 8, screenY + 18, 7, 8, P.doorL);
+    px(screenX + 17, screenY + 18, 7, 8, P.doorL);
+    // Knob
+    px(screenX + 22, screenY + 16, 2, 2, P.gold);
+    // Stone threshold
+    px(screenX + 2, screenY + 28, 28, 4, P.metal);
+    px(screenX + 2, screenY + 28, 28, 1, P.metalL);
 }
 
 function drawDoors() {
@@ -1334,26 +1294,19 @@ function drawDoors() {
 }
 
 function render() {
+    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawTiles();
 
-    // Buildings, doors, and NPCs only exist in the village
     if (currentArea === 'village') {
         drawBuildings();
         drawDoors();
-        for (const npc of npcs) {
-            drawNPC(npc);
-        }
+        for (const npc of npcs) drawNPC(npc);
     }
 
-    // Draw player
     drawPlayer();
-
-    // Draw interact prompt
     drawInteractPrompt();
-
-    // Draw dialog (on top of everything)
     drawDialog();
 }
 

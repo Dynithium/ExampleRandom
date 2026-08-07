@@ -6,109 +6,111 @@ ctx.imageSmoothingEnabled = false;
 const TILE_SIZE = 32; // 16px GBA tile at 2x (canvas is 2x GBA 240x160)
 let MAP_WIDTH = 25;
 let MAP_HEIGHT = 20;
-const MOVE_SPEED = 4;
 
 // ------------------------------------------------------------------
-// Game Boy Advance / Pokémon FireRed palette (limited, warm, soft)
+// Enriched GBA / Pokémon FireRed palette (limited, warm, soft)
 // ------------------------------------------------------------------
 const P = {
     // Outdoors
-    grass:      '#48a028',
-    grassDark:  '#308018',
-    grassLight: '#68c040',
-    grassDeep:  '#206010',
-    path:       '#e0c878',
-    pathDark:   '#c8a858',
-    pathLight:  '#f0d890',
-    pathEdge:   '#b09048',
-    water:      '#3890c8',
-    waterDark:  '#2870a8',
-    waterDeep:  '#185888',
-    waterLight: '#68b8e0',
-    waterFoam:  '#a8d8f0',
+    grass:      '#55a330',
+    grassDark:  '#4d9628',
+    grassLight: '#6bc43c',
+    grassDeep:  '#1b4a10',
+    path:       '#e0cb80',
+    pathDark:   '#cca358',
+    pathLight:  '#ebd898',
+    pathEdge:   '#a08340',
+    water:      '#3ca0e0',
+    waterDark:  '#2074b0',
+    waterDeep:  '#144a78',
+    waterLight: '#7cd3fc',
+    waterFoam:  '#f0f9ff',
     // Trees
-    leaf:       '#208028',
-    leafDark:   '#106018',
-    leafLight:  '#40a038',
-    trunk:      '#906030',
-    trunkDark:  '#684020',
+    leaf:       '#30781c',
+    leafDark:   '#182c10',
+    leafLight:  '#50a82c',
+    leafSunny:  '#84d440',
+    trunk:      '#784c24',
+    trunkDark:  '#382008',
+    trunkLight: '#986838',
+    trunkShadow:'#1e400c',
     // Buildings
-    roofRed:    '#c04038',
-    roofRedD:   '#902828',
-    roofRedL:   '#e05848',
-    roofBlue:   '#4068a8',
-    roofBlueD:  '#284888',
-    roofBlueL:  '#5888c0',
-    roofGreen:  '#508028',
-    roofGreenD: '#386018',
-    wallBlue:   '#6890c0',
-    wallBlueD:  '#4870a0',
-    wallBlueL:  '#88b0d8',
-    wallRed:    '#d07060',
-    wallRedD:   '#a85048',
-    wallRedL:   '#e89080',
-    wallTan:    '#d0b078',
-    wallTanD:   '#b09058',
-    wallTanL:   '#e8c898',
-    found:      '#887868',
-    foundD:     '#685848',
-    window:     '#f8e060',
-    windowBlue: '#90d0f0',
-    door:       '#402818',
-    doorL:      '#604028',
+    roofRed:    '#cc3328',
+    roofRedD:   '#8c1a14',
+    roofRedL:   '#eb6c5a',
+    roofBlue:   '#284c8c',
+    roofBlueD:  '#1a3066',
+    roofBlueL:  '#5a8fe0',
+    roofGreen:  '#346a2a',
+    roofGreenD: '#1c4415',
+    wallBlue:   '#ebe6db', // Tudor walls
+    wallBlueD:  '#b0a699',
+    wallBlueL:  '#ffffff',
+    wallRed:    '#f4ebd0', // Red house walls
+    wallRedD:   '#cca880',
+    wallRedL:   '#ffffff',
+    wallTan:    '#bc804c', // Homestead logs
+    wallTanD:   '#7d4a22',
+    wallTanL:   '#d9a066',
+    found:      '#70685c',
+    foundD:     '#48433d',
+    window:     '#ffd830',
+    windowBlue: '#4890c8',
+    door:       '#683c18',
+    doorL:      '#a06028',
     // Interiors
-    floor:      '#c89858',
-    floorD:     '#a87840',
-    floorL:     '#d8b070',
-    wallIn:     '#a07048',
-    wallInD:    '#805830',
-    wallInL:    '#b88858',
+    floor:      '#cb9358',
+    floorD:     '#8b5624',
+    floorL:     '#dfae7c',
+    wallIn:     '#eddcb8',
+    wallInD:    '#7a471c',
+    wallInL:    '#f7f0df',
     // Furniture / props
-    wood:       '#906848',
-    woodD:      '#684830',
-    woodL:      '#b08860',
-    bed:        '#c05050',
-    bedL:       '#e07068',
-    pillow:     '#f0e8d0',
-    metal:      '#a0a8b0',
-    metalD:     '#687078',
-    metalL:     '#c8d0d8',
-    fire:       '#f87828',
-    fireL:      '#f8d038',
-    crop:       '#48a028',
-    cropD:      '#287018',
-    dirt:       '#a87840',
-    dirtD:      '#886030',
+    wood:       '#804d20',
+    woodD:      '#543014',
+    woodL:      '#ac7038',
+    bed:        '#cc3333',
+    bedL:       '#eb6c5a',
+    pillow:     '#fafaf6',
+    metal:      '#808890',
+    metalD:     '#404850',
+    metalL:     '#c8cacd',
+    fire:       '#ffd830',
+    fireL:      '#f07010',
+    crop:       '#38a020',
+    cropD:      '#205010',
+    dirt:       '#8a5830',
+    dirtD:      '#583018',
     // Characters
-    outline:    '#201810',
-    skin:       '#f0c090',
-    skinD:      '#d0a070',
-    hair:       '#503828',
-    hairD:      '#302018',
-    hairL:      '#705040',
-    hairGray:   '#c0c0c0',
-    red:        '#d03838',
-    redD:       '#982828',
-    redL:       '#e86058',
-    suit:       '#282830',
-    suitL:      '#404048',
-    glow:       '#48a0f0',
-    glowL:      '#98d0f8',
-    pants:      '#703040',
-    pantsD:     '#502028',
-    boot:       '#282020',
-    bootL:      '#484038',
-    gold:       '#e8b040',
+    outline:    '#181410',
+    skin:       '#f6be94',
+    skinD:      '#d69772',
+    hair:       '#543b24',
+    hairD:      '#382414',
+    hairL:      '#8a6245',
+    hairGray:   '#dcdce0',
+    red:        '#cc3333',
+    redD:       '#901a18',
+    redL:       '#eb5a5a',
+    suit:       '#3a3d45',
+    suitL:      '#606870',
+    glow:       '#00b8e8',
+    glowL:      '#eefdff',
+    pants:      '#303038',
+    pantsD:     '#202028',
+    boot:       '#483320',
+    bootL:      '#6c4e30',
+    gold:       '#f8b820',
     // UI (Pokémon-style dialog)
-    uiWhite:    '#f8f8f0',
-    uiCream:    '#f0e8c8',
-    uiBlue:     '#4868a0',
-    uiBlueD:    '#203868',
-    uiBlack:    '#181818',
-    uiText:     '#181818',
-    uiName:     '#2868c0',
-    uiHint:     '#687888',
-    shadow:     '#183010'
+    uiWhite:    '#ffffff',
+    uiCream:    '#f8f8f0',
+    uiBlue:     '#607888',
+    uiBlueD:    '#283848',
+    uiBlack:    '#101820',
+    uiText:     '#18181c',
+    uiName:     '#305888',
+    uiHint:     '#5e81ac',
+    shadow:     'rgba(0, 25, 0, 0.28)'
 };
 
 /** Fill a solid pixel rect (integer coords only). */
@@ -291,7 +293,18 @@ function placePlayer(tileX, tileY, facing) {
 }
 
 function updateHUD() {
-    locationNameEl.textContent = currentArea === 'village' ? 'Elderville Village' : interiors[currentInterior].name;
+    if (locationNameEl) {
+        locationNameEl.textContent = currentArea === 'village' ? 'Elderville Village' : interiors[currentInterior].name;
+    }
+    const hpEl = document.getElementById('hp');
+    const stEl = document.getElementById('st');
+    if (hpEl) hpEl.textContent = Math.floor(player.hp);
+    if (stEl) stEl.textContent = Math.floor(player.st);
+    
+    const hpFill = document.getElementById('hp-fill');
+    const stFill = document.getElementById('st-fill');
+    if (hpFill) hpFill.style.width = `${Math.floor(player.hp)}%`;
+    if (stFill) stFill.style.width = `${Math.floor(player.st)}%`;
 }
 
 function enterInterior(key) {
@@ -354,6 +367,8 @@ const player = {
     targetY: 6 * TILE_SIZE,
     facing: 'down',
     isMoving: false,
+    speed: 4,
+    isSprinting: false,
     hp: 100,
     st: 100,
     animFrame: 0
@@ -374,7 +389,7 @@ const npcs = [
         name: 'Tinslaire',
         tileX: 30,
         tileY: 9,
-        color: '#4a90d9',
+        color: '#2c60c0', // Cobalt robe
         dialog: [
             "Brother! You're finally awake.",
             "The Elders are waiting for you at the Council Hall.",
@@ -391,7 +406,7 @@ const npcs = [
         name: 'Elder Marcus',
         tileX: 8,
         tileY: 9,
-        color: '#8b7355',
+        color: '#8b5b2c', // Brown robe
         dialog: [
             "Ah, Minslaire. The chosen one.",
             "Long ago, our ancestors sealed away great power in the Elemental Box.",
@@ -408,7 +423,7 @@ const npcs = [
         name: 'Elder Sarah',
         tileX: 23,
         tileY: 14,
-        color: '#73558b',
+        color: '#5a2b85', // Royal purple robe
         dialog: [
             "The Scrap Bots have been restless lately...",
             "Something stirs in the old ruins.",
@@ -538,18 +553,36 @@ function handleInput() {
             player.targetX = player.tileX * TILE_SIZE;
             player.targetY = player.tileY * TILE_SIZE;
             player.isMoving = true;
+            
+            // Lock in speed and sprinting state at the start of tile step
+            const wantsSprint = (keys['shift'] || keys['Shift']) && player.st > 10;
+            player.speed = wantsSprint ? 8 : 4;
+            player.isSprinting = wantsSprint;
         }
     }
 }
 
 function updatePlayer() {
-    if (!player.isMoving) return;
+    if (!player.isMoving) {
+        player.st = Math.min(100, player.st + 0.4); // Recover stamina when idle
+        player.isSprinting = false;
+        return;
+    }
 
-    if (player.x < player.targetX) player.x += MOVE_SPEED;
-    else if (player.x > player.targetX) player.x -= MOVE_SPEED;
+    const currentSpeed = player.speed || 4;
 
-    if (player.y < player.targetY) player.y += MOVE_SPEED;
-    else if (player.y > player.targetY) player.y -= MOVE_SPEED;
+    if (player.x < player.targetX) player.x += currentSpeed;
+    else if (player.x > player.targetX) player.x -= currentSpeed;
+
+    if (player.y < player.targetY) player.y += currentSpeed;
+    else if (player.y > player.targetY) player.y -= currentSpeed;
+
+    // Deplete or recover stamina during step
+    if (player.isSprinting) {
+        player.st = Math.max(0, player.st - 0.5);
+    } else {
+        player.st = Math.min(100, player.st + 0.1);
+    }
 
     if (player.x === player.targetX && player.y === player.targetY) {
         player.isMoving = false;
@@ -558,299 +591,569 @@ function updatePlayer() {
 }
 
 // ------------------------------------------------------------------
-// Tile drawing — pure fillRect GBA / FireRed style
+// High-Fidelity Tile Drawing — 16x16 GBA Pokémon-style procedurals
 // ------------------------------------------------------------------
 
 function drawGrassBase(sx, sy, mapX, mapY) {
+    // 1. Draw solid lush green base
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.grass);
+    
+    // 2. Subtle checkerboard GBA-style dither
+    for (let dy = 0; dy < TILE_SIZE; dy += 4) {
+        for (let dx = 0; dx < TILE_SIZE; dx += 4) {
+            if (((dx + dy) / 4) % 2 === 0) {
+                px(sx + dx, sy + dy, 4, 4, P.grassDark);
+            }
+        }
+    }
+
+    // 3. Draw beautiful grass details & wildflowers based on tile variance hash
     const v = tileVar(mapX, mapY, 8);
-    // Dark mottles (FireRed ground grass)
-    px(sx + (v % 4) * 8, sy + ((v * 3) % 4) * 8, 6, 4, P.grassDark);
-    px(sx + ((v + 2) % 4) * 8 + 2, sy + ((v + 1) % 4) * 8 + 2, 4, 4, P.grassDeep);
-    // Light speckles
-    px(sx + 4 + (v % 3) * 8, sy + 6 + (v % 2) * 10, 2, 2, P.grassLight);
-    px(sx + 18 + (v % 2) * 6, sy + 20, 2, 2, P.grassLight);
-    px(sx + 10, sy + 14 + (v % 3) * 4, 2, 2, P.grassLight);
-    // Occasional flower (very FireRed)
-    if (v === 1 || v === 5) {
-        const fx = sx + 8 + (v % 3) * 6;
-        const fy = sy + 18;
-        px(fx, fy, 2, 2, v === 1 ? '#f07090' : '#f0d040');
-        px(fx, fy, 1, 1, '#f8f8f0');
+    
+    // Draw 1 or 2 small grass blades/clumps
+    const ox1 = (v * 5) % 18 + 4;
+    const oy1 = (v * 7) % 18 + 4;
+    
+    // Grass clump 1
+    px(sx + ox1, sy + oy1, 2, 4, P.grassDeep);
+    px(sx + ox1 + 2, sy + oy1 - 2, 2, 6, P.grassDeep);
+    px(sx + ox1 + 4, sy + oy1, 2, 4, P.grassDeep);
+    px(sx + ox1 + 2, sy + oy1 - 2, 2, 2, P.grassLight); // tip highlight
+    
+    // Grass clump 2 (for variety)
+    if (v > 3) {
+        const ox2 = (ox1 + 12) % 24 + 4;
+        const oy2 = (oy1 + 10) % 24 + 4;
+        px(sx + ox2, sy + oy2, 2, 4, P.grassDeep);
+        px(sx + ox2 - 2, sy + oy2 - 1, 2, 5, P.grassDeep);
+        px(sx + ox2 - 2, sy + oy2 - 1, 2, 1, P.grassLight);
+    }
+
+    // Beautiful occasional wildflowers (Red Tulip, Yellow Daisy, Bluebell)
+    if (v === 1) {
+        // Red tulip
+        const fx = sx + 14;
+        const fy = sy + 14;
+        px(fx, fy, 4, 4, P.red);
+        px(fx + 1, fy - 2, 2, 2, P.redL);
+        px(fx + 1, fy + 1, 2, 2, P.gold);
+        px(fx + 1, fy + 4, 2, 2, P.grassDeep); // stem
+    } else if (v === 4) {
+        // Yellow daisy
+        const fx = sx + 22;
+        const fy = sy + 8;
+        px(fx, fy, 4, 4, P.gold);
+        px(fx + 1, fy + 1, 2, 2, P.uiWhite);
+    } else if (v === 6) {
+        // Bluebell
+        const fx = sx + 6;
+        const fy = sy + 22;
+        px(fx, fy, 4, 4, P.glow);
+        px(fx + 1, fy - 1, 2, 2, P.glowL);
+        px(fx + 1, fy + 3, 2, 2, P.grassDeep);
     }
 }
 
 function drawTree(sx, sy, mapX, mapY) {
+    // Underneath the tree canopy, draw the grass so we don't have visual seams
     drawGrassBase(sx, sy, mapX, mapY);
-    // FireRed-style round canopy (blocky circles, not pine triangles)
-    // Bottom canopy ring
-    px(sx + 4, sy + 14, 24, 10, P.leafDark);
-    px(sx + 2, sy + 16, 28, 6, P.leafDark);
-    // Mid canopy
-    px(sx + 6, sy + 8, 20, 10, P.leaf);
-    px(sx + 4, sy + 10, 24, 6, P.leaf);
-    // Top canopy
-    px(sx + 8, sy + 4, 16, 8, P.leaf);
-    px(sx + 10, sy + 2, 12, 4, P.leafLight);
-    // Highlights
-    px(sx + 12, sy + 6, 4, 2, P.leafLight);
-    px(sx + 18, sy + 10, 3, 2, P.leafLight);
-    // Trunk
-    px(sx + 13, sy + 22, 6, 8, P.trunk);
-    px(sx + 13, sy + 22, 2, 8, P.trunkDark);
-    px(sx + 14, sy + 24, 2, 2, P.woodL);
-    // Root shadow on grass
-    px(sx + 10, sy + 29, 12, 2, P.grassDeep);
+    
+    // 1. Draw a beautiful dark green ground shadow
+    px(sx + 4, sy + 26, 24, 4, P.trunkShadow);
+    px(sx + 8, sy + 28, 16, 2, P.trunkShadow);
+
+    // 2. Draw trunk
+    px(sx + 12, sy + 18, 8, 11, P.trunkDark);
+    px(sx + 14, sy + 18, 4, 11, P.trunk);
+    px(sx + 14, sy + 20, 2, 6, P.trunkLight);
+    
+    // 3. Overlapping scalloped leaf canopy (pure pixel curves)
+    // Dark canopy outline first
+    const drawLeafPixel = (x, y, color) => px(sx + x * 2, sy + y * 2, 2, 2, color);
+
+    // Outer leaf bounds (using 16x16 coordinate map)
+    const bounds = [
+        { y: 1,  xMin: 6, xMax: 9 },
+        { y: 2,  xMin: 4, xMax: 11 },
+        { y: 3,  xMin: 3, xMax: 12 },
+        { y: 4,  xMin: 2, xMax: 13 },
+        { y: 5,  xMin: 2, xMax: 13 },
+        { y: 6,  xMin: 1, xMax: 14 },
+        { y: 7,  xMin: 1, xMax: 14 },
+        { y: 8,  xMin: 1, xMax: 14 },
+        { y: 9,  xMin: 2, xMax: 13 },
+        { y: 10, xMin: 3, xMax: 12 },
+        { y: 11, xMin: 4, xMax: 11 }
+    ];
+
+    for (const b of bounds) {
+        // Outline ends
+        drawLeafPixel(b.xMin, b.y, P.leafDark);
+        drawLeafPixel(b.xMax, b.y, P.leafDark);
+        
+        for (let x = b.xMin + 1; x < b.xMax; x++) {
+            // Shadowing on bottom right, light on top left
+            if (b.y > 7 || x > 10) {
+                drawLeafPixel(x, b.y, P.leafDark);
+            } else if (b.y > 5 || x > 7) {
+                drawLeafPixel(x, b.y, P.leaf);
+            } else if (b.y < 3 || x < 5) {
+                drawLeafPixel(x, b.y, P.leafSunny);
+            } else {
+                drawLeafPixel(x, b.y, P.leafLight);
+            }
+        }
+    }
+
+    // Scalloped internal detail lines & sun highlights (bubble volume)
+    // Left cluster highlight
+    drawLeafPixel(5, 3, P.leafSunny);
+    drawLeafPixel(4, 4, P.leafSunny);
+    drawLeafPixel(5, 4, P.leafSunny);
+    drawLeafPixel(4, 5, P.leafSunny);
+    // Top peak highlight
+    drawLeafPixel(7, 2, P.leafSunny);
+    drawLeafPixel(8, 2, P.leafSunny);
+    // Right shading creases
+    drawLeafPixel(10, 5, P.leafDark);
+    drawLeafPixel(11, 6, P.leafDark);
+    drawLeafPixel(9, 8, P.leafDark);
+    drawLeafPixel(10, 8, P.leafDark);
 }
 
 function drawPath(sx, sy, mapX, mapY) {
-    // Sandy dirt path like Route 1 / town roads in FireRed
+    // Warm, golden sandy dirt path
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.path);
-    const v = tileVar(mapX, mapY, 6);
-    px(sx + 2, sy + 2, 10, 8, P.pathLight);
-    px(sx + 16, sy + 4, 12, 6, P.pathDark);
-    px(sx + 4, sy + 14, 14, 8, P.pathDark);
-    px(sx + 18, sy + 18, 10, 8, P.pathLight);
-    // Edge scuffs
+    
+    // Subtle sand grain pattern
+    for (let dy = 0; dy < TILE_SIZE; dy += 4) {
+        for (let dx = 0; dx < TILE_SIZE; dx += 4) {
+            const v = tileVar(mapX + dx, mapY + dy, 4);
+            if (v === 0) {
+                px(sx + dx, sy + dy, 4, 4, P.pathLight);
+            } else if (v === 2) {
+                px(sx + dx, sy + dy, 4, 4, P.pathDark);
+            }
+        }
+    }
+
+    // Wavy gravel edge scuffs
     px(sx, sy, TILE_SIZE, 2, P.pathEdge);
     px(sx, sy + 30, TILE_SIZE, 2, P.pathEdge);
-    // Tiny pebbles
-    px(sx + 6 + v * 2, sy + 10, 2, 2, P.pathEdge);
-    px(sx + 20 - v, sy + 22, 2, 2, P.found);
+
+    // Decorative pebbles based on tile hash
+    const v = tileVar(mapX, mapY, 5);
+    if (v === 1) {
+        // Double pebble
+        px(sx + 10, sy + 12, 4, 4, P.metalD);
+        px(sx + 10, sy + 12, 2, 2, P.metal);
+        px(sx + 14, sy + 14, 2, 2, P.metalL);
+    } else if (v === 3) {
+        // Embedded flat stone
+        px(sx + 20, sy + 22, 6, 4, P.foundD);
+        px(sx + 22, sy + 22, 4, 2, P.found);
+    }
 }
 
 function drawWater(sx, sy, mapX, mapY) {
+    // Base blue depth
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.water);
-    px(sx, sy + 20, TILE_SIZE, 12, P.waterDark);
+    
+    // Smooth horizontal water depth bands
+    px(sx, sy + 16, TILE_SIZE, 16, P.waterDark);
     px(sx, sy + 26, TILE_SIZE, 6, P.waterDeep);
-    // Animated wave bands (2px steps, GBA-friendly)
-    const w = Math.floor(Date.now() / 280) % 4;
-    const ox = w * 2;
-    px(sx + 2 + ox, sy + 6, 10, 2, P.waterLight);
-    px(sx + 14 + ox, sy + 12, 12, 2, P.waterLight);
-    px(sx + 4 + ox, sy + 18, 10, 2, P.waterLight);
-    px(sx + 2 + ox, sy + 6, 4, 1, P.waterFoam);
-    px(sx + 16 + ox, sy + 12, 3, 1, P.waterFoam);
+
+    // Animated shimmering currents
+    const frame = Math.floor(Date.now() / 250) % 4;
+    const shift = frame * 4; // Shift pixels horizontally
+    
+    // Light sparkling wave stripes
+    const wy1 = ((mapY * TILE_SIZE + shift) % 12) + 4;
+    const wx1 = ((mapX * TILE_SIZE + shift * 2) % 24) + 2;
+    px(sx + wx1, sy + wy1, 10, 2, P.waterLight);
+    px(sx + wx1 + 2, sy + wy1, 6, 1, P.waterFoam);
+
+    const wy2 = ((mapY * TILE_SIZE - shift + 18) % 16) + 12;
+    const wx2 = ((mapX * TILE_SIZE - shift) % 20) + 10;
+    px(sx + wx2, sy + wy2, 8, 2, P.waterLight);
+    
+    // Deep currents
+    const dwy = ((mapY * TILE_SIZE + shift) % 14) + 20;
+    px(sx + 4, sy + dwy, 14, 1, P.waterDeep);
 }
 
 function drawCrops(sx, sy) {
+    // Base cultivated dirt
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.dirt);
-    px(sx, sy + 14, TILE_SIZE, 2, P.dirtD);
-    px(sx, sy + 28, TILE_SIZE, 2, P.dirtD);
-    // Crop rows (berry/farm look)
+    // Dark irrigation trenches
+    px(sx, sy + 8, TILE_SIZE, 4, P.dirtD);
+    px(sx, sy + 20, TILE_SIZE, 4, P.dirtD);
+
+    // Lush plant rows (Berry bushes with red fruit!)
     for (let i = 0; i < 3; i++) {
         const cx = sx + 4 + i * 10;
-        px(cx, sy + 6, 4, 10, P.crop);
-        px(cx, sy + 6, 4, 3, P.cropD);
-        px(cx + 1, sy + 4, 2, 2, P.grassLight);
-        px(cx, sy + 18, 4, 8, P.crop);
-        px(cx + 1, sy + 16, 2, 2, P.grassLight);
+        
+        // Bottom plant bush
+        px(cx, sy + 14, 6, 8, P.cropD);
+        px(cx + 1, sy + 12, 4, 8, P.crop);
+        px(cx + 2, sy + 12, 2, 4, P.grassLight);
+        // Little berries!
+        px(cx + 1, sy + 16, 2, 2, P.red);
+        px(cx + 4, sy + 14, 2, 2, P.red);
+
+        // Top plant bush
+        px(cx, sy + 2, 6, 6, P.cropD);
+        px(cx + 1, sy + 1, 4, 6, P.crop);
+        px(cx + 2, sy + 1, 2, 2, P.grassLight);
+        px(cx + 3, sy + 4, 2, 2, P.red);
     }
 }
 
 function drawWell(sx, sy, mapX, mapY) {
+    // Behind well
     drawGrassBase(sx, sy, mapX, mapY);
-    // Stone cylinder
-    px(sx + 6, sy + 14, 20, 14, P.metal);
-    px(sx + 6, sy + 14, 20, 3, P.metalL);
-    px(sx + 6, sy + 25, 20, 3, P.metalD);
-    // Dark water hole
-    px(sx + 10, sy + 17, 12, 6, P.waterDeep);
-    px(sx + 12, sy + 18, 8, 2, P.water);
-    // Posts + roof
-    px(sx + 8, sy + 4, 3, 12, P.woodD);
-    px(sx + 21, sy + 4, 3, 12, P.woodD);
-    px(sx + 4, sy + 2, 24, 4, P.roofRed);
-    px(sx + 4, sy + 2, 24, 1, P.roofRedL);
-    // Bucket
-    px(sx + 14, sy + 8, 4, 5, P.metalD);
-    px(sx + 14, sy + 8, 4, 1, P.metal);
+    
+    // Stone brick circular rim
+    px(sx + 4, sy + 14, 24, 14, P.metalD);
+    px(sx + 6, sy + 16, 20, 10, P.metal);
+    px(sx + 6, sy + 16, 20, 2, P.metalL); // Rim highlight
+    
+    // Bricks seams
+    for (let i = sx + 10; i < sx + 28; i += 6) {
+        px(i, sy + 18, 2, 8, P.metalD);
+    }
+
+    // Deep water hole
+    px(sx + 10, sy + 18, 12, 6, P.outline);
+    px(sx + 12, sy + 19, 8, 4, P.waterDeep);
+    px(sx + 14, sy + 20, 4, 2, P.water);
+
+    // Wooden pillars holding the roof
+    px(sx + 6, sy + 4, 4, 12, P.woodD);
+    px(sx + 7, sy + 4, 2, 12, P.wood);
+    px(sx + 22, sy + 4, 4, 12, P.woodD);
+    px(sx + 23, sy + 4, 2, 12, P.wood);
+
+    // Red-tiled roof
+    px(sx + 2, sy + 1, 28, 4, P.roofRedD);
+    px(sx + 2, sy + 2, 28, 2, P.roofRed);
+    px(sx + 2, sy + 2, 28, 1, P.roofRedL);
+
+    // Hanging rope & bucket
+    px(sx + 15, sy + 6, 2, 10, P.woodL); // Rope
+    px(sx + 14, sy + 11, 4, 4, P.metalD); // Bucket
+    px(sx + 14, sy + 11, 4, 1, P.metalL);
 }
 
 function drawForge(sx, sy, mapX, mapY) {
     drawGrassBase(sx, sy, mapX, mapY);
-    // Stone forge body
-    px(sx + 4, sy + 14, 24, 16, P.metal);
-    px(sx + 4, sy + 14, 24, 3, P.metalL);
-    px(sx + 4, sy + 27, 24, 3, P.metalD);
-    // Fire mouth
+    
+    // Dark stone forge body
+    px(sx + 2, sy + 12, 28, 18, P.metalD);
+    px(sx + 4, sy + 14, 24, 14, P.metal);
+    px(sx + 4, sy + 14, 24, 2, P.metalL);
+
+    // Fire mouth (hearth) with active flicker
     px(sx + 10, sy + 18, 12, 8, P.outline);
-    const flicker = Math.floor(Date.now() / 120) % 2;
-    px(sx + 12, sy + 20, 8, 5, flicker ? P.fire : P.fireL);
-    px(sx + 14, sy + 22, 4, 3, flicker ? P.fireL : P.fire);
-    // Chimney
-    px(sx + 20, sy + 4, 8, 12, P.metalD);
-    px(sx + 20, sy + 4, 8, 2, P.metal);
-    // Anvil
-    px(sx + 2, sy + 22, 7, 3, P.metalL);
-    px(sx + 3, sy + 25, 5, 5, P.metalD);
+    const flicker = Math.floor(Date.now() / 100) % 3;
+    const fColor = flicker === 0 ? P.fire : (flicker === 1 ? P.fireL : P.redL);
+    const fColorCore = flicker === 0 ? P.uiWhite : P.fire;
+    
+    px(sx + 11, sy + 19, 10, 6, fColor);
+    px(sx + 13, sy + 21, 6, 4, fColorCore);
+
+    // Stone Chimney
+    px(sx + 20, sy + 2, 8, 12, P.metalD);
+    px(sx + 21, sy + 2, 6, 12, P.metal);
+    px(sx + 21, sy + 4, 2, 8, P.metalL);
+    
+    // Generate forge black soot smoke
+    drawChimneySmoke(sx + 23, sy - 2);
+
+    // Blacksmith's Anvil on wooden stump
+    px(sx + 4, sy + 24, 5, 4, P.metalD); // Anvil body
+    px(sx + 2, sy + 22, 7, 2, P.metal);  // Anvil horn/face
+    px(sx + 2, sy + 22, 3, 1, P.metalL);
 }
 
 function drawMarket(sx, sy, mapX, mapY) {
     drawGrassBase(sx, sy, mapX, mapY);
-    // Posts
+    
+    // Supports
     px(sx + 4, sy + 10, 2, 18, P.woodD);
     px(sx + 26, sy + 10, 2, 18, P.woodD);
-    // Striped awning (FireRed mart vibe)
-    px(sx + 2, sy + 4, 28, 8, P.roofRed);
-    px(sx + 2, sy + 4, 28, 2, P.roofRedL);
+
+    // Striped Canvas Awning (Red & White) with scallops
+    px(sx + 2, sy + 3, 28, 8, P.roofRedD);
     for (let i = 0; i < 4; i++) {
-        px(sx + 4 + i * 7, sy + 6, 3, 6, P.uiWhite);
+        // Red Stripes
+        px(sx + 2 + i * 8, sy + 4, 4, 6, P.roofRed);
+        px(sx + 2 + i * 8, sy + 4, 4, 1, P.roofRedL);
+        // White Stripes
+        if (i < 3) {
+            px(sx + 6 + i * 8, sy + 4, 4, 6, P.uiCream);
+            px(sx + 6 + i * 8, sy + 4, 4, 1, P.uiWhite);
+        }
     }
-    // Counter + goods
-    px(sx + 2, sy + 18, 28, 10, P.wood);
-    px(sx + 2, sy + 18, 28, 2, P.woodL);
-    px(sx + 6, sy + 14, 4, 4, '#e05080');
-    px(sx + 12, sy + 14, 4, 4, P.gold);
-    px(sx + 18, sy + 14, 4, 4, P.crop);
-    px(sx + 24, sy + 14, 4, 4, P.windowBlue);
+    // Awning hanging scallops
+    for (let i = 0; i < 7; i++) {
+        px(sx + 3 + i * 4, sy + 10, 3, 2, i % 2 === 0 ? P.roofRedD : P.metal);
+    }
+
+    // Wooden Countertop
+    px(sx + 2, sy + 18, 28, 10, P.woodD);
+    px(sx + 3, sy + 19, 26, 8, P.wood);
+    px(sx + 3, sy + 19, 26, 1, P.woodL);
+
+    // Marketplace Goods on table
+    // Red Apples basket
+    px(sx + 6, sy + 15, 6, 4, P.trunk);
+    px(sx + 7, sy + 13, 2, 2, P.red);
+    px(sx + 9, sy + 13, 2, 2, P.redL);
+    
+    // Gold Loaves
+    px(sx + 15, sy + 14, 4, 4, P.gold);
+    px(sx + 15, sy + 14, 4, 1, P.uiWhite);
+
+    // Blue potion flask
+    px(sx + 22, sy + 14, 3, 4, P.windowBlue);
+    px(sx + 23, sy + 12, 1, 2, P.uiWhite); // cork/neck
 }
 
 function drawWatchtower(sx, sy, mapX, mapY) {
     drawGrassBase(sx, sy, mapX, mapY);
-    // Tower body
-    px(sx + 8, sy + 12, 16, 18, P.wallTan);
-    px(sx + 8, sy + 12, 16, 2, P.wallTanL);
-    px(sx + 8, sy + 26, 16, 4, P.wallTanD);
-    // Window slit
-    px(sx + 14, sy + 16, 4, 6, P.window);
-    px(sx + 15, sy + 16, 2, 6, P.outline);
-    // Platform + ladder
-    px(sx + 6, sy + 2, 20, 4, P.woodD);
-    px(sx + 6, sy + 2, 20, 1, P.woodL);
-    px(sx + 10, sy + 6, 2, 8, P.wood);
-    px(sx + 20, sy + 6, 2, 8, P.wood);
-    for (let r = 0; r < 3; r++) {
-        px(sx + 10, sy + 6 + r * 3, 12, 2, P.woodL);
+    
+    // Criss-cross Timber Base
+    px(sx + 8, sy + 12, 16, 18, P.woodD);
+    px(sx + 10, sy + 12, 12, 18, P.wood);
+    // Draw hollow center of tower beams
+    px(sx + 12, sy + 14, 8, 16, P.grass);
+    // Beams diagonal criss-cross
+    for (let i = 0; i < 14; i += 2) {
+        px(sx + 10 + i, sy + 14 + i, 2, 2, P.woodD);
+        px(sx + 20 - i, sy + 14 + i, 2, 2, P.woodD);
     }
+
+    // Ladder
+    px(sx + 14, sy + 10, 4, 20, P.woodD);
+    for (let r = sy + 12; r < sy + 30; r += 4) {
+        px(sx + 14, r, 4, 1, P.woodL);
+    }
+
+    // Lookout platform
+    px(sx + 6, sy + 6, 20, 6, P.woodD);
+    px(sx + 7, sy + 7, 18, 4, P.wood);
+    px(sx + 7, sy + 7, 18, 1, P.woodL);
+
+    // Glowing security lantern!
+    px(sx + 22, sy + 10, 4, 6, P.outline);
+    const flicker = Math.floor(Date.now() / 150) % 2;
+    px(sx + 23, sy + 11, 2, 4, flicker ? P.window : P.gold);
+    // Lantern light beam overlay (translucent/soft pixels)
+    px(sx + 21, sy + 15, 6, 2, 'rgba(248, 216, 48, 0.15)');
 }
 
 function drawFloor(sx, sy, mapX, mapY) {
+    // Rich, warm wooden planks
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.floor);
-    // Horizontal planks
-    px(sx, sy + 10, TILE_SIZE, 1, P.floorD);
-    px(sx, sy + 21, TILE_SIZE, 1, P.floorD);
-    // Staggered seams
+    
+    // Horizontal bevel grooves
+    px(sx, sy + 10, TILE_SIZE, 2, P.floorD);
+    px(sx, sy + 21, TILE_SIZE, 2, P.floorD);
+    px(sx, sy, TILE_SIZE, 1, P.floorL); // highlight
+
+    // Staggered vertical seams & wood grain
     const shift = (mapX + mapY) % 2 === 0 ? 0 : 16;
-    px(sx + shift, sy, 1, 10, P.floorD);
-    px(sx + (16 - shift), sy + 11, 1, 10, P.floorD);
-    px(sx + shift, sy + 22, 1, 10, P.floorD);
-    // Grain
-    px(sx + 4, sy + 4, 6, 1, P.floorL);
-    px(sx + 18, sy + 14, 8, 1, P.floorL);
+    px(sx + shift, sy, 2, 10, P.floorD);
+    px(sx + (16 - shift), sy + 12, 2, 10, P.floorD);
+    px(sx + shift, sy + 23, 2, 10, P.floorD);
+
+    // Shiny tiny nail heads
+    px(sx + shift + 1, sy + 8, 1, 1, P.metalD);
+    px(sx + (16 - shift) + 1, sy + 20, 1, 1, P.metalD);
 }
 
 function drawInteriorWall(sx, sy) {
+    // Cozy wainscoting interior wall
+    // 1. Plaster top wall
     px(sx, sy, TILE_SIZE, TILE_SIZE, P.wallIn);
-    px(sx, sy, TILE_SIZE, 3, P.wallInL);
-    px(sx, sy + 26, TILE_SIZE, 6, P.wallInD);
-    // Panel lines
-    px(sx + 10, sy + 4, 1, 22, P.wallInD);
-    px(sx + 21, sy + 4, 1, 22, P.wallInD);
+    
+    // Floral or stripe wallpaper detail
+    for (let dx = 4; dx < TILE_SIZE; dx += 8) {
+        px(sx + dx, sy + 2, 2, 14, P.wallInL);
+    }
+
+    // 2. Wainscoting bottom half (dark mahogany panels)
+    px(sx, sy + 16, TILE_SIZE, 16, P.wallInD);
+    px(sx, sy + 16, TILE_SIZE, 2, P.woodD); // divider rail
+    px(sx, sy + 17, TILE_SIZE, 1, P.woodL);
+    
+    // Baseboard trim
+    px(sx, sy + 28, TILE_SIZE, 4, P.woodD);
+    px(sx, sy + 28, TILE_SIZE, 1, P.wood);
 }
 
 function drawBed(sx, sy) {
     drawFloor(sx, sy, 0, 0);
+    
     // Headboard
-    px(sx + 2, sy + 2, 28, 5, P.woodD);
-    px(sx + 2, sy + 2, 28, 1, P.woodL);
-    // Frame
-    px(sx + 3, sy + 7, 26, 22, P.wood);
-    // Blanket
-    px(sx + 5, sy + 10, 22, 16, P.bed);
-    px(sx + 5, sy + 20, 22, 6, P.bedL);
-    // Pillow
-    px(sx + 6, sy + 9, 10, 6, P.pillow);
-    px(sx + 6, sy + 9, 10, 1, P.uiWhite);
+    px(sx + 2, sy + 2, 28, 6, P.woodD);
+    px(sx + 2, sy + 2, 28, 2, P.woodL);
+
+    // Wooden bedposts
+    px(sx + 2, sy + 2, 4, 18, P.woodD);
+    px(sx + 26, sy + 2, 4, 18, P.woodD);
+
+    // Cozy mattress / sheet
+    px(sx + 4, sy + 8, 24, 22, P.pillow);
+
+    // Heavy red blanket with gold border
+    px(sx + 4, sy + 12, 24, 18, P.bed);
+    px(sx + 4, sy + 12, 24, 2, P.gold); // Gold stitching border
+    px(sx + 4, sy + 14, 24, 4, P.bedL);  // highlight fold
+    
+    // Fluffy pillows
+    px(sx + 6, sy + 6, 8, 5, P.pillow);
+    px(sx + 6, sy + 9, 8, 2, P.metalL); // pillow shadow
+    px(sx + 18, sy + 6, 8, 5, P.pillow);
+    px(sx + 18, sy + 9, 8, 2, P.metalL);
 }
 
 function drawSwordCase(sx, sy, mapX, mapY) {
     drawFloor(sx, sy, mapX, mapY);
+    
     const caseTop = map[mapY - 1] && map[mapY - 1][mapX] === 9;
-    const caseBelow = map[mapY + 1] && map[mapY + 1][mapX] === 9;
-    // Glass frame (solid pixel border, no alpha)
-    if (caseBelow || !caseTop) {
-        // Top tile: upper glass + blade tip
-        px(sx + 6, sy + 4, 20, 28, P.windowBlue);
-        px(sx + 8, sy + 6, 16, 24, P.uiCream);
-        // Blade
-        px(sx + 14, sy + 8, 4, 22, P.metalL);
-        px(sx + 15, sy + 8, 2, 22, P.metal);
-        px(sx + 14, sy + 6, 4, 2, P.metalL); // tip block
-        px(sx + 15, sy + 4, 2, 2, P.metalL);
-        // Frame outline
-        px(sx + 6, sy + 4, 20, 2, P.metal);
-        px(sx + 6, sy + 4, 2, 28, P.metal);
-        px(sx + 24, sy + 4, 2, 28, P.metal);
-    }
-    if (caseTop) {
-        // Bottom tile: lower glass + hilt + pedestal
-        px(sx + 6, sy, 20, 22, P.windowBlue);
-        px(sx + 8, sy, 16, 18, P.uiCream);
-        px(sx + 14, sy, 4, 14, P.metalL);
-        px(sx + 15, sy, 2, 14, P.metal);
-        // Crossguard + hilt
-        px(sx + 10, sy + 12, 12, 3, P.gold);
-        px(sx + 14, sy + 15, 4, 6, P.woodD);
-        // Pedestal
-        px(sx + 8, sy + 22, 16, 3, P.wood);
-        px(sx + 4, sy + 25, 24, 5, P.woodD);
-        px(sx + 4, sy + 25, 24, 1, P.woodL);
-        // Frame
-        px(sx + 6, sy, 2, 22, P.metal);
-        px(sx + 24, sy, 2, 22, P.metal);
-        px(sx + 6, sy + 20, 20, 2, P.metal);
+    
+    if (!caseTop) {
+        // Top part: glass showcase with sheathed shiny sword
+        px(sx + 4, sy + 4, 24, 28, P.woodD);
+        px(sx + 6, sy + 6, 20, 26, P.outline); // glass interior
+        px(sx + 8, sy + 8, 16, 24, '#141434'); // deep blue velvet backing
+        
+        // The glowing blade!
+        px(sx + 14, sy + 10, 4, 20, P.metalL);
+        px(sx + 15, sy + 10, 2, 20, P.uiWhite); // razor edge glint
+        px(sx + 14, sy + 8, 4, 2, P.gold);    // tip cap
+        
+        // Shiny glass diagonal reflection lines (double pass)
+        px(sx + 6, sy + 12, 10, 2, 'rgba(255,255,255,0.18)');
+        px(sx + 12, sy + 6, 12, 2, 'rgba(255,255,255,0.18)');
+    } else {
+        // Bottom part: wood pedestal base with golden handles
+        px(sx + 4, sy, 24, 26, P.woodD);
+        px(sx + 6, sy + 2, 20, 22, P.wood);
+        px(sx + 6, sy + 2, 20, 2, P.woodL);
+
+        // Drawers with golden pull knobs
+        px(sx + 8, sy + 6, 16, 6, P.woodD);
+        px(sx + 15, sy + 8, 2, 2, P.gold); // Handle 1
+        px(sx + 8, sy + 14, 16, 6, P.woodD);
+        px(sx + 15, sy + 16, 2, 2, P.gold); // Handle 2
+        
+        // Bottom feet base
+        px(sx + 2, sy + 24, 28, 4, P.woodD);
     }
 }
 
 function drawTable(sx, sy) {
     drawFloor(sx, sy, 0, 0);
-    px(sx + 4, sy + 10, 24, 8, P.wood);
-    px(sx + 4, sy + 10, 24, 2, P.woodL);
-    px(sx + 6, sy + 18, 3, 10, P.woodD);
-    px(sx + 23, sy + 18, 3, 10, P.woodD);
+    
+    // Table legs
+    px(sx + 4, sy + 14, 4, 14, P.woodD);
+    px(sx + 24, sy + 14, 4, 14, P.woodD);
+
+    // Checkered tablecloth (Red & White)
+    px(sx + 2, sy + 8, 28, 8, P.roofRed);
+    px(sx + 2, sy + 8, 28, 2, P.roofRedL);
+    for (let i = 0; i < 7; i++) {
+        if (i % 2 === 0) {
+            px(sx + 2 + i * 4, sy + 10, 4, 4, P.uiCream);
+            px(sx + 2 + i * 4, sy + 10, 4, 1, P.uiWhite);
+        }
+    }
+
+    // Steaming tea cup!
+    px(sx + 14, sy + 5, 4, 3, P.uiWhite);
+    px(sx + 13, sy + 6, 1, 2, P.uiWhite); // handle
+    
+    // Steam animation (floating pixel waves)
+    const tick = Math.floor(Date.now() / 150) % 4;
+    px(sx + 14 + (tick % 2 === 0 ? 1 : 0), sy + 2, 1, 2, 'rgba(255, 255, 255, 0.4)');
+    px(sx + 15 + (tick % 2 !== 0 ? 1 : 0), sy, 1, 2, 'rgba(255, 255, 255, 0.4)');
 }
 
 function drawChair(sx, sy) {
     drawFloor(sx, sy, 0, 0);
-    px(sx + 8, sy + 8, 4, 12, P.woodD);
-    px(sx + 20, sy + 8, 4, 12, P.woodD);
-    px(sx + 8, sy + 8, 16, 3, P.wood);
-    px(sx + 8, sy + 18, 16, 6, P.woodL);
-    px(sx + 9, sy + 24, 2, 6, P.woodD);
-    px(sx + 21, sy + 24, 2, 6, P.woodD);
+    
+    // Back support slats
+    px(sx + 8, sy + 4, 4, 16, P.woodD);
+    px(sx + 20, sy + 4, 4, 16, P.woodD);
+    px(sx + 12, sy + 6, 8, 2, P.wood);
+    px(sx + 12, sy + 11, 8, 2, P.wood);
+
+    // Velvet padded seat cushion
+    px(sx + 6, sy + 15, 20, 5, P.woodD);
+    px(sx + 7, sy + 14, 18, 5, P.bed);
+    px(sx + 8, sy + 14, 16, 2, P.bedL); // light fold
+
+    // Front legs
+    px(sx + 8, sy + 20, 3, 10, P.woodD);
+    px(sx + 21, sy + 20, 3, 10, P.woodD);
 }
 
 function drawBookshelf(sx, sy) {
     drawFloor(sx, sy, 0, 0);
-    px(sx + 4, sy + 2, 24, 28, P.woodD);
-    px(sx + 4, sy + 2, 24, 2, P.woodL);
-    const books = [P.red, P.glow, P.crop, P.gold, P.wallBlue];
-    for (let row = 0; row < 3; row++) {
-        const by = sy + 5 + row * 8;
-        px(sx + 6, by, 20, 7, P.wood);
-        for (let b = 0; b < 4; b++) {
-            px(sx + 7 + b * 5, by + 1, 4, 5, books[(b + row) % books.length]);
+    
+    // Heavy wooden frame
+    px(sx + 2, sy + 2, 28, 28, P.woodD);
+    px(sx + 4, sy + 4, 24, 26, P.wood);
+    px(sx + 4, sy + 4, 24, 2, P.woodL);
+
+    // Book rows (vivid spines)
+    const colors = [P.red, P.glow, P.crop, P.gold, P.roofBlue, P.pillow];
+    for (let shelf = 0; shelf < 3; shelf++) {
+        const sy1 = sy + 6 + shelf * 8;
+        // Wooden horizontal shelves
+        px(sx + 4, sy1 + 6, 24, 2, P.woodD);
+        
+        for (let b = 0; b < 5; b++) {
+            const bx = sx + 6 + b * 4.5;
+            const bCol = colors[(shelf * 3 + b) % colors.length];
+            // Leaning book effect
+            if (shelf === 1 && b === 3) {
+                px(bx + 1, sy1 + 1, 2, 5, bCol);
+                px(bx + 2, sy1, 2, 5, bCol);
+            } else {
+                px(bx, sy1, 3, 6, bCol);
+                px(bx, sy1, 3, 1, P.uiWhite); // top pages/spine highlight
+            }
         }
     }
 }
 
 function drawExitMat(sx, sy) {
     drawFloor(sx, sy, 0, 0);
-    // Door frame sides
-    px(sx, sy, 3, TILE_SIZE, P.wallInD);
-    px(sx + 29, sy, 3, TILE_SIZE, P.wallInD);
-    // Doormat
-    px(sx + 6, sy + 10, 20, 18, P.woodD);
-    px(sx + 8, sy + 12, 16, 14, P.wood);
-    px(sx + 10, sy + 14, 12, 2, P.woodD);
-    px(sx + 10, sy + 20, 12, 2, P.woodD);
+    
+    // Door frames
+    px(sx, sy, 4, TILE_SIZE, P.woodD);
+    px(sx + 28, sy, 4, TILE_SIZE, P.woodD);
+
+    // Traditional woven doormat with concentric bands and fringe
+    px(sx + 5, sy + 10, 22, 18, P.woodD);
+    px(sx + 6, sy + 11, 20, 16, P.gold); // Gold outer band
+    px(sx + 10, sy + 13, 12, 12, P.red); // Burgundy center
+    px(sx + 12, sy + 15, 8, 8, P.suit);  // Dark crest
+    
+    // Braided fringes
+    for (let fy = sy + 11; fy < sy + 27; fy += 2) {
+        px(sx + 4, fy, 1, 1, P.uiCream);
+        px(sx + 27, fy, 1, 1, P.uiCream);
+    }
 }
 
 function drawTile(tileType, tileX, tileY) {
     const screenX = tileX * TILE_SIZE;
     const screenY = tileY * TILE_SIZE;
-    // map coords for variation (tileX/Y here are screen tile indices)
     const mapX = camera.x + tileX;
     const mapY = camera.y + tileY;
 
@@ -861,6 +1164,7 @@ function drawTile(tileType, tileX, tileY) {
         case 3:
         case 4:
         case 20:
+            // Drawn as grass baseline; the actual 3D building overlay draws on top later
             drawGrassBase(screenX, screenY, mapX, mapY);
             break;
         case 5: drawWater(screenX, screenY, mapX, mapY); break;
@@ -873,7 +1177,7 @@ function drawTile(tileType, tileX, tileY) {
         case 12: drawForge(screenX, screenY, mapX, mapY); break;
         case 13: drawMarket(screenX, screenY, mapX, mapY); break;
         case 14: drawWatchtower(screenX, screenY, mapX, mapY); break;
-        case 15: break; // door drawn later
+        case 15: break; // Door sprite drawn in a separate pass
         case 16: drawExitMat(screenX, screenY); break;
         case 17: drawTable(screenX, screenY); break;
         case 18: drawChair(screenX, screenY); break;
@@ -883,86 +1187,395 @@ function drawTile(tileType, tileX, tileY) {
 }
 
 // ------------------------------------------------------------------
-// Sprites — FireRed-style proportions (big head, simple eyes, outlines)
+// Breathtaking Building Drawing — 3D-slanted GBA Cottage Overlay
+// ------------------------------------------------------------------
+
+function drawChimneySmoke(cx, cy) {
+    // Elegant floating/swaying pixel smoke puffs (light grey to white)
+    for (let i = 0; i < 3; i++) {
+        const age = (Date.now() + i * 500) % 1500;
+        const t = age / 1500;
+        
+        const dy = t * 45;
+        const dx = Math.sin(t * 6 + i * 3) * 10;
+        const sx = cx + dx;
+        const sy = cy - dy;
+        
+        // Smoke size ballooning then dissolving
+        const r = Math.sin(t * Math.PI) * 7 + 1.5;
+        if (r < 1) continue;
+        
+        const baseColor = '#e0e6ed';
+        const shadowColor = '#a0aab8';
+        const lightColor = '#ffffff';
+        
+        const ri = Math.floor(r);
+        for (let row = -ri; row <= ri; row++) {
+            const width = Math.floor(Math.sqrt(r * r - row * row));
+            if (width <= 0) continue;
+            
+            // Draw dithered retro smoke circle by stacking horizontal rects
+            px(sx - width * 2, sy + row * 2, width * 4, 2, shadowColor);
+            if (width > 1) {
+                px(sx - (width - 1) * 2, sy + row * 2, (width - 1) * 4, 2, baseColor);
+            }
+            if (row < 0 && width > 2) {
+                px(sx - (width - 2) * 2, sy + row * 2, (width - 2) * 2, 2, lightColor);
+            }
+        }
+    }
+}
+
+function drawBuilding(screenX, screenY, type) {
+    const pal = {
+        3: { // Blue House - Council Hall (Cozy half-timbered stone cottage)
+            roof: P.roofBlue, roofD: P.roofBlueD, roofL: P.roofBlueL,
+            wall: P.wallBlue, wallD: P.wallBlueD, wallL: P.wallBlueL,
+            timber: P.woodD, timberD: '#3a1e0d',
+            found: P.metal, foundD: P.metalD
+        },
+        4: { // Red House - Player Home (Charming white horizontal clapboard)
+            roof: P.roofRed, roofD: P.roofRedD, roofL: P.roofRedL,
+            wall: P.wallRed, wallD: P.wallRedD, wallL: P.wallRedL,
+            timber: P.wood, timberD: P.woodD,
+            found: P.found, foundD: P.foundD
+        },
+        20: { // Green House - Homestead (Log cabin with green moss shingle roof)
+            roof: P.roofGreen, roofD: P.roofGreenD, roofL: P.crop,
+            wall: P.wallTan, wallD: P.wallTanD, wallL: P.wallTanL,
+            timber: P.woodD, timberD: '#241408',
+            found: P.found, foundD: P.foundD
+        }
+    }[type];
+
+    const bw = 5 * TILE_SIZE; // 160
+    const bh = 5 * TILE_SIZE; // 160
+
+    // 1. Base footprint grass
+    for (let ty = 0; ty < 5; ty++) {
+        for (let tx = 0; tx < 5; tx++) {
+            drawGrassBase(screenX + tx * TILE_SIZE, screenY + ty * TILE_SIZE, tx, ty);
+        }
+    }
+
+    // 2. Beautiful soft shadow on grass
+    px(screenX - 6, screenY + 124, bw + 12, 10, P.shadow);
+
+    // 3. Slanted Gabled Roof (GBA ridge tiles)
+    const roofBaseY = screenY + 76;
+    
+    // Draw 8 overlapping horizontal shingles layers
+    for (let step = 0; step < 8; step++) {
+        const ry = screenY + 14 + step * 8;
+        const inset = (7 - step) * 8; // narrow to peak
+        const width = bw - inset * 2;
+        const rx = screenX + inset;
+        
+        px(rx, ry, width, 8, pal.roofD);
+        px(rx + 2, ry + 2, width - 4, 4, pal.roof);
+        px(rx + 2, ry, width - 4, 2, pal.roofL); // edge highlight
+
+        // Vertical tile grout lines
+        for (let sx = rx + 8; sx < rx + width; sx += 12) {
+            px(sx, ry + 2, 2, 6, pal.roofD);
+        }
+    }
+
+    // White trim (bargeboards) on roof gable sides
+    for (let step = 0; step < 8; step++) {
+        const ry = screenY + 14 + step * 8;
+        const inset = (7 - step) * 8;
+        // Left Trim
+        px(screenX + inset - 2, ry, 4, 8, P.uiCream);
+        px(screenX + inset - 4, ry + 2, 2, 6, pal.timberD);
+        // Right Trim
+        px(screenX + bw - inset - 2, ry, 4, 8, P.uiCream);
+        px(screenX + bw - inset, ry + 2, 2, 6, pal.timberD);
+    }
+
+    // Roof peak ridge cap
+    px(screenX + 54, screenY + 10, 52, 6, P.uiCream);
+    px(screenX + 54, screenY + 14, 52, 2, P.metalL);
+    px(screenX + 52, screenY + 12, 2, 4, P.metalL);
+    px(screenX + 106, screenY + 12, 2, 4, P.metalL);
+
+    // 4. Brick/Stone Chimney & Smoke
+    const chimX = screenX + bw - 36;
+    const chimY = screenY + 20;
+    px(chimX, chimY, 14, 38, type === 3 ? P.metal : '#9c301c'); // stone vs red brick
+    px(chimX, chimY, 14, 4, P.outline); // soot cap
+    px(chimX + 2, chimY + 4, 10, 34, type === 3 ? P.metalL : P.roofRed);
+    // Mortar lines
+    for (let cy = chimY + 8; cy < chimY + 38; cy += 8) {
+        px(chimX, cy, 14, 2, type === 3 ? P.metalD : P.roofRedD);
+    }
+    // rising chimney smoke
+    drawChimneySmoke(chimX + 7, chimY - 4);
+
+    // 5. Cottage Walls
+    const wallY = screenY + 76;
+    const wallH = 50;
+    px(screenX + 4, wallY, bw - 8, wallH, pal.wallD);
+    px(screenX + 6, wallY, bw - 12, wallH - 2, pal.wall);
+    px(screenX + 6, wallY, bw - 12, 2, pal.wallL);
+
+    // Cut-stone Foundation
+    px(screenX + 4, wallY + wallH - 6, bw - 8, 6, pal.foundD);
+    px(screenX + 6, wallY + wallH - 6, bw - 12, 4, pal.found);
+    for (let fx = screenX + 12; fx < screenX + bw - 12; fx += 14) {
+        px(fx, wallY + wallH - 6, 2, 6, pal.foundD);
+    }
+
+    // Wall unique textures
+    if (type === 3) {
+        // Tudor half-timbered vertical/diagonal framing
+        px(screenX + 6, wallY, 4, wallH - 6, pal.timberD);
+        px(screenX + bw - 10, wallY, 4, wallH - 6, pal.timberD);
+        px(screenX + 42, wallY, 4, wallH - 6, pal.timber);
+        px(screenX + 114, wallY, 4, wallH - 6, pal.timber);
+        // Diagonals
+        for (let d = 0; d < 20; d++) {
+            px(screenX + 10 + d, wallY + d, 3, 2, pal.timberD);
+            px(screenX + bw - 13 - d, wallY + d, 3, 2, pal.timberD);
+        }
+    } else if (type === 4) {
+        // Cozy horizontal white wood siding planks
+        for (let cy = wallY + 6; cy < wallY + wallH - 6; cy += 6) {
+            px(screenX + 6, cy, bw - 12, 2, pal.wallD);
+            px(screenX + 6, cy - 2, bw - 12, 2, pal.wallL);
+        }
+        // Corner timber columns
+        px(screenX + 6, wallY, 6, wallH - 6, pal.timber);
+        px(screenX + bw - 12, wallY, 6, wallH - 6, pal.timber);
+    } else if (type === 20) {
+        // Log cabin layers
+        for (let cy = wallY; cy < wallY + wallH - 6; cy += 8) {
+            px(screenX + 6, cy, bw - 12, 8, pal.wallD);
+            px(screenX + 6, cy + 2, bw - 12, 4, pal.wall);
+            px(screenX + 6, cy + 1, bw - 12, 1, pal.wallL);
+            // Interlocking log ends on sides
+            px(screenX + 2, cy + 1, 6, 6, pal.timberD);
+            px(screenX + 3, cy + 2, 4, 4, pal.timber);
+            px(screenX + bw - 8, cy + 1, 6, 6, pal.timberD);
+            px(screenX + bw - 7, cy + 2, 4, 4, pal.timber);
+        }
+    }
+
+    // 6. Double-hung multi-pane Windows
+    for (let i = 0; i < 2; i++) {
+        const wx = screenX + (i === 0 ? 22 : 106);
+        const wy = wallY + 10;
+        
+        px(wx - 2, wy - 2, 36, 26, pal.timberD); // trim border
+        px(wx, wy, 32, 22, P.uiWhite); // frame
+        
+        if (type === 3) {
+            // Council: Gothic glowing arched stained glass
+            px(wx + 2, wy + 2, 28, 18, '#ffd830');
+            px(wx + 2, wy + 2, 28, 2, '#ffa010'); // gradient
+            for (let lx = 0; lx < 28; lx += 6) {
+                px(wx + 2 + lx, wy + 2, 1, 18, 'rgba(40, 20, 0, 0.4)');
+            }
+        } else if (type === 20) {
+            // Homestead: opened green window shutters on sides
+            px(wx + 2, wy + 2, 28, 18, '#243c5c');
+            px(wx + 4, wy + 2, 24, 18, '#4370a0');
+            px(wx + 10, wy + 2, 4, 18, P.uiWhite); // glint
+            px(wx + 18, wy + 2, 2, 18, P.uiWhite);
+            
+            // Shutters opened wide
+            // Left shutter
+            px(wx - 14, wy - 1, 12, 24, '#1c4415');
+            px(wx - 13, wy, 10, 22, '#346a2a');
+            px(wx - 10, wy + 4, 4, 14, '#1c4415');
+            // Right shutter
+            px(wx + 34, wy - 1, 12, 24, '#1c4415');
+            px(wx + 35, wy, 10, 22, '#346a2a');
+            px(wx + 38, wy + 4, 4, 14, '#1c4415');
+        } else {
+            // Player: Beautiful sky blue windows with shiny diagonals
+            px(wx + 2, wy + 2, 28, 18, '#285880');
+            px(wx + 4, wy + 2, 24, 18, '#4890c8');
+            px(wx + 8, wy + 2, 4, 18, '#9cd0f0');
+            px(wx + 18, wy + 2, 2, 18, P.uiWhite);
+            px(wx + 22, wy + 2, 1, 18, P.uiWhite);
+            
+            px(wx + 14, wy + 2, 4, 18, P.uiWhite); // white cross bars
+            px(wx + 2, wy + 10, 28, 3, P.uiWhite);
+        }
+    }
+}
+
+function drawBuildings() {
+    for (let ty = 0; ty < MAP_HEIGHT; ty++) {
+        for (let tx = 0; tx < MAP_WIDTH; tx++) {
+            const t = map[ty][tx];
+            if (t !== 3 && t !== 4 && t !== 20) continue;
+            // Draw only from top-left anchor tile of the 5x5 footprint
+            if (map[ty - 1] && map[ty - 1][tx] === t) continue;
+            if (map[ty] && map[ty][tx - 1] === t) continue;
+
+            const bx = tx * TILE_SIZE - camera.x * TILE_SIZE;
+            const by = ty * TILE_SIZE - camera.y * TILE_SIZE;
+            const bw = 5 * TILE_SIZE;
+            const bh = 5 * TILE_SIZE;
+            if (bx + bw < 0 || bx > canvas.width || by + bh < 0 || by > canvas.height) continue;
+            drawBuilding(bx, by, t);
+        }
+    }
+}
+
+function drawDoor(screenX, screenY) {
+    // Elegant arched wooden entry door with heavy iron brackets
+    px(screenX + 4, screenY + 2, 24, 28, P.outline);
+    px(screenX + 6, screenY + 4, 20, 24, P.door);
+    px(screenX + 6, screenY + 4, 20, 2, P.doorL); // lintel highlight
+
+    // Classic GBA wooden door panel engravings
+    // Iron hinge straps on the left side
+    px(screenX + 4, screenY + 8, 8, 2, P.metalD);
+    px(screenX + 4, screenY + 20, 8, 2, P.metalD);
+    px(screenX + 8, screenY + 8, 7, 8, P.doorL);
+    px(screenX + 17, screenY + 8, 7, 8, P.doorL);
+    px(screenX + 8, screenY + 18, 7, 8, P.doorL);
+    px(screenX + 17, screenY + 18, 7, 8, P.doorL);
+
+    // Golden entry ring handle
+    px(screenX + 22, screenY + 15, 2, 3, P.gold);
+    px(screenX + 21, screenY + 16, 1, 1, P.gold);
+
+    // Stone brick door threshold doorstep
+    px(screenX + 2, screenY + 28, 28, 4, P.metal);
+    px(screenX + 2, screenY + 28, 28, 1, P.metalL);
+}
+
+function drawDoors() {
+    for (const d of villageDoors) {
+        const sx = d.tx * TILE_SIZE - camera.x * TILE_SIZE;
+        const sy = d.ty * TILE_SIZE - camera.y * TILE_SIZE;
+        if (sx < -TILE_SIZE || sx > canvas.width || sy < -TILE_SIZE || sy > canvas.height) continue;
+        drawDoor(sx, sy);
+    }
+}
+
+// ------------------------------------------------------------------
+// High-Fidelity Pokémon Sprite Drawing (Cute heads, precise walk)
 // ------------------------------------------------------------------
 
 function drawPlayer() {
     const screenX = Math.floor(player.x - camera.x * TILE_SIZE);
     const screenY = Math.floor(player.y - camera.y * TILE_SIZE);
 
-    // 2-frame bob while walking (integer pixels only)
+    // Smooth walking foot stepping cycle (4-steps)
+    let walkPhase = 0; // 0=standing, 1=left forward, 2=standing, 3=right forward
     let bob = 0;
+    
     if (player.isMoving) {
         player.animFrame = (player.animFrame + 1) % 16;
+        walkPhase = Math.floor(player.animFrame / 4);
         bob = (player.animFrame < 8) ? 0 : -1;
     }
 
     const ox = screenX;
     const oy = screenY + bob;
-    pixelShadow(ox + 16, oy + 30);
+    pixelShadow(ox + 16, oy + 30); // shadow
 
-    if (player.facing === 'down') drawPlayerDown(ox, oy);
-    else if (player.facing === 'up') drawPlayerUp(ox, oy);
-    else if (player.facing === 'left') drawPlayerSide(ox, oy, -1);
-    else drawPlayerSide(ox, oy, 1);
+    if (player.facing === 'down') drawPlayerDown(ox, oy, walkPhase);
+    else if (player.facing === 'up') drawPlayerUp(ox, oy, walkPhase);
+    else if (player.facing === 'left') drawPlayerSide(ox, oy, -1, walkPhase);
+    else drawPlayerSide(ox, oy, 1, walkPhase);
 }
 
-function drawPlayerDown(ox, oy) {
-    // Sheathed sword (behind)
+function drawPlayerDown(ox, oy, walkPhase) {
+    // Sheathed sword strapped diagonally on back
     px(ox + 21, oy + 12, 5, 16, P.woodD);
     px(ox + 22, oy + 12, 2, 16, P.wood);
     px(ox + 20, oy + 9, 6, 3, P.gold);
 
-    // Legs / boots
-    px(ox + 10, oy + 25, 5, 5, P.pants);
-    px(ox + 17, oy + 25, 5, 5, P.pants);
-    px(ox + 9, oy + 29, 6, 3, P.boot);
-    px(ox + 17, oy + 29, 6, 3, P.boot);
+    // Legs / boots stepping cycle animation
+    if (walkPhase === 0 || walkPhase === 2) {
+        // Standing Still Boots
+        px(ox + 10, oy + 25, 5, 4, P.pants);
+        px(ox + 17, oy + 25, 5, 4, P.pants);
+        px(ox + 9, oy + 29, 6, 3, P.boot);
+        px(ox + 17, oy + 29, 6, 3, P.boot);
+    } else if (walkPhase === 1) {
+        // Left boot forward, right boot back
+        px(ox + 10, oy + 26, 5, 4, P.pants);
+        px(ox + 17, oy + 24, 5, 4, P.pants);
+        px(ox + 9, oy + 30, 6, 3, P.boot); // forward
+        px(ox + 17, oy + 28, 6, 3, P.boot); // back
+    } else {
+        // Right boot forward, left boot back
+        px(ox + 10, oy + 24, 5, 4, P.pants);
+        px(ox + 17, oy + 26, 5, 4, P.pants);
+        px(ox + 9, oy + 28, 6, 3, P.boot);
+        px(ox + 17, oy + 30, 6, 3, P.boot);
+    }
 
-    // Body outline + tunic
+    // Body Outline + Crimson Coat
     px(ox + 8, oy + 14, 16, 13, P.outline);
     px(ox + 9, oy + 15, 14, 11, P.red);
     px(ox + 9, oy + 15, 14, 2, P.redL);
-    // Arms
+    // Arms with skin cuffs
     px(ox + 6, oy + 16, 3, 8, P.redD);
     px(ox + 23, oy + 16, 3, 8, P.redD);
     px(ox + 6, oy + 24, 3, 3, P.skin);
     px(ox + 23, oy + 24, 3, 3, P.skin);
-    // Life-suit chest plate
+    
+    // Tech Life-Suit Chest Plate (Pulse effect!)
     px(ox + 12, oy + 17, 8, 6, P.suit);
-    px(ox + 13, oy + 18, 2, 4, P.glow);
+    const pulse = Math.sin(Date.now() / 150) * 0.3 + 0.7;
+    const glowColor = pulse > 0.8 ? P.glowL : (pulse > 0.5 ? '#70f0ff' : P.glow);
+    px(ox + 13, oy + 18, 2, 4, glowColor);
     px(ox + 13, oy + 18, 2, 1, P.glowL);
+
     // Belt
     px(ox + 9, oy + 24, 14, 2, P.suit);
     px(ox + 14, oy + 24, 4, 2, P.gold);
 
-    // Head (large FireRed proportion)
+    // Beautiful Big GBA Head
     px(ox + 10, oy + 4, 12, 11, P.outline);
     px(ox + 11, oy + 5, 10, 9, P.skin);
-    // Hair cap + sideburns
+    
+    // Chocolate Hair Cap + messy bangs
     px(ox + 10, oy + 3, 12, 4, P.hair);
     px(ox + 10, oy + 3, 12, 2, P.hairD);
     px(ox + 10, oy + 5, 2, 5, P.hair);
     px(ox + 20, oy + 5, 2, 5, P.hair);
     px(ox + 12, oy + 4, 3, 2, P.hairL);
-    // Bangs
     px(ox + 12, oy + 5, 2, 2, P.hair);
     px(ox + 18, oy + 5, 2, 2, P.hair);
-    // Eyes (simple black dots — classic GBA)
+
+    // Deep black express eyes with shinny glints
     px(ox + 13, oy + 8, 2, 2, P.outline);
     px(ox + 17, oy + 8, 2, 2, P.outline);
-    // Mouth
-    px(ox + 15, oy + 11, 2, 1, P.skinD);
+    px(ox + 13, oy + 8, 1, 1, P.uiWhite); // glint
+    px(ox + 17, oy + 8, 1, 1, P.uiWhite);
+    
+    px(ox + 15, oy + 11, 2, 1, P.skinD); // mouth
 }
 
-function drawPlayerUp(ox, oy) {
-    // Legs
-    px(ox + 10, oy + 25, 5, 5, P.pants);
-    px(ox + 17, oy + 25, 5, 5, P.pants);
-    px(ox + 9, oy + 29, 6, 3, P.boot);
-    px(ox + 17, oy + 29, 6, 3, P.boot);
+function drawPlayerUp(ox, oy, walkPhase) {
+    // Legs stepping cycle
+    if (walkPhase === 0 || walkPhase === 2) {
+        px(ox + 10, oy + 25, 5, 4, P.pants);
+        px(ox + 17, oy + 25, 5, 4, P.pants);
+        px(ox + 9, oy + 29, 6, 3, P.boot);
+        px(ox + 17, oy + 29, 6, 3, P.boot);
+    } else if (walkPhase === 1) {
+        px(ox + 10, oy + 26, 5, 4, P.pants);
+        px(ox + 17, oy + 24, 5, 4, P.pants);
+        px(ox + 9, oy + 30, 6, 3, P.boot);
+        px(ox + 17, oy + 28, 6, 3, P.boot);
+    } else {
+        px(ox + 10, oy + 24, 5, 4, P.pants);
+        px(ox + 17, oy + 26, 5, 4, P.pants);
+        px(ox + 9, oy + 28, 6, 3, P.boot);
+        px(ox + 17, oy + 30, 6, 3, P.boot);
+    }
 
-    // Body
+    // Body Back
     px(ox + 8, oy + 14, 16, 13, P.outline);
     px(ox + 9, oy + 15, 14, 11, P.redD);
     px(ox + 9, oy + 15, 14, 2, P.red);
@@ -970,15 +1583,17 @@ function drawPlayerUp(ox, oy) {
     px(ox + 23, oy + 16, 3, 8, P.redD);
     px(ox + 6, oy + 24, 3, 3, P.skin);
     px(ox + 23, oy + 24, 3, 3, P.skin);
-    // Back life-suit unit
+    
+    // Backpack unit
     px(ox + 12, oy + 17, 8, 5, P.suit);
     px(ox + 14, oy + 18, 2, 2, P.glow);
     px(ox + 9, oy + 24, 14, 2, P.suit);
-    // Sword on back
+
+    // Diagonally slung sword
     px(ox + 21, oy + 10, 5, 16, P.woodD);
     px(ox + 20, oy + 7, 6, 3, P.gold);
 
-    // Head from behind (all hair)
+    // Head back (all hair)
     px(ox + 10, oy + 3, 12, 12, P.outline);
     px(ox + 11, oy + 4, 10, 10, P.hair);
     px(ox + 11, oy + 4, 10, 2, P.hairD);
@@ -986,44 +1601,65 @@ function drawPlayerUp(ox, oy) {
     px(ox + 18, oy + 6, 2, 2, P.hairL);
 }
 
-function drawPlayerSide(ox, oy, dir) {
-    // dir: 1 = right, -1 = left. Draw relative to center with manual mirror.
+function drawPlayerSide(ox, oy, dir, walkPhase) {
     const m = (x) => (dir === 1 ? ox + 16 + x : ox + 16 - x - 1);
     const mw = (x, w) => (dir === 1 ? ox + 16 + x : ox + 16 - x - w);
 
-    // Sword behind
+    // Sword on back
     px(mw(-12, 4), oy + 10, 4, 14, P.woodD);
     px(mw(-13, 5), oy + 7, 5, 3, P.gold);
 
-    // Legs
-    px(mw(-7, 5), oy + 25, 5, 5, P.pants);
-    px(mw(2, 5), oy + 25, 5, 5, P.pants);
-    px(mw(-8, 6), oy + 29, 6, 3, P.boot);
-    px(mw(2, 6), oy + 29, 6, 3, P.boot);
+    // Legs walk cycle (profile)
+    if (walkPhase === 0 || walkPhase === 2) {
+        px(mw(-7, 5), oy + 25, 5, 5, P.pants);
+        px(mw(2, 5), oy + 25, 5, 5, P.pants);
+        px(mw(-8, 6), oy + 29, 6, 3, P.boot);
+        px(mw(2, 6), oy + 29, 6, 3, P.boot);
+    } else if (walkPhase === 1) {
+        // Legs splayed
+        px(mw(-9, 5), oy + 24, 5, 4, P.pants); // back up
+        px(mw(4, 5), oy + 26, 5, 4, P.pants);  // front down
+        px(mw(-10, 6), oy + 28, 6, 3, P.boot);
+        px(mw(4, 6), oy + 30, 6, 3, P.boot);
+    } else {
+        px(mw(-5, 5), oy + 26, 5, 4, P.pants);
+        px(mw(0, 5), oy + 24, 5, 4, P.pants);
+        px(mw(-6, 6), oy + 30, 6, 3, P.boot);
+        px(mw(0, 6), oy + 28, 6, 3, P.boot);
+    }
 
-    // Body
+    // Body side profile
     px(mw(-8, 16), oy + 14, 16, 13, P.outline);
     px(mw(-7, 14), oy + 15, 14, 11, P.red);
     px(mw(-7, 14), oy + 15, 14, 2, P.redL);
-    // Front arm
+    
+    // Front arm swinging
     px(mw(6, 3), oy + 16, 3, 8, P.redD);
     px(mw(6, 3), oy + 24, 3, 3, P.skin);
-    // Life suit side
+    
+    // Side Chest plate pulse
     px(mw(0, 5), oy + 17, 5, 6, P.suit);
-    px(mw(1, 2), oy + 18, 2, 3, P.glow);
+    const pulse = Math.sin(Date.now() / 150) * 0.3 + 0.7;
+    const glowColor = pulse > 0.8 ? P.glowL : (pulse > 0.5 ? '#70f0ff' : P.glow);
+    px(mw(1, 2), oy + 18, 2, 3, glowColor);
+
     px(mw(-7, 14), oy + 24, 14, 2, P.suit);
 
-    // Head
+    // Head profile
     px(mw(-6, 12), oy + 4, 12, 11, P.outline);
     px(mw(-5, 10), oy + 5, 10, 9, P.skin);
-    // Hair
+    
+    // Side hair flowing
     px(mw(-6, 12), oy + 2, 12, 4, P.hair);
     px(mw(-6, 12), oy + 2, 12, 2, P.hairD);
     px(mw(-6, 2), oy + 4, 2, 6, P.hair);
-    px(mw(3, 3), oy + 4, 3, 3, P.hair); // forelock
-    // Eye facing forward
+    px(mw(3, 3), oy + 4, 3, 3, P.hair); // fringe
+
+    // Eye profile facing right/left
     px(m(2), oy + 8, 2, 2, P.outline);
-    px(m(3), oy + 11, 2, 1, P.skinD);
+    px(m(2), oy + 8, 1, 1, P.uiWhite);
+    
+    px(mw(3, 2), oy + 11, 2, 1, P.skinD); // mouth crease
 }
 
 function adjustColor(hex, amount) {
@@ -1039,20 +1675,21 @@ function drawNPC(npc) {
     const screenY = npc.tileY * TILE_SIZE - camera.y * TILE_SIZE;
     if (screenX < -TILE_SIZE || screenX > canvas.width || screenY < -TILE_SIZE || screenY > canvas.height) return;
 
-    pixelShadow(screenX + 16, screenY + 30);
+    pixelShadow(screenX + 16, screenY + 30); // shadow
 
     const isElder = npc.id.includes('elder');
     const robe = npc.color;
     const robeD = adjustColor(npc.color, -35);
     const robeL = adjustColor(npc.color, 30);
 
-    // Robe body (FireRed NPC silhouette)
+    // Robe gown outline
     px(screenX + 8, screenY + 14, 16, 16, P.outline);
     px(screenX + 9, screenY + 15, 14, 14, robe);
     px(screenX + 9, screenY + 15, 14, 2, robeL);
     px(screenX + 11, screenY + 16, 1, 12, robeD);
     px(screenX + 20, screenY + 16, 1, 12, robeD);
     px(screenX + 9, screenY + 27, 14, 2, robeD);
+    
     if (isElder) {
         px(screenX + 10, screenY + 14, 12, 2, P.hairGray);
     }
@@ -1062,67 +1699,111 @@ function drawNPC(npc) {
     px(screenX + 11, screenY + 5, 10, 9, P.skin);
 
     if (isElder) {
-        // Bald + gray sides + beard
+        // Bald cap + long gray beard
         px(screenX + 11, screenY + 4, 10, 3, P.skinD);
         px(screenX + 10, screenY + 5, 2, 6, P.hairGray);
         px(screenX + 20, screenY + 5, 2, 6, P.hairGray);
-        px(screenX + 12, screenY + 11, 8, 3, P.hairGray);
-        px(screenX + 13, screenY + 13, 3, 2, P.hairGray);
-        px(screenX + 16, screenY + 13, 3, 2, P.hairGray);
+        px(screenX + 12, screenY + 11, 8, 5, P.hairGray); // Majestic split beard
+        px(screenX + 13, screenY + 15, 2, 2, P.hairGray);
+        px(screenX + 17, screenY + 15, 2, 2, P.hairGray);
+        
+        // Eyes
         px(screenX + 13, screenY + 8, 2, 2, P.outline);
         px(screenX + 17, screenY + 8, 2, 2, P.outline);
-        px(screenX + 12, screenY + 7, 4, 1, P.metalD);
-        px(screenX + 16, screenY + 7, 4, 1, P.metalD);
+        
+        // Glasses! Round gold wire rims
+        px(screenX + 12, screenY + 7, 4, 1, P.gold);
+        px(screenX + 16, screenY + 7, 4, 1, P.gold);
     } else {
-        // Tinslaire young hair
+        // Tinslaire (cute younger brother brown hair)
         px(screenX + 10, screenY + 2, 12, 4, P.hair);
         px(screenX + 10, screenY + 2, 12, 2, P.hairD);
         px(screenX + 10, screenY + 4, 2, 5, P.hair);
         px(screenX + 20, screenY + 4, 2, 5, P.hair);
+        
         px(screenX + 13, screenY + 8, 2, 2, P.outline);
         px(screenX + 17, screenY + 8, 2, 2, P.outline);
-        px(screenX + 15, screenY + 11, 2, 1, P.skinD);
+        px(screenX + 13, screenY + 8, 1, 1, P.uiWhite);
+        px(screenX + 17, screenY + 8, 1, 1, P.uiWhite);
+        
+        px(screenX + 15, screenY + 11, 2, 1, P.skinD); // mouth
     }
 
-    // Name tag (solid, no alpha)
-    const label = npc.name.length > 8 ? npc.name.slice(0, 7) + '.' : npc.name;
+    // Name tag banner above NPC's head (Capsule style)
+    const label = npc.name;
     ctx.font = 'bold 8px monospace';
     ctx.textAlign = 'center';
-    const tw = Math.ceil(ctx.measureText(label).width) + 6;
-    px(screenX + 16 - tw / 2, screenY - 10, tw, 9, P.uiBlueD);
-    px(screenX + 16 - tw / 2 + 1, screenY - 9, tw - 2, 7, P.uiCream);
-    ctx.fillStyle = P.uiBlueD;
+    const tw = Math.ceil(ctx.measureText(label).width) + 8;
+    
+    // Draw Capsule Tag
+    px(screenX + 16 - tw / 2, screenY - 10, tw, 10, P.uiBlueD);
+    px(screenX + 16 - tw / 2 + 1, screenY - 9, tw - 2, 8, P.uiCream);
+    
+    // Double pass text for gorgeous retro shadow
+    ctx.fillStyle = P.metalD;
+    ctx.fillText(label, screenX + 16 + 0.5, screenY - 2.5); // shadow
+    ctx.fillStyle = P.uiName;
     ctx.fillText(label, screenX + 16, screenY - 3);
 }
+
+// ------------------------------------------------------------------
+// Breathtaking GBA/FireRed Dialogue System
+// ------------------------------------------------------------------
 
 function drawDialog() {
     if (!currentDialog) return;
 
-    // Pokémon FireRed-style text box: cream fill, blue/black double border
+    // Standard Pokémon FireRed Dialogue layout:
+    // Cream inner fill, dark charcoal outer border, light slate inner double frame.
     const boxX = 16;
     const boxY = canvas.height - 78;
     const boxW = canvas.width - 32;
     const boxH = 66;
 
-    px(boxX, boxY, boxW, boxH, P.uiBlack);
-    px(boxX + 2, boxY + 2, boxW - 4, boxH - 4, P.uiBlue);
-    px(boxX + 4, boxY + 4, boxW - 8, boxH - 8, P.uiBlack);
-    px(boxX + 6, boxY + 6, boxW - 12, boxH - 12, P.uiCream);
+    // Truncated pixel corners to simulate beautiful round edges
+    const drawRoundedRect = (x, y, w, h, borderCol, fillCol) => {
+        px(x, y, w, h, borderCol);
+        // Truncate corners
+        px(x, y, 2, 2, P.shadow);
+        px(x + w - 2, y, 2, 2, P.shadow);
+        px(x, y + h - 2, 2, 2, P.shadow);
+        px(x + w - 2, y + h - 2, 2, 2, P.shadow);
+        
+        // Inner fill
+        px(x + 2, y + 2, w - 4, h - 4, fillCol);
+    };
 
-    // Name
-    ctx.fillStyle = P.uiName;
-    ctx.font = 'bold 11px monospace';
+    // Draw borders layers
+    drawRoundedRect(boxX, boxY, boxW, boxH, P.uiBlack, P.uiBlue);
+    px(boxX + 2, boxY + 2, boxW - 4, boxH - 4, P.uiBlack);
+    px(boxX + 4, boxY + 4, boxW - 8, boxH - 8, P.uiCream);
+
+    // Name tag capsule floating over the top-left edge of dialogue box
+    const nTagX = boxX + 12;
+    const nTagY = boxY - 12;
+    ctx.font = 'bold 9px monospace';
+    const nTagW = Math.ceil(ctx.measureText(currentDialog.name).width) + 16;
+    const nTagH = 15;
+    
+    drawRoundedRect(nTagX, nTagY, nTagW, nTagH, P.uiBlueD, P.uiBlue);
+    px(nTagX + 1, nTagY + 1, nTagW - 2, nTagH - 2, P.uiBlueD);
+    px(nTagX + 2, nTagY + 2, nTagW - 4, nTagH - 4, P.uiWhite);
+    
+    // Draw Speaker Name with shadow
     ctx.textAlign = 'left';
-    ctx.fillText(currentDialog.name, boxX + 14, boxY + 20);
+    ctx.fillStyle = P.uiBlue;
+    ctx.fillText(currentDialog.name, nTagX + 9, nTagY + 11);
+    ctx.fillStyle = P.uiBlueD;
+    ctx.fillText(currentDialog.name, nTagX + 8, nTagY + 10);
 
-    // Body text
-    ctx.fillStyle = P.uiText;
-    ctx.font = '11px monospace';
+    // Body Text with standard 1px GBA pixel shadow
+    ctx.font = 'bold 11px monospace';
     const text = currentDialog.dialog[dialogIndex];
     const words = text.split(' ');
     let line = '';
     const lines = [];
     const maxWidth = boxW - 36;
+    
     for (const word of words) {
         const test = line + word + ' ';
         if (ctx.measureText(test).width > maxWidth && line !== '') {
@@ -1133,15 +1814,27 @@ function drawDialog() {
         }
     }
     lines.push(line);
+
     for (let i = 0; i < Math.min(lines.length, 3); i++) {
-        ctx.fillText(lines[i], boxX + 14, boxY + 36 + i * 12);
+        const lx = boxX + 16;
+        const ly = boxY + 22 + i * 13;
+        
+        // Double pass for drop-shadow
+        ctx.fillStyle = '#b0b8c0'; // soft blue shadow
+        ctx.fillText(lines[i], lx + 1, ly + 1);
+        ctx.fillStyle = P.uiText; // deep slate text
+        ctx.fillText(lines[i], lx, ly);
     }
 
-    // Blink continue arrow (▼)
-    if (Math.floor(Date.now() / 400) % 2 === 0) {
-        px(boxX + boxW - 22, boxY + boxH - 18, 8, 2, P.uiBlueD);
-        px(boxX + boxW - 20, boxY + boxH - 16, 4, 2, P.uiBlueD);
-        px(boxX + boxW - 18, boxY + boxH - 14, 2, 2, P.uiBlueD);
+    // Continuing blinking arrow prompt (▼)
+    const arrowX = boxX + boxW - 22;
+    const arrowY = boxY + boxH - 18;
+    const bob = Math.sin(Date.now() / 100) * 2; // high speed bobbing
+    
+    if (Math.floor(Date.now() / 300) % 2 === 0) {
+        px(arrowX, arrowY + bob, 8, 2, P.uiBlueD);
+        px(arrowX + 2, arrowY + 2 + bob, 4, 2, P.uiBlueD);
+        px(arrowX + 3, arrowY + 4 + bob, 2, 2, P.uiBlueD);
     }
 }
 
@@ -1156,14 +1849,18 @@ function drawInteractPrompt() {
     }
 
     if (label) {
-        // Small FireRed-style prompt pill
-        ctx.font = 'bold 10px monospace';
+        // Beautiful GBA-style overlay badge pill
+        ctx.font = 'bold 9px monospace';
         ctx.textAlign = 'center';
-        const tw = Math.ceil(ctx.measureText(label).width) + 16;
+        const tw = Math.ceil(ctx.measureText(label).width) + 14;
         const x = canvas.width / 2 - tw / 2;
+        
         px(x, 8, tw, 14, P.uiBlack);
         px(x + 1, 9, tw - 2, 12, P.uiBlue);
         px(x + 2, 10, tw - 4, 10, P.uiCream);
+        
+        ctx.fillStyle = P.uiBlueD;
+        ctx.fillText(label, canvas.width / 2 + 0.5, 18.5); // shadow
         ctx.fillStyle = P.uiText;
         ctx.fillText(label, canvas.width / 2, 18);
     }
@@ -1179,117 +1876,6 @@ function drawTiles() {
                 drawTile(tileType, tx, ty);
             }
         }
-    }
-}
-
-// Buildings are 5x5 tiles outside; drawn as one unit from the NW root tile.
-// Roofs use stepped horizontal bands (no triangle paths) — pure GBA pixels.
-function drawBuilding(screenX, screenY, type) {
-    const pal = {
-        3:  { wall: P.wallBlue, wallD: P.wallBlueD, wallL: P.wallBlueL, roof: P.roofBlue, roofD: P.roofBlueD, roofL: P.roofBlueL, win: P.windowBlue },
-        4:  { wall: P.wallRed,  wallD: P.wallRedD,  wallL: P.wallRedL,  roof: P.roofRed,  roofD: P.roofRedD,  roofL: P.roofRedL,  win: P.window },
-        20: { wall: P.wallTan,  wallD: P.wallTanD,  wallL: P.wallTanL,  roof: P.roofGreen,roofD: P.roofGreenD,roofL: P.crop,     win: P.window }
-    }[type];
-
-    const bw = 5 * TILE_SIZE; // 160
-    const bh = 5 * TILE_SIZE; // 160
-
-    // Grass under footprint
-    px(screenX, screenY, bw, bh, P.grass);
-
-    // ---- Stepped gable roof (FireRed house silhouette) ----
-    // Each band is 8px tall, narrowing toward the peak
-    const roofBaseY = screenY + 72;
-    const bands = [
-        { y: 0,  inset: 56 },
-        { y: 8,  inset: 44 },
-        { y: 16, inset: 32 },
-        { y: 24, inset: 20 },
-        { y: 32, inset: 8 },
-        { y: 40, inset: 0 },
-        { y: 48, inset: 0 },
-        { y: 56, inset: 0 }
-    ];
-    for (let i = 0; i < bands.length; i++) {
-        const b = bands[i];
-        const color = (i % 2 === 0) ? pal.roof : pal.roofD;
-        px(screenX + b.inset, roofBaseY - 56 + b.y, bw - b.inset * 2, 8, color);
-        // highlight on top edge of each band
-        px(screenX + b.inset, roofBaseY - 56 + b.y, bw - b.inset * 2, 2, pal.roofL);
-    }
-    // Roof overhang lip
-    px(screenX - 4, roofBaseY + 8, bw + 8, 6, pal.roofD);
-    px(screenX - 4, roofBaseY + 8, bw + 8, 2, pal.roof);
-
-    // Chimney
-    px(screenX + bw - 40, roofBaseY - 40, 14, 28, P.metal);
-    px(screenX + bw - 40, roofBaseY - 40, 14, 4, P.metalD);
-    px(screenX + bw - 38, roofBaseY - 36, 4, 8, P.metalL);
-
-    // ---- Walls ----
-    px(screenX, roofBaseY + 14, bw, bh - (roofBaseY - screenY) - 14, pal.wall);
-    px(screenX, roofBaseY + 14, bw, 3, pal.wallL);
-    // Side shading
-    px(screenX, roofBaseY + 14, 4, bh - (roofBaseY - screenY) - 14, pal.wallD);
-    px(screenX + bw - 4, roofBaseY + 14, 4, bh - (roofBaseY - screenY) - 14, pal.wallD);
-    // Foundation
-    px(screenX, screenY + bh - 10, bw, 10, P.found);
-    px(screenX, screenY + bh - 10, bw, 2, P.foundD);
-
-    // Windows (cross-mullion, warm interior glow)
-    for (let i = 0; i < 2; i++) {
-        const wx = screenX + 18 + i * 78;
-        const wy = roofBaseY + 28;
-        px(wx - 2, wy - 2, 36, 28, pal.wallD);
-        px(wx, wy, 32, 24, pal.win);
-        px(wx, wy, 32, 3, P.uiWhite);
-        // Cross
-        px(wx + 14, wy, 4, 24, pal.wallD);
-        px(wx, wy + 10, 32, 4, pal.wallD);
-    }
-}
-
-function drawBuildings() {
-    for (let ty = 0; ty < MAP_HEIGHT; ty++) {
-        for (let tx = 0; tx < MAP_WIDTH; tx++) {
-            const t = map[ty][tx];
-            if (t !== 3 && t !== 4 && t !== 20) continue;
-            if (map[ty - 1] && map[ty - 1][tx] === t) continue;
-            if (map[ty] && map[ty][tx - 1] === t) continue;
-
-            const bx = tx * TILE_SIZE - camera.x * TILE_SIZE;
-            const by = ty * TILE_SIZE - camera.y * TILE_SIZE;
-            const bw = 5 * TILE_SIZE;
-            const bh = 5 * TILE_SIZE;
-            if (bx + bw < 0 || bx > canvas.width || by + bh < 0 || by > canvas.height) continue;
-            drawBuilding(bx, by, t);
-        }
-    }
-}
-
-function drawDoor(screenX, screenY) {
-    // Wooden door inset into building wall (FireRed house door)
-    px(screenX + 4, screenY + 2, 24, 28, P.outline);
-    px(screenX + 6, screenY + 4, 20, 24, P.door);
-    px(screenX + 6, screenY + 4, 20, 2, P.doorL);
-    // Panels
-    px(screenX + 8, screenY + 8, 7, 8, P.doorL);
-    px(screenX + 17, screenY + 8, 7, 8, P.doorL);
-    px(screenX + 8, screenY + 18, 7, 8, P.doorL);
-    px(screenX + 17, screenY + 18, 7, 8, P.doorL);
-    // Knob
-    px(screenX + 22, screenY + 16, 2, 2, P.gold);
-    // Stone threshold
-    px(screenX + 2, screenY + 28, 28, 4, P.metal);
-    px(screenX + 2, screenY + 28, 28, 1, P.metalL);
-}
-
-function drawDoors() {
-    for (const d of villageDoors) {
-        const sx = d.tx * TILE_SIZE - camera.x * TILE_SIZE;
-        const sy = d.ty * TILE_SIZE - camera.y * TILE_SIZE;
-        if (sx < -TILE_SIZE || sx > canvas.width || sy < -TILE_SIZE || sy > canvas.height) continue;
-        drawDoor(sx, sy);
     }
 }
 
@@ -1314,6 +1900,7 @@ function update() {
     handleInput();
     updatePlayer();
     checkAreaTransitions();
+    updateHUD(); // Constantly sync bars & loc tag
 }
 
 function loop() {

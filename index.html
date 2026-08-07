@@ -9,15 +9,34 @@
 <body>
     <div id="game-container">
         <header id="hud">
-            <div class="stat">HP: <span id="hp">100</span>/100</div>
-            <div class="stat">ST: <span id="st">100</span>/100</div>
-            <div class="stat">Location: <span id="location-name">Elderville Village</span></div>
+            <div class="stat-group">
+                <div class="stat hp-stat">
+                    <span class="label">HP</span>
+                    <div class="bar-container">
+                        <div id="hp-fill" class="bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <span class="val"><span id="hp">100</span>/100</span>
+                </div>
+                <div class="stat st-stat">
+                    <span class="label">ST</span>
+                    <div class="bar-container">
+                        <div id="st-fill" class="bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <span class="val"><span id="st">100</span>/100</span>
+                </div>
+            </div>
+            <div class="stat location-stat">
+                <span class="label loc-label">LOC</span>
+                <span id="location-name">Elderville Village</span>
+            </div>
         </header>
         <div id="canvas-wrapper">
             <canvas id="gameCanvas" width="480" height="320"></canvas>
         </div>
         <footer id="controls-hint">
-            <strong>Move:</strong> WASD / Arrow Keys | <strong>Interact:</strong> E | <strong>Attack:</strong> Space
+            <div class="hint-item"><strong>Move:</strong> WASD / Arrows</div>
+            <div class="hint-item"><strong>Interact/Talk:</strong> E / Space</div>
+            <div class="hint-item"><strong>Sprint:</strong> Hold Shift</div>
         </footer>
     </div>
     <script src="game.js"></script>

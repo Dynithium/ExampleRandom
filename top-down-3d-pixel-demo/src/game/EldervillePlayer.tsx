@@ -182,7 +182,15 @@ export function EldervillePlayer() {
             // teleport to interior entry just above mat: local (7,8) facing down
             const offX=INT_OFF_X, offZ=INT_OFF_Z;
             p.pos.set(offX + 7 + 0.5, INT_Y, offZ + 8 + 0.5);
-            p.yaw = Math.PI; // facing down? Actually down is PI
+            p.yaw = Math.PI;
+            // snap camera instantly — otherwise 50-unit teleport lerps over ocean and looks tiny
+            camTarget.copy(p.pos);
+            const yawSnap = rt.cam.yaw;
+            const pitchSnap=0.62, distSnap=46;
+            desired.set(p.pos.x + Math.sin(yawSnap)*Math.cos(pitchSnap)*distSnap, p.pos.y + Math.sin(pitchSnap)*distSnap, p.pos.z + Math.cos(yawSnap)*Math.cos(pitchSnap)*distSnap);
+            state.camera.position.copy(desired);
+            state.camera.lookAt(p.pos.x, p.pos.y+0.9, p.pos.z);
+            init.current = true;
             break;
           }
         }
@@ -206,6 +214,13 @@ export function EldervillePlayer() {
               // place just outside door (one tile south)
               useElder.getState().setArea("village", null);
               p.pos.set(wp.x, wp.y, wp.z + 0.8);
+              camTarget.copy(p.pos);
+              const yawSnap2 = rt.cam.yaw;
+              const pitchSnap2=0.62, distSnap2=46;
+              desired.set(p.pos.x + Math.sin(yawSnap2)*Math.cos(pitchSnap2)*distSnap2, p.pos.y + Math.sin(pitchSnap2)*distSnap2, p.pos.z + Math.cos(yawSnap2)*Math.cos(pitchSnap2)*distSnap2);
+              state.camera.position.copy(desired);
+              state.camera.lookAt(p.pos.x, p.pos.y+0.9, p.pos.z);
+              init.current = true;
             }
           }
         }

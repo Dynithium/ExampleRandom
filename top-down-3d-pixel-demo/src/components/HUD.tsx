@@ -3,15 +3,6 @@ import { useUI, rt } from "../game/state";
 import { pressInteract, setTouchAxis } from "../game/input";
 import { sfx } from "../game/audio";
 
-function Coin({ className = "" }: { className?: string }) {
-  return (
-    <span
-      className={"inline-block h-3 w-3 border-2 border-[#8a5b00] bg-[#ffcf3d] " + className}
-      style={{ boxShadow: "inset -2px -2px 0 0 #d99f18" }}
-    />
-  );
-}
-
 function Btn({
   children,
   onClick,
@@ -92,8 +83,6 @@ function Stick() {
 }
 
 export function HUD() {
-  const coins = useUI((s) => s.coins);
-  const total = useUI((s) => s.total);
   const prompt = useUI((s) => s.prompt);
   const dialogue = useUI((s) => s.dialogue);
   const clock = useUI((s) => s.clock);
@@ -105,9 +94,7 @@ export function HUD() {
   const started = useUI((s) => s.started);
   const [res, setRes] = useState("");
   const [touch, setTouch] = useState(false);
-  const [bump, setBump] = useState(0);
 
-  useEffect(() => setBump((b) => b + 1), [coins]);
   useEffect(() => {
     setTouch(window.matchMedia("(pointer: coarse)").matches);
     const update = () =>
@@ -119,26 +106,18 @@ export function HUD() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 font-pixel">
-      {/* ---------------------------------------------------------- top left */}
+      {/* ---------------------------------------------------------- top left — now ELDERVILLE */}
       <div className="absolute left-3 top-3 flex flex-col gap-2">
         <div className="panel px-3 py-2">
-          <div className="text-[13px] tracking-widest text-[#ffd75e]">PIXELMOOR</div>
-          <div className="mt-1 text-[7px] leading-relaxed text-[#7f92c4]">
-            REAL 3D · RENDERED AT {res} · UPSCALED
+          <div className="text-[10px] tracking-widest text-[#ffd75e]">MINSLAIRE — ELDERVILLE</div>
+          <div className="mt-1 text-[6px] leading-relaxed text-[#7f92c4]">
+            PIXELMOOR ENGINE · ELDERVILLE VILLAGE · {res}
           </div>
         </div>
-        <div className="panel flex items-center gap-3 px-3 py-2">
-          <div key={bump} className={"flex items-center gap-2 " + (coins ? "pop" : "")}>
-            <Coin />
-            <span className="text-[10px] text-[#ffe9a8]">
-              {String(coins).padStart(2, "0")}/{String(total).padStart(2, "0")}
-            </span>
-          </div>
+        <div className="panel flex items-center gap-2 px-3 py-2">
           <span className="text-[10px] text-[#8fb7ff]">{clock}</span>
+          <span className="text-[7px] text-[#7f92c4]">· DAY/NIGHT CYCLE</span>
         </div>
-        {coins >= total && total > 0 && (
-          <div className="panel px-3 py-2 text-[8px] text-[#8fe06a]">ALL COINS FOUND! NICE.</div>
-        )}
       </div>
 
       {/* --------------------------------------------------------- top right */}
@@ -186,13 +165,13 @@ export function HUD() {
             <span className="text-[#ffd75e]">WASD</span> MOVE
           </div>
           <div>
-            <span className="text-[#ffd75e]">Q / E</span> ROTATE CAMERA
+            <span className="text-[#ffd75e]">Q / R</span> ROTATE CAMERA
           </div>
           <div>
             <span className="text-[#ffd75e]">WHEEL</span> ZOOM
           </div>
           <div>
-            <span className="text-[#ffd75e]">SPACE</span> INTERACT
+            <span className="text-[#ffd75e]">E</span> INTERACT
           </div>
         </div>
       )}
@@ -201,7 +180,7 @@ export function HUD() {
       {prompt && !dialogue && (
         <div className="absolute bottom-28 left-1/2 -translate-x-1/2">
           <div className="panel floaty px-3 py-2 text-[8px] text-[#ffe9a8]">
-            <span className="text-[#ffd75e]">{touch ? "[A]" : "[SPACE]"}</span> {prompt}
+            <span className="text-[#ffd75e]">{touch ? "[A]" : "[E]"}</span> {prompt}
           </div>
         </div>
       )}
@@ -213,7 +192,7 @@ export function HUD() {
               {dialogue.text}
             </div>
             <div className="mt-2 text-right text-[7px] text-[#7f92c4]">
-              <span className="blink">▼</span> {touch ? "[A]" : "[SPACE]"} CLOSE
+              <span className="blink">▼</span> {touch ? "[A]" : "[E]"} CLOSE
             </div>
           </div>
         </div>
@@ -247,17 +226,18 @@ export function HUD() {
         </>
       )}
 
-      {/* -------------------------------------------------------- start card */}
+      {/* -------------------------------------------------------- start card — Elderville */}
       {!started && (
-        <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-[#070a14]/70">
-          <div className="panel max-w-[420px] px-6 py-6 text-center">
-            <div className="text-[20px] tracking-widest text-[#ffd75e]">PIXELMOOR</div>
-            <div className="mt-3 text-[8px] leading-[2] text-[#9db0dd]">
-              A TOP-DOWN VOXEL ISLAND.
+        <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-[#070a14]/80">
+          <div className="panel max-w-[440px] px-6 py-6 text-center">
+            <div className="text-[15px] tracking-widest text-[#ffd75e]">MINSLAIRE</div>
+            <div className="text-[8px] tracking-[0.2em] text-[#7f92c4]">ELDERVILLE VILLAGE · PIXELMOOR ENGINE</div>
+            <div className="mt-3 text-[7px] leading-[2] text-[#9db0dd]">
+              A WHIMSICAL VOXEL VILLAGE.
               <br />
-              EVERYTHING IS REAL 3D GEOMETRY RENDERED
+              REAL 3D GEOMETRY RENDERED TINY, THEN BLOWN UP.
               <br />
-              AT A TINY RESOLUTION, THEN BLOWN UP.
+              WAKE IN THE RED HOUSE. HEAR THE HUM. MEET THE ELDERS.
             </div>
             <button
               onClick={() => {
@@ -267,9 +247,9 @@ export function HUD() {
               }}
               className="pbtn mt-5 px-5 py-3 text-[10px] text-[#ffe9a8]"
             >
-              ▶ PRESS TO EXPLORE
+              ▶ WAKE UP
             </button>
-            <div className="mt-4 text-[7px] text-[#5f719e]">WASD / STICK TO WALK · SPACE TO INTERACT</div>
+            <div className="mt-4 text-[7px] text-[#5f719e]">WASD TO WALK · E TO TALK · Q/R ROTATE · SPACE ATTACK</div>
           </div>
         </div>
       )}

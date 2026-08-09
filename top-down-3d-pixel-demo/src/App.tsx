@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Scene } from "./game/Scene";
 import { HUD } from "./components/HUD";
+import { EldervilleHUD } from "./components/EldervilleHUD";
 import { useKeyboard } from "./game/input";
 import { rt, useUI } from "./game/state";
 
@@ -11,7 +12,7 @@ export default function App() {
   const scanlines = useUI((s) => s.scanlines);
 
   useEffect(() => {
-    const z = Math.min(46, Math.max(16, Math.max(window.innerWidth / 38, window.innerHeight / 34)));
+    const z = Math.min(48, Math.max(16, Math.max(window.innerWidth / 38, window.innerHeight / 34)));
     rt.cam.zoom = z;
     rt.cam.targetZoom = z;
   }, []);
@@ -42,6 +43,7 @@ export default function App() {
         <Scene />
       </Canvas>
       <HUD />
+      <EldervilleHUD />
     </div>
   );
 }

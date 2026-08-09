@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { create } from "zustand";
-import { SPAWN, TOTAL_COINS } from "./world";
+import { SPAWN } from "./world";
 
 /** Mutable, non-reactive runtime state (mutated every frame, read by anything). */
 export const rt = {
@@ -34,8 +34,6 @@ export const rt = {
 export const collected = new Set<number>();
 
 export type UIState = {
-  coins: number;
-  total: number;
   prompt: string | null;
   dialogue: { title: string; text: string } | null;
   pixel: number;
@@ -45,7 +43,6 @@ export type UIState = {
   daySpeed: number;
   clock: string;
   started: boolean;
-  collect: () => void;
   setPrompt: (p: string | null) => void;
   say: (d: { title: string; text: string } | null) => void;
   setPixel: (p: number) => void;
@@ -56,8 +53,6 @@ export type UIState = {
 };
 
 export const useUI = create<UIState>((set) => ({
-  coins: 0,
-  total: TOTAL_COINS,
   prompt: null,
   dialogue: null,
   pixel: 4, // upscale factor: dpr = 1 / pixel
@@ -67,7 +62,6 @@ export const useUI = create<UIState>((set) => ({
   daySpeed: 1,
   clock: "06:14",
   started: false,
-  collect: () => set((s) => ({ coins: s.coins + 1 })),
   setPrompt: (prompt) => set((s) => (s.prompt === prompt ? s : { prompt })),
   say: (dialogue) => set({ dialogue }),
   setPixel: (pixel) => set({ pixel }),

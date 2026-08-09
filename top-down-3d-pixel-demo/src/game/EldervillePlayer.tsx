@@ -208,12 +208,11 @@ export function EldervillePlayer() {
               p.pos.set(offX + 7 + 0.5, INT_Y, offZ + 8 + 0.5);
               if(!elder.activeDialog) useElder.getState().showDialog({name:"Tinslaire", lines:["Minslaire! Wait — the elders are at the door! Talk to me first!"]}, "blockExit");
             } else {
-              // exit to village at outside pos
+              // exit to village at outside pos — land one tile south of door (guaranteed DIRT)
               const outside = interior.outside; // elderville tile [tx,ty]
-              const wp = eldervilleWorldPos(outside[0], outside[1]);
-              // place just outside door (one tile south)
+              const wpSouth = eldervilleWorldPos(outside[0], outside[1] + 1);
               useElder.getState().setArea("village", null);
-              p.pos.set(wp.x, wp.y, wp.z + 0.8);
+              p.pos.set(wpSouth.x, wpSouth.y, wpSouth.z);
               camTarget.copy(p.pos);
               const yawSnap2 = rt.cam.yaw;
               const pitchSnap2=0.62, distSnap2=46;

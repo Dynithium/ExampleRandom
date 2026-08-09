@@ -193,10 +193,16 @@ houseDefs.forEach(h => {
   });
 });
 
-// keep door tiles walkable (clear blocked at doors)
+// keep door tiles walkable (clear blocked at doors) and landing tile south of door
 for (const [tx,ty] of [[8,7],[30,7],[8,20],[30,20]] as [number,number][]) {
   blocked[villageIdx(tx,ty)] = 0;
   kinds[villageIdx(tx,ty)] = KIND.DIRT;
+  heights[villageIdx(tx,ty)] = 4;
+  if (ty + 1 < VILLAGE_H) {
+    blocked[villageIdx(tx, ty + 1)] = 0;
+    kinds[villageIdx(tx, ty + 1)] = KIND.DIRT;
+    heights[villageIdx(tx, ty + 1)] = 4;
+  }
 }
 
 // 8. District props placed at tile centres

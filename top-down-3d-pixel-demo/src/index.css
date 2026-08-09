@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #070a14;
+  overflow: hidden;
+  overscroll-behavior: none;
+  color: #e6edf7;
+  font-family: "Press Start 2P", ui-monospace, "Courier New", monospace;
+  -webkit-font-smoothing: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none;
+  display: block;
+}
+
+.font-pixel {
+  font-family: "Press Start 2P", ui-monospace, "Courier New", monospace;
+}
+
+/* chunky retro panel */
+.panel {
+  background: rgba(12, 16, 32, 0.82);
+  border: 2px solid #2b3a63;
+  box-shadow:
+    0 0 0 2px #070a14,
+    4px 4px 0 0 rgba(0, 0, 0, 0.45),
+    inset 0 0 0 2px rgba(120, 160, 255, 0.08);
+  image-rendering: pixelated;
+}
+
+.pbtn {
+  background: #1b2444;
+  border: 2px solid #38508c;
+  box-shadow:
+    0 0 0 2px #070a14,
+    3px 3px 0 0 rgba(0, 0, 0, 0.5);
+  transition: none;
+  color: #b9c9ee;
+}
+.pbtn:hover {
+  background: #26325e;
+  color: #ffffff;
+}
+.pbtn:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    0 0 0 2px #070a14,
+    1px 1px 0 0 rgba(0, 0, 0, 0.5);
+}
+.pbtn[data-on="true"] {
+  background: #ffcc4d;
+  border-color: #ffe9a8;
+  color: #2a1c00;
+}
+
+/* CRT scanlines + vignette overlay */
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.22) 0px,
+      rgba(0, 0, 0, 0.22) 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+  mix-blend-mode: multiply;
+  z-index: 5;
+}
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.55) 100%);
+  z-index: 6;
+}
+
+.blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink {
+  to {
+    opacity: 0.15;
+  }
+}
+
+.pop {
+  animation: pop 0.18s steps(3, end);
+}
+@keyframes pop {
+  from {
+    transform: scale(1.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.floaty {
+  animation: floaty 2.4s steps(8, end) infinite;
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}

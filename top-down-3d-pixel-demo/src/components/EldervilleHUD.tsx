@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useElder, fatherMemoryLines } from "../game/eldervilleStory";
-import { useUI, rt } from "../game/state";
+import { useUI } from "../game/state";
 import { MemoryCutscene3D } from "../game/MemoryCutscene3D";
-import { kindAtWorld, isBlocked, levelAtWorld } from "../game/world";
 
 // FireRed dialog box
 function DialogBox({ name, line, index, total }: { name: string; line: string; index: number; total: number }) {
@@ -76,22 +75,7 @@ export function EldervilleHUD() {
   const currentInterior = useElder((s) => s.currentInterior);
   const hp = useElder((s) => s.hp);
   const st = useElder((s) => s.st);
-  const showDialog = useElder((s) => s.showDialog);
   const advanceDialog = useElder((s) => s.advanceDialog);
-  const [dbg, setDbg] = useState("");
-  useEffect(() => {
-    const id = setInterval(() => {
-      const p = rt.player.pos;
-      const area = useElder.getState().currentArea;
-      const k = kindAtWorld(p.x, p.z);
-      const b = isBlocked(p.x, p.z) ? 1 : 0;
-      const h = levelAtWorld(p.x, p.z);
-      const cam = Math.round(rt.cam.zoom);
-      setDbg(`pos ${p.x.toFixed(1)},${p.z.toFixed(1)} y${p.y.toFixed(1)} area:${area} kind:${k} h:${h} blk:${b} zoom:${cam}`);
-    }, 120);
-    return () => clearInterval(id);
-  }, []);
-
   const locationName = currentArea === "village" ? "Elderville Village" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead", homesteadB: "Weaver's Homestead" } as any)[currentInterior] || currentArea : currentArea;
 
   // wake handler
@@ -154,10 +138,6 @@ export function EldervilleHUD() {
           <span className="font-bold text-[#e8e0c8]">Move:</span> WASD / Arrow Keys | <span className="font-bold text-[#e8e0c8]">Interact:</span> E | <span className="font-bold text-[#e8e0c8]">Attack:</span> Space
         </div>
       )}
-      {/* DEBUG — always visible to diagnose ocean bug */}
-      <div className="pointer-events-none absolute bottom-1 left-2 z-50 rounded bg-black/80 px-2 py-1 text-[7px] leading-tight text-[#7fff7f]" style={{ fontFamily: "monospace" }}>
-        {dbg}
-      </div>
     </>
   );
 }

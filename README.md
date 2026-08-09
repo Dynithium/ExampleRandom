@@ -8,7 +8,8 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 - Enter and exit buildings by walking through their doors
 - Talk to NPCs (Tinslaire, Elder Marcus, Elder Sarah); NPCs block your path
 - Fight Scrap Bots with sword combat, dodging, and blocking
-- Complete missions guided by the yellow arrow
+- Slay the Cave Machine, haul its body back, and receive the elders' compass — a salvaged eye that guides you (yellow arrow), lets the elders speak to you remotely, and lets them track your position
+- Complete missions guided by the compass's yellow arrow
 - Respawn at the Safe Camp (Red House) if defeated
 
 ## Controls

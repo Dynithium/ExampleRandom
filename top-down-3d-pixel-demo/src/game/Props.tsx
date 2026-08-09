@@ -1,10 +1,9 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { coins, houses, lamps, rocks, signs, trees, SIZE } from "./world";
-import { collected, rt, useUI } from "./state";
+import { houses, lamps, rocks, signs, trees, SIZE } from "./world";
+import { rt } from "./state";
 import { fireflyMat, glowMat, windowMat } from "./mats";
-import { sfx } from "./audio";
 
 const dummy = new THREE.Object3D();
 const col = new THREE.Color();
@@ -191,49 +190,6 @@ function Signpost({ s }: { s: (typeof signs)[number] }) {
         <boxGeometry args={[0.5, 0.07, 0.02]} />
         <meshLambertMaterial color="#513521" />
       </mesh>
-    </group>
-  );
-}
-
-export function Coins() {
-  const group = useRef<THREE.Group>(null!);
-  const meshes = useRef<THREE.Mesh[]>([]);
-  const collect = useUI((s) => s.collect);
-
-  useFrame((state, dt) => {
-    const t = state.clock.elapsedTime;
-    for (let n = 0; n < coins.length; n++) {
-      const m = meshes.current[n];
-      if (!m || !m.visible) continue;
-      const c = coins[n];
-      m.rotation.y += dt * 2.6;
-      m.position.y = c.y + 0.65 + Math.sin(t * 2.4 + n) * 0.09;
-      const dx = rt.player.pos.x - c.x;
-      const dz = rt.player.pos.z - c.z;
-      if (dx * dx + dz * dz < 0.85 && Math.abs(rt.player.pos.y - c.y) < 1.6) {
-        m.visible = false;
-        collected.add(n);
-        collect();
-        sfx.coin();
-      }
-    }
-  });
-
-  return (
-    <group ref={group}>
-      {coins.map((c, n) => (
-        <mesh
-          key={n}
-          ref={(el) => {
-            if (el) meshes.current[n] = el;
-          }}
-          position={[c.x, c.y + 0.65, c.z]}
-          castShadow
-        >
-          <boxGeometry args={[0.44, 0.44, 0.1]} />
-          <meshLambertMaterial color="#ffcf3d" emissive="#7a4c00" emissiveIntensity={0.6} />
-        </mesh>
-      ))}
     </group>
   );
 }

@@ -38,8 +38,8 @@ export function useKeyboard() {
 
       if (!e.repeat) {
         if (e.code === "KeyQ") rt.cam.targetYaw += Math.PI / 2;
-        if (e.code === "KeyE") rt.cam.targetYaw -= Math.PI / 2;
-        if (e.code === "Space" || e.code === "Enter" || e.code === "KeyF") rt.input.interact = true;
+        if (e.code === "KeyR") rt.cam.targetYaw -= Math.PI / 2;
+        if (e.code === "KeyE") rt.input.interact = true;
         if (e.code === "Equal" || e.code === "NumpadAdd")
           rt.cam.targetZoom = Math.min(90, rt.cam.targetZoom * 1.25);
         if (e.code === "Minus" || e.code === "NumpadSubtract")

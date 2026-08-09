@@ -2,10 +2,15 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Foliage, Terrain, Water } from "./Terrain";
-import { Boat, Coins, Fireflies, Rocks, Trees, Village } from "./Props";
+import { Boat, Fireflies, Rocks, Trees, Village } from "./Props";
 import { Player } from "./Player";
 import { Villagers } from "./NPCs";
 import { rt, useUI } from "./state";
+import { useElder } from "./eldervilleStory";
+import { InteriorRoom } from "./EldervilleInterior";
+import { EldervillePlayer } from "./EldervillePlayer";
+import { EldervilleNPCs } from "./EldervilleNPCs";
+import { EldervilleProps } from "./EldervilleProps";
 import { fireflyMat, glowMat, starMat, windowMat } from "./mats";
 import { SIZE } from "./world";
 
@@ -186,75 +191,34 @@ function Stars() {
   );
 }
 
-/** Slow drifting voxel clouds high above the island. */
-function Clouds() {
-  const ref = useRef<THREE.InstancedMesh>(null!);
-  const blobs = useMemo(() => {
-    let seed = 7;
-    const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-    const out: { x: number; y: number; z: number; sx: number; sy: number; sz: number }[] = [];
-    for (let c = 0; c < 9; c++) {
-      const cxp = (rnd() - 0.5) * (SIZE + 30);
-      const cz = (rnd() - 0.5) * (SIZE + 30);
-      const cy = 15 + rnd() * 7;
-      const parts = 4 + Math.floor(rnd() * 4);
-      for (let n = 0; n < parts; n++) {
-        out.push({
-          x: cxp + (rnd() - 0.5) * 7,
-          y: cy + (rnd() - 0.5) * 1.2,
-          z: cz + (rnd() - 0.5) * 5,
-          sx: 3 + rnd() * 4,
-          sy: 1 + rnd() * 1.2,
-          sz: 2.5 + rnd() * 3,
-        });
-      }
-    }
-    return out;
-  }, []);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const drift = (t * 0.35) % (SIZE + 60);
-    blobs.forEach((b, n) => {
-      let x = b.x + drift;
-      const span = SIZE + 60;
-      if (x > span / 2) x -= span;
-      dummy.position.set(x, b.y, b.z);
-      dummy.scale.set(b.sx, b.sy, b.sz);
-      dummy.rotation.set(0, 0, 0);
-      dummy.updateMatrix();
-      ref.current.setMatrixAt(n, dummy.matrix);
-    });
-    ref.current.instanceMatrix.needsUpdate = true;
-    const m = ref.current.material as THREE.MeshLambertMaterial;
-    m.opacity = 0.55 + (1 - rt.env.night) * 0.4;
-    m.color.copy(rt.env.sky).lerp(WHITE, 0.55 + (1 - rt.env.night) * 0.35);
-  });
-
-  return (
-    <instancedMesh ref={ref} args={[undefined, undefined, blobs.length]} frustumCulled={false}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshLambertMaterial transparent opacity={0.9} />
-    </instancedMesh>
-  );
-}
-
 export function Scene() {
+  // Elderville reskin: keep same engine, swap island for Elderville village
+  // Branching: village vs interior (interior far away at 50,50 so no overlap, no water under it)
+  const isInterior = useElder((s) => s.currentArea !== "village");
   return (
     <>
       <Environment />
-      <Clouds />
-      <Terrain />
-      <Foliage />
-      <Water />
-      <Trees />
-      <Rocks />
-      <Village />
-      <Villagers />
-      <Coins />
-      <Boat />
-      <Fireflies />
-      <Player />
+      {isInterior ? (
+        <>
+          <InteriorRoom />
+          <EldervilleNPCs />
+          <EldervillePlayer />
+        </>
+      ) : (
+        <>
+          <Terrain />
+          <Foliage />
+          <Water />
+          <Trees />
+          <Rocks />
+          <Village />
+          <EldervilleProps />
+          <EldervilleNPCs />
+          <Boat />
+          <Fireflies />
+          <EldervillePlayer />
+        </>
+      )}
     </>
   );
 }

@@ -54,11 +54,11 @@ You open the door. Three of them stand on your doorstep like it's the most ordin
 >
 > **Elder Sage:** "We'd look ourselves, but we're old, and our bones aren't for crawling. You're young, you're quick, you know every path in this village."
 >
-> **Elder Moss:** "Go and investigate it. But take your sword, Minslaire. Whatever is in there, I suspect it isn't friendly."
+> **Elder Moss:** "Go and investigate it. But take your sword, Minslaire. Whatever is in there, I suspect it isn't friendly. And whatever you find — bring it back. All of it. Don't leave the body."
 
-He glances up at the glass case above your door as he says it. Just for a moment.
+He glances up at the glass case above your door as he says it. Just for a moment. You don't yet know why they want the corpse.
 
-*(What you don't know yet: the elders activated the machine in that cave themselves. It's their test, and their key. When you kill it, the path to the Elemental Box will open. But that's later. Right now, they just want to see what you're made of.)*
+*(What you don't know yet: the elders activated the machine in that cave themselves. It's their test, and their key. When you kill it and bring it back, they'll make something from it that will watch you the whole way to the Box.)*
 
 ### Scene 2.5: The Elders' Trials
 
@@ -85,6 +85,54 @@ The three of them lead you to the clearing behind the Blue House, where the trai
 
 When you're done, the elders look at each other. Thorn nods — once. Moss smiles thinly.
 
-> **Elder Moss:** "Good. You'll do. Now go see what's making that noise."
+> **Elder Moss:** "Good. You'll do. Now go see what's making that noise. And remember — bring it back."
 
 *(Elder Thorn says nothing, and that silence stays with you.)*
+
+### Scene 4: The Cave
+
+You take your father's blade down from the glass case — it sighs open — and walk the path to the cave on the outskirts with a torch. The mouth is dark, the air cold. Deeper, the light flickers off wet rock. Deeper still, until two red eyes blink open in the dark.
+
+The **Cave Machine** shudders awake — rusted, wrong, the first machine anyone in Elderville has ever seen. You fight. It falls hard, eye still faintly ticking.
+
+You could leave it. But Moss's words come back: *"Don't leave the body."* You sling the heavy chassis over your shoulder. It hums against your back, all the way to the village.
+
+### Scene 4.5: The Body and The Compass
+
+At the **Forge**, the village gathers. Elder Sage lifts the eye from its socket — warm, ticking. He works through the night on the anvil, using the vault records to tune it to the blue beacon's frequency.
+
+At dawn he calls you in.
+
+> **Elder Sage:** "We made this from what you brought us. It will point to where the beacon points — to what the old records call the Box. And it will let us speak, even in the deep forest. If you're lost, press it and speak — we'll hear you. If you fall, we'll see where."
+>
+> He sets the brass disc in your palm. The red eye, now a compass needle, tugs east. It hums, softer and higher than your suit.
+>
+> **Elder Moss:** *(hand too firm on your shoulder)* "For your safety, Minslaire. So you never have to be alone."
+
+Tinslaire, at your elbow, touches the eye and whispers: "It's watching."
+
+You belt the compass on. The yellow arrow you will follow for the rest of the game is no longer UI — it's that needle.
+
+### Scene 5: The Gifts of Elderville (Village Tasks — learning the compass)
+
+Before the forest, the village teaches you to trust the needle:
+
+- **Tinslaire's Keepsake** — his wooden bird is lost near the Grand Gardens. The needle flutters until you find it in the terraces. *"You always find it. You always bring it back."*
+- **Perimeter Sweep** — near the Eastern Gate, Scrap Drones drift from the treeline — your first real scrap combat since the Cave. Elders' voices crackle: *"Left! Now!"* You learn the voice-link is also coaching.
+- **Marketplace Supply Run** — carry crops from the Gardens to the Bazaar. Sprint the paths while the needle holds steady. A trader says: *"The hum will guide you home."* Now you have two hums that do.
+
+When these are done, the gate can open.
+
+### Scene 6: The Watchtower
+
+The night before you leave, Elder Thorn finds you at the watchtower. He doesn't look at you — he looks at the compass on your belt, its eye faintly glowing.
+
+> **Elder Thorn:** "I voted against this."
+>
+> *A pause. Wind through the barricade.*
+>
+> **Elder Thorn:** "I don't know what's out there. I don't know what the box really is. But I know the elders' hands, Minslaire. And I've seen them shake. They can hear you through that thing. They can see where you stand. Remember that when you come back."
+
+He turns away. The gate is open.
+
+*(You enter the forest never alone — and never unwatched.)*

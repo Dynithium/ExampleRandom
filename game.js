@@ -279,6 +279,90 @@ let currentArea = 'village';
 let currentInterior = null;
 const locationNameEl = document.getElementById('location-name');
 
+// ------------------------------------------------------------------
+// Story state — Scenes 1, 1.5, 2 (The Hum / Memory / Elders at Door)
+// ------------------------------------------------------------------
+let openingBlack = true; // Scene 1: black screen + hum, press E to wake
+let memoryDone = false;
+let tinslaireInsideTalked = false;
+let eldersAtDoorReady = false;
+let eldersDoorDialogDone = false;
+
+const fatherMemoryLines = [
+    "Everything and everyone has a purpose, which reflects their maker.",
+    "Like this blade. It was made by me. It's designed for fighting — that's what it's for. But look.",
+    "It has a sheath. And that sheath is made to show that it is not time for battle.",
+    "I fear that one day, calamities might befall you. And it might just be... time for war."
+];
+const fatherMemorySource = { spoken: true, isMemory: true };
+
+// Interior Tinslaire (Scene 1) — lives inside Red House until you talk to him
+const tinslaireInside = {
+    id: 'tinslaireInside',
+    name: 'Tinslaire',
+    tileX: 6,
+    tileY: 5,
+    color: '#4a90d9',
+    dialog: [
+        "You're up! The elders are at the door. The actual elders! They came to our house!",
+        "They've been waiting since sunrise. You should go talk to them.",
+        "And... don't forget father's blade. But not yet — they said not yet."
+    ],
+    repeatDialog: [
+        "Go on! The elders are waiting outside!"
+    ],
+    spoken: false
+};
+
+// Elders at door (Scene 2) — spawn around Red House door after talking to Tinslaire inside
+// Per MDs: they do NOT send you to the cave immediately — first they must test your character and blade.
+const eldersAtDoorNPCs = [
+    {
+        id: 'elderMossDoor',
+        name: 'Elder Moss',
+        tileX: 29,
+        tileY: 8,
+        color: '#8b7355',
+        dialog: [
+            "Good morning, Minslaire. I'm sorry for the early visit.",
+            "We heard sounds from the cave — the old one, just on the outskirts of town, where the forest begins. Something's stirring in there that shouldn't be.",
+            "We'd look ourselves, but we're old, and our bones aren't for crawling. You're young, you're quick, you know every path in this village.",
+            "But before we ask you to go in there — and we will — we need to know who you are.",
+            "The elders test character before blade. Four small trials, to see what kind of person we are sending.",
+            "Come to the Blue House when you are ready. Moss will watch the Well, Sage his study, Thorn the widow. And the Bazaar watches honesty."
+        ],
+        repeatDialog: [
+            "We will not send you to the cave untested. Find us at the Blue House — the trials await."
+        ],
+        spoken: false
+    },
+    {
+        id: 'elderSageDoor',
+        name: 'Elder Sage',
+        tileX: 31,
+        tileY: 8,
+        color: '#73558b',
+        dialog: null, // decorative, Moss speaks for the group
+        spoken: false
+    },
+    {
+        id: 'elderThornDoor',
+        name: 'Elder Thorn',
+        tileX: 30,
+        tileY: 9,
+        color: '#6b6b8b',
+        dialog: null,
+        spoken: false
+    }
+];
+
+function isDoorElder(npc) {
+    return npc.id === 'elderMossDoor' || npc.id === 'elderSageDoor' || npc.id === 'elderThornDoor';
+}
+function isDoorElderVisible() {
+    return eldersAtDoorReady && !eldersDoorDialogDone;
+}
+
 function placePlayer(tileX, tileY, facing) {
     player.tileX = tileX;
     player.tileY = tileY;
@@ -330,7 +414,30 @@ function checkAreaTransitions() {
         const key = villageDoorAt(player.tileX, player.tileY);
         if (key) enterInterior(key);
     } else if (currentArea === 'interior' && t === 16) {
+        // Block exit from Red House until you have talked to Tinslaire inside (Scene 1)
+        if (currentInterior === 'home' && !tinslaireInsideTalked) {
+            // Nudge player back one tile
+            player.tileY -= 1;
+            player.targetY = player.tileY * TILE_SIZE;
+            player.y = player.targetY;
+            player.isMoving = false;
+            updateCamera();
+            // Prompt to talk to Tinslaire
+            if (!currentDialog) {
+                currentDialog = {
+                    source: { spoken: true },
+                    name: 'Tinslaire',
+                    dialog: ["Minslaire! Wait — the elders are at the door! Talk to me first!"]
+                };
+                dialogIndex = 0;
+            }
+            return;
+        }
         exitInterior();
+        // If we just left home for the first time and door elders should appear, they will now be visible
+        if (currentInterior === 'home' && eldersAtDoorReady && !eldersDoorDialogDone) {
+            updateCamera();
+        }
     }
 }
 
@@ -367,24 +474,24 @@ const camera = {
     height: canvas.height / TILE_SIZE
 };
 
-// NPC data
+// NPC data (village) — dialog scrubbed of spoilers per MDs (no Box/Scrap before Cave)
 const npcs = [
     {
         id: 'tinslaire',
         name: 'Tinslaire',
         tileX: 30,
-        tileY: 9,
+        tileY: 10,
         color: '#4a90d9',
         dialog: [
-            "Brother! You're finally awake.",
-            "The Elders are waiting for you at the Council Hall.",
-            "They speak of an ancient artifact... the Elemental Box.",
-            "Please, be careful out there."
+            "Brother! You talked to them, right? What did they say?",
+            "Trials first? That sounds like Moss. He always watches.",
+            "You'll pass. You always do. Then... the cave."
         ],
         repeatDialog: [
-            "Speak with the Elders when you're ready."
+            "Four trials, then the cave. I'll be here."
         ],
-        spoken: false
+        spoken: false,
+        isVillageTinslaire: true
     },
     {
         id: 'elder1',
@@ -393,13 +500,12 @@ const npcs = [
         tileY: 9,
         color: '#8b7355',
         dialog: [
-            "Ah, Minslaire. The chosen one.",
-            "Long ago, our ancestors sealed away great power in the Elemental Box.",
-            "The time has come to retrieve it.",
-            "Follow the path north. The box awaits."
+            "Ah, Minslaire. You spoke with the council at your door.",
+            "Moss speaks of the cave, but Sage and I speak of you. Who you are matters more than what you swing.",
+            "We test character before blade. Four small trials, Minslaire. Come find us when you are ready."
         ],
         repeatDialog: [
-            "The Elemental Box awaits. Follow the path north."
+            "Four trials, then the cave. Find us at the Blue House."
         ],
         spoken: false
     },
@@ -410,13 +516,12 @@ const npcs = [
         tileY: 14,
         color: '#73558b',
         dialog: [
-            "The Scrap Bots have been restless lately...",
-            "Something stirs in the old ruins.",
-            "Trust in your blade, young one.",
-            "And trust in us."
+            "The old records can wait. First, we watch how you watch.",
+            "The Well, the study, the widow's table, the Trader's purse — each sees a different part of you.",
+            "Pass them, and we will trust you with steel."
         ],
         repeatDialog: [
-            "Trust in your blade, young one."
+            "The trials await. Speak at the Well, the study, the widow, the Bazaar."
         ],
         spoken: false
     }
@@ -442,21 +547,77 @@ function isSolid(tileX, tileY) {
 }
 
 // NPCs block movement in the village (they are solid obstacles)
+function isNpcVisible(npc) {
+    // Village Tinslaire hidden until door elders dialog done (he stays inside until then)
+    if (npc.isVillageTinslaire && !eldersDoorDialogDone) return false;
+    return true;
+}
 function npcOccupied(tileX, tileY) {
     if (currentArea !== 'village') return false;
+    // Check regular village NPCs
     for (const npc of npcs) {
+        if (!isNpcVisible(npc)) continue;
         if (npc.tileX === tileX && npc.tileY === tileY) return true;
+    }
+    // Check door elders if visible
+    if (isDoorElderVisible()) {
+        for (const npc of eldersAtDoorNPCs) {
+            if (npc.tileX === tileX && npc.tileY === tileY) return true;
+        }
     }
     return false;
 }
 
+// Interior NPC blocking
+function interiorNpcOccupied(tileX, tileY) {
+    if (currentArea !== 'interior' || currentInterior !== 'home') return false;
+    // Tinslaire inside blocks his tile while he is in the room
+    // After you talk to him and elders are ready, he stays but still blocks (you must walk around)
+    // Once you leave, you won't be inside to check
+    if (tinslaireInside.tileX === tileX && tinslaireInside.tileY === tileY) return true;
+    return false;
+}
+
 function getNearbyNPC() {
+    // Check door elders first (higher priority when visible)
+    if (currentArea === 'village' && isDoorElderVisible()) {
+        for (const npc of eldersAtDoorNPCs) {
+            if (!npc.dialog) continue; // decorative ones have no dialog
+            const dx = Math.abs(player.tileX - npc.tileX);
+            const dy = Math.abs(player.tileY - npc.tileY);
+            if (dx <= 1 && dy <= 1 && (dx + dy) <= 1) {
+                return npc;
+            }
+        }
+        // Also allow decorative elders to be talked to via Moss?
+        // If near a decorative elder but not Moss, still return Moss if within range of any
+        for (const npc of eldersAtDoorNPCs) {
+            if (npc.dialog) continue;
+            const dx = Math.abs(player.tileX - npc.tileX);
+            const dy = Math.abs(player.tileY - npc.tileY);
+            if (dx <= 1 && dy <= 1 && (dx + dy) <= 1) {
+                // Redirect to Moss
+                return eldersAtDoorNPCs[0];
+            }
+        }
+    }
     for (const npc of npcs) {
+        if (!isNpcVisible(npc)) continue;
         const dx = Math.abs(player.tileX - npc.tileX);
         const dy = Math.abs(player.tileY - npc.tileY);
         if (dx <= 1 && dy <= 1 && (dx + dy) <= 1) {
             return npc;
         }
+    }
+    return null;
+}
+
+function getInteriorNearbyNPC() {
+    if (currentArea !== 'interior' || currentInterior !== 'home') return null;
+    const dx = Math.abs(player.tileX - tinslaireInside.tileX);
+    const dy = Math.abs(player.tileY - tinslaireInside.tileY);
+    if (dx <= 1 && dy <= 1 && (dx + dy) <= 1) {
+        return tinslaireInside;
     }
     return null;
 }
@@ -468,27 +629,62 @@ window.addEventListener('keydown', (e) => {
     keys[e.key.toLowerCase()] = true;
     keys[e.key] = true;
     
-    // Handle interaction
+    // Handle interaction — opening black screen has priority
     if ((e.key.toLowerCase() === 'e' || e.key === ' ') && canInteract && !player.isMoving) {
+        if (openingBlack) {
+            // Wake up — dismiss black, play father's memory
+            openingBlack = false;
+            currentDialog = {
+                source: fatherMemorySource,
+                name: 'Father',
+                dialog: fatherMemoryLines
+            };
+            dialogIndex = 0;
+            return;
+        }
         if (currentDialog) {
             // Advance dialog
             dialogIndex++;
             if (dialogIndex >= currentDialog.dialog.length) {
-                currentDialog.source.spoken = true;
+                const finishedSource = currentDialog.source;
+                // Special handling for story flags
+                if (finishedSource === fatherMemorySource) {
+                    memoryDone = true;
+                } else if (finishedSource === tinslaireInside) {
+                    tinslaireInsideTalked = true;
+                    tinslaireInside.spoken = true;
+                    eldersAtDoorReady = true;
+                } else if (finishedSource && finishedSource.id === 'elderMossDoor') {
+                    finishedSource.spoken = true;
+                    eldersDoorDialogDone = true;
+                } else if (finishedSource) {
+                    finishedSource.spoken = true;
+                }
                 currentDialog = null;
                 dialogIndex = 0;
             }
-        } else if (currentArea === 'interior' && nearSwordCase()) {
-            currentDialog = {
-                source: { spoken: true },
-                name: 'Sword Case',
-                dialog: [
-                    "Your father's blade...",
-                    "Encased in glass the day he and mother vanished.",
-                    "It waits for its master."
-                ]
-            };
-            dialogIndex = 0;
+        } else if (currentArea === 'interior' && currentInterior === 'home') {
+            // Check interior Tinslaire first
+            const interiorNpc = getInteriorNearbyNPC();
+            if (interiorNpc) {
+                currentDialog = {
+                    source: interiorNpc,
+                    name: interiorNpc.name,
+                    dialog: interiorNpc.spoken ? (interiorNpc.repeatDialog || ['...']) : interiorNpc.dialog
+                };
+                dialogIndex = 0;
+            } else if (nearSwordCase()) {
+                currentDialog = {
+                    source: { spoken: true },
+                    name: 'Sword Case',
+                    dialog: [
+                        "Your father's blade...",
+                        "Encased in glass the day he and mother vanished.",
+                        "It waits for its master. Not yet."
+                    ]
+                };
+                dialogIndex = 0;
+            }
         } else if (currentArea === 'village') {
             const npc = getNearbyNPC();
             if (npc) {
@@ -509,6 +705,7 @@ window.addEventListener('keyup', (e) => {
 });
 
 function handleInput() {
+    if (openingBlack) return;
     if (player.isMoving || currentDialog) return;
 
     let dx = 0;
@@ -532,7 +729,8 @@ function handleInput() {
         const nextTileX = player.tileX + dx;
         const nextTileY = player.tileY + dy;
 
-        if (!isSolid(nextTileX, nextTileY) && !npcOccupied(nextTileX, nextTileY)) {
+        let blocked = isSolid(nextTileX, nextTileY) || npcOccupied(nextTileX, nextTileY) || interiorNpcOccupied(nextTileX, nextTileY);
+        if (!blocked) {
             player.tileX = nextTileX;
             player.tileY = nextTileY;
             player.targetX = player.tileX * TILE_SIZE;
@@ -1095,6 +1293,222 @@ function drawNPC(npc) {
     ctx.fillText(label, screenX + 16, screenY - 3);
 }
 
+// ------------------------------------------------------------------
+// Scene 1.5 — Father Memory Cutscene (visual, not just dialog)
+// Shows father and young Minslaire in the yard with the blade/sheath
+// ------------------------------------------------------------------
+function drawYoungMinslaireMemory(ox, oy) {
+    // 75% scale child, facing father (right)
+    pixelShadow(ox + 12, oy + 28);
+    // Legs small
+    px(ox + 6, oy + 20, 4, 4, P.pants);
+    px(ox + 14, oy + 20, 4, 4, P.pants);
+    px(ox + 5, oy + 24, 5, 3, P.boot);
+    px(ox + 14, oy + 24, 5, 3, P.boot);
+    // Small red tunic (child)
+    px(ox + 4, oy + 10, 16, 12, P.outline);
+    px(ox + 5, oy + 11, 14, 9, P.red);
+    px(ox + 5, oy + 11, 14, 2, P.redL);
+    px(ox + 3, oy + 12, 3, 6, P.redD);
+    px(ox + 18, oy + 12, 3, 6, P.redD);
+    // Head — big for child (FireRed chibi)
+    px(ox + 6, oy + 1, 12, 11, P.outline);
+    px(ox + 7, oy + 2, 10, 9, P.skin);
+    // Tiny hair
+    px(ox + 6, oy + 0, 12, 3, P.hair);
+    px(ox + 6, oy + 0, 12, 1, P.hairD);
+    px(ox + 6, oy + 2, 2, 4, P.hair);
+    px(ox + 16, oy + 2, 2, 4, P.hair);
+    px(ox + 8, oy + 1, 3, 1, P.hairL);
+    // Eyes looking at father (right)
+    px(ox + 9, oy + 5, 2, 2, P.outline);
+    px(ox + 13, oy + 5, 2, 2, P.outline);
+    px(ox + 10, oy + 9, 2, 1, P.skinD);
+}
+
+function drawFatherMemory(ox, oy, pose) {
+    // pose 0=hold flat 1=hold explain 2=sheathed click 3=kneeling eye-to-eye
+    let baseOy = oy;
+    if (pose === 3) baseOy += 14; // kneel lower
+    pixelShadow(ox + 16, baseOy + 32);
+    // Legs / boots
+    if (pose === 3) {
+        // Kneeling: one knee down
+        px(ox + 8, baseOy + 22, 6, 8, P.pantsD);
+        px(ox + 18, baseOy + 22, 6, 6, P.pantsD);
+        px(ox + 7, baseOy + 29, 7, 3, P.boot);
+        px(ox + 18, baseOy + 27, 7, 3, P.boot);
+        // knee pad
+        px(ox + 8, baseOy + 26, 6, 4, P.pants);
+    } else {
+        px(ox + 8, baseOy + 22, 6, 8, P.pantsD);
+        px(ox + 18, baseOy + 22, 6, 8, P.pantsD);
+        px(ox + 7, baseOy + 29, 7, 3, P.boot);
+        px(ox + 18, baseOy + 29, 7, 3, P.boot);
+    }
+    // Body — tan work tunic (not elder robe, not red)
+    px(ox + 6, baseOy + 10, 20, 16, P.outline);
+    px(ox + 7, baseOy + 11, 18, 14, P.wallTan);
+    px(ox + 7, baseOy + 11, 18, 2, P.wallTanL);
+    px(ox + 7, baseOy + 23, 18, 2, P.wallTanD);
+    // Belt
+    px(ox + 7, baseOy + 23, 18, 2, P.woodD);
+    px(ox + 13, baseOy + 23, 4, 2, P.gold); // buckle
+    // Sheath on belt (always visible)
+    if (pose === 2) {
+        // Blade fully in sheath — sheath looks full
+        px(ox + 8, baseOy + 16, 5, 14, P.woodD);
+        px(ox + 9, baseOy + 16, 2, 14, P.wood);
+        px(ox + 8, baseOy + 16, 5, 1, P.gold);
+        // click sparkle
+        px(ox + 10, baseOy + 14, 2, 2, P.gold);
+        px(ox + 11, baseOy + 15, 1, 1, P.uiWhite);
+    } else {
+        // Empty sheath (blade out)
+        px(ox + 8, baseOy + 18, 5, 10, P.woodD);
+        px(ox + 9, baseOy + 18, 2, 10, P.woodL);
+        px(ox + 8, baseOy + 18, 5, 1, P.wood);
+    }
+    // Arms — extended holding blade when pose 0/1
+    if (pose === 0 || pose === 1) {
+        // Left arm
+        px(ox + 1, baseOy + 14, 6, 3, P.skin);
+        px(ox + 1, baseOy + 14, 6, 1, P.skinD);
+        // Right arm
+        px(ox + 25, baseOy + 14, 6, 3, P.skin);
+        px(ox + 25, baseOy + 14, 6, 1, P.skinD);
+    } else if (pose === 2) {
+        // Hands closing sheath
+        px(ox + 3, baseOy + 14, 5, 3, P.skin);
+        px(ox + 24, baseOy + 14, 5, 3, P.skin);
+    } else {
+        // Kneeling — hands on knees / one on child's shoulder
+        px(ox + 3, baseOy + 14, 6, 3, P.skin);
+        px(ox + 23, baseOy + 16, 4, 3, P.skin);
+    }
+    // Head — father, older, short hair + beard, kind eyes
+    px(ox + 10, baseOy + 0, 14, 13, P.outline);
+    px(ox + 11, baseOy + 1, 12, 11, P.skin);
+    // Hair receding, brown with gray sides
+    px(ox + 10, baseOy + 0, 14, 3, P.hair);
+    px(ox + 10, baseOy + 0, 14, 1, P.hairD);
+    px(ox + 10, baseOy + 2, 3, 5, P.hair);
+    px(ox + 21, baseOy + 2, 3, 5, P.hair);
+    // Gray temples
+    px(ox + 10, baseOy + 2, 2, 3, P.hairGray);
+    px(ox + 22, baseOy + 2, 2, 3, P.hairGray);
+    // Highlight
+    px(ox + 12, baseOy + 1, 3, 1, P.hairL);
+    // Beard
+    px(ox + 12, baseOy + 9, 10, 4, P.hairD);
+    px(ox + 13, baseOy + 10, 8, 2, P.hair);
+    px(ox + 14, baseOy + 12, 4, 1, P.hairD);
+    // Eyes — wise, soft
+    px(ox + 13, baseOy + 5, 2, 2, P.outline);
+    px(ox + 18, baseOy + 5, 2, 2, P.outline);
+    px(ox + 14, baseOy + 6, 1, 1, P.uiWhite);
+    px(ox + 19, baseOy + 6, 1, 1, P.uiWhite);
+    // Mouth gentle
+    px(ox + 15, baseOy + 9, 3, 1, P.skinD);
+    if (pose === 3) {
+        // Soften mouth when kneeling
+        px(ox + 15, baseOy + 9, 2, 1, P.skinD);
+        px(ox + 16, baseOy + 10, 1, 1, P.skin);
+    }
+}
+
+function drawBladeMemory(ox, oy, pose) {
+    if (pose === 0 || pose === 1) {
+        // Blade held flat horizontally, 30px long, glinting
+        // Positioned between father and child at chest height
+        px(ox, oy, 32, 4, P.metalD); // shadow under
+        px(ox, oy, 32, 3, P.metalL);
+        px(ox + 1, oy, 30, 1, P.uiWhite); // top highlight
+        px(ox + 1, oy + 1, 30, 1, P.metal);
+        // Tip point
+        px(ox + 32, oy + 1, 3, 1, P.metalL);
+        px(ox + 33, oy, 2, 1, P.metalL);
+        // Cross guard / hilt at father's side
+        px(ox, oy - 1, 3, 5, P.gold);
+        px(ox - 1, oy, 5, 3, P.gold);
+        // Pommel
+        px(ox - 2, oy, 2, 3, P.woodD);
+    }
+}
+
+function drawMemoryCutscene() {
+    // Full-screen memory — warm, dusty yard, not the bedroom
+    // Sky — soft late-afternoon blue (FireRed palette)
+    px(0, 0, canvas.width, canvas.height, P.wallBlueL);
+    px(0, 0, canvas.width, 90, P.windowBlue);
+    px(0, 0, canvas.width, 90, P.windowBlue);
+    // Sun haze top right
+    px(canvas.width - 80, 20, 40, 20, P.found);
+    px(canvas.width - 76, 24, 32, 12, P.window);
+    px(canvas.width - 72, 28, 24, 4, P.uiWhite);
+    // Distant hills
+    px(0, 70, canvas.width, 30, P.grassDark);
+    px(0, 80, canvas.width, 20, P.grass);
+    px(0, 90, canvas.width, 10, P.grassLight);
+    // Yard ground — dirt + grass
+    px(0, 120, canvas.width, canvas.height - 120, P.grass);
+    // Dirt path in yard center
+    px(120, 160, 240, 60, P.path);
+    px(120, 160, 240, 4, P.pathLight);
+    px(120, 210, 240, 6, P.pathDark);
+    // Fence posts back
+    px(20, 110, 4, 30, P.woodD);
+    px(460, 110, 4, 30, P.woodD);
+    px(20, 110, 440, 4, P.woodD);
+    // Scattered flowers in yard (memory warmth)
+    px(40, 170, 2, 2, P.window);
+    px(42, 172, 1, 1, P.uiWhite);
+    px(400, 180, 2, 2, '#f07090');
+    px(402, 182, 1, 1, P.uiWhite);
+    px(80, 200, 2, 2, P.gold);
+    // Father and young Minslaire facing each other
+    const pose = dialogIndex; // 0..3 maps directly to visual
+    // Clamp pose to 0-3
+    const p = Math.min(pose, 3);
+    drawFatherMemory(148, 118, p);
+    drawYoungMinslaireMemory(286, 148);
+    if (p === 0 || p === 1) {
+        drawBladeMemory(164, 138, p);
+    }
+    // Action captions — italic stage directions from walkthrough
+    ctx.textAlign = 'center';
+    ctx.font = 'italic 10px monospace';
+    ctx.fillStyle = P.uiCream;
+    if (p === 0) {
+        // No caption yet — just father's first line
+    } else if (p === 1) {
+        ctx.fillStyle = P.uiHint;
+        ctx.fillText("* He holds the blade up, flat in his palm. *", canvas.width/2, 108);
+    } else if (p === 2) {
+        ctx.fillStyle = P.gold;
+        ctx.font = 'bold italic 11px monospace';
+        ctx.fillText("* He slides it into its sheath. Click. *", canvas.width/2, 106);
+        // Click sparkle already drawn on sheath
+    } else if (p === 3) {
+        ctx.fillStyle = P.uiCream;
+        ctx.font = 'italic 10px monospace';
+        ctx.fillText("* He kneels, so he's eye to eye with you. *", canvas.width/2, 104);
+    }
+    // Soft vignette — darken edges to feel like memory
+    px(0, 0, canvas.width, 4, P.uiBlack);
+    px(0, canvas.height-4, canvas.width, 4, P.uiBlack);
+    px(0, 0, 4, canvas.height, P.uiBlack);
+    px(canvas.width-4, 0, 4, canvas.height, P.uiBlack);
+    // Memory label top
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = P.gold;
+    ctx.fillText("MEMORY — YEARS AGO", 10, 16);
+    ctx.fillStyle = P.uiCream;
+    ctx.font = '9px monospace';
+    ctx.fillText("Your father's yard", 10, 26);
+}
+
 function drawDialog() {
     if (!currentDialog) return;
 
@@ -1146,10 +1560,13 @@ function drawDialog() {
 }
 
 function drawInteractPrompt() {
+    if (openingBlack) return;
     if (currentDialog || player.isMoving) return;
 
     let label = null;
-    if (currentArea === 'interior') {
+    if (currentArea === 'interior' && currentInterior === 'home' && getInteriorNearbyNPC()) {
+        label = 'E · Talk';
+    } else if (currentArea === 'interior') {
         if (nearSwordCase()) label = 'E · Inspect';
     } else if (getNearbyNPC()) {
         label = 'E · Talk';
@@ -1293,16 +1710,66 @@ function drawDoors() {
     }
 }
 
+function drawOpeningBlack() {
+    if (!openingBlack) return;
+    // Full black cover with hum text
+    px(0, 0, canvas.width, canvas.height, P.uiBlack);
+    // Center text — GBA style, cream on black
+    ctx.textAlign = 'center';
+    ctx.fillStyle = P.uiCream;
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText("You wake to the hum.", canvas.width/2, canvas.height/2 - 16);
+    ctx.fillStyle = P.uiHint;
+    ctx.font = '11px monospace';
+    ctx.fillText("Your suit hums before you do.", canvas.width/2, canvas.height/2 + 2);
+    ctx.fillStyle = P.glowL;
+    ctx.font = 'bold 11px monospace';
+    // Blinking prompt
+    if (Math.floor(Date.now()/500)%2===0) {
+        ctx.fillText("[ Press E to wake ]", canvas.width/2, canvas.height/2 + 24);
+    }
+    // Dust motes drifting (subtle)
+    const t = Date.now()/80;
+    for (let i=0;i<4;i++) {
+        const x = (Math.sin(t*0.03+i)*30 + canvas.width/2 + i*40) % canvas.width;
+        const y = (Math.cos(t*0.02+i)*20 + canvas.height/2 + i*20) % canvas.height;
+        px(Math.floor(x), Math.floor(y), 1, 1, P.uiCream);
+    }
+}
+
 function render() {
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (openingBlack) {
+        drawOpeningBlack();
+        return;
+    }
+
+    // Father memory cutscene — full-screen visual, not the bedroom
+    if (currentDialog && currentDialog.source === fatherMemorySource) {
+        drawMemoryCutscene();
+        drawDialog();
+        return;
+    }
 
     drawTiles();
 
     if (currentArea === 'village') {
         drawBuildings();
         drawDoors();
-        for (const npc of npcs) drawNPC(npc);
+        for (const npc of npcs) {
+            if (!isNpcVisible(npc)) continue;
+            drawNPC(npc);
+        }
+        if (isDoorElderVisible()) {
+            for (const npc of eldersAtDoorNPCs) {
+                drawNPC(npc);
+            }
+        }
+    } else if (currentArea === 'interior' && currentInterior === 'home') {
+        // Interior Tinslaire (Scene 1) — draws on top of tiles but under player
+        drawNPC(tinslaireInside);
     }
 
     drawPlayer();
@@ -1322,5 +1789,29 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-enterInterior('home');
+// Start at Scene 1 — wake in Red House, not at door
+function startOpening() {
+    const interior = interiors['home'];
+    currentInterior = 'home';
+    currentArea = 'interior';
+    map = interior.map;
+    MAP_WIDTH = interior.map[0].length;
+    MAP_HEIGHT = interior.map.length;
+    // Scene 1: Minslaire wakes beside his bed. Beds at (3,3) and (5,3).
+    // Place player just south of beds, facing down, Tinslaire at 6,5 near table.
+    placePlayer(4, 5, 'down');
+    updateCamera();
+    updateHUD();
+    openingBlack = true;
+    memoryDone = false;
+    tinslaireInsideTalked = false;
+    eldersAtDoorReady = false;
+    eldersDoorDialogDone = false;
+    // Reset NPC spoken flags for fresh story run
+    tinslaireInside.spoken = false;
+    for (const n of eldersAtDoorNPCs) n.spoken = false;
+    for (const n of npcs) n.spoken = false;
+}
+
+startOpening();
 loop();

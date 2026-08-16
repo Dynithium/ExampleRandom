@@ -211,10 +211,10 @@ export function startNewGame(): void {
   rt.env.time = 0.26;
 
   useElder.setState({
-    openingBlack: false,
+    openingBlack: true,
     memoryActive: false,
     memoryIndex: 0,
-    memoryDone: true,
+    memoryDone: false,
     tinslaireInsideTalked: false,
     eldersAtDoorReady: false,
     eldersDoorDialogDone: false,

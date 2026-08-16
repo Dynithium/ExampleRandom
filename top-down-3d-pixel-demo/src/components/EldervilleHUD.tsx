@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useElder } from "../game/eldervilleStory";
-import { useUI } from "../game/state";
+import { rt, useUI } from "../game/state";
 import { MemoryCutsceneOverlay } from "../game/MemoryCutscene3D";
 import { ScholarPuzzleModal } from "./ScholarPuzzleModal";
 import { PixelPortrait } from "./PixelPortraits";
@@ -81,6 +81,7 @@ export function EldervilleHUD() {
   const marketTrialState = useElder((s) => s.marketTrialState);
   const combatTrialState = useElder((s) => s.combatTrialState);
   const carryingGrain = useElder((s) => s.carryingGrain);
+  const hasSword = useElder((s) => s.hasSword);
   const scholarPuzzleOpen = useElder((s) => s.scholarPuzzleOpen);
   const currentArea = useElder((s) => s.currentArea);
   const currentInterior = useElder((s) => s.currentInterior);
@@ -91,12 +92,18 @@ export function EldervilleHUD() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "e") {
+      if (e.key.toLowerCase() === "e" && !e.repeat) {
         const s = useElder.getState();
         if (s.openingBlack && !s.memoryActive) {
           e.preventDefault();
           useUI.getState().start();
           s.startMemory();
+        } else if (s.memoryActive && s.activeDialog) {
+          // EldervillePlayer is unmounted during the memory cutscene, so the
+          // normal interact path never runs — advance from here instead.
+          e.preventDefault();
+          rt.input.interact = false;
+          s.advanceDialog();
         }
       }
     };
@@ -132,8 +139,9 @@ export function EldervilleHUD() {
   else if (marketTrialState === "overpaid") objective = "Trial 4: Return the 50 extra silver coins with honor to Trader";
   // Combat Trial: Blade Training
   else if (marketTrialState === "completed" && combatTrialState === "not_started") objective = "All 4 Virtues Proven! Meet the Council behind Blue House for Blade Trial";
-  else if (combatTrialState === "assigned") objective = "Blade Trial: Strike down 3 training dummies behind Blue House (SPACE / J)";
-  else if (combatTrialState === "completed") objective = "★ Trials Complete! Retrieve Father's Blade from Red House & Enter the Cave!";
+  else if (combatTrialState === "assigned") objective = "Blade Trial: Strike down 3 training dummies behind Blue House (SPACE · Guard R · Dodge SHIFT)";
+  else if (combatTrialState === "completed" && !hasSword) objective = "★ Trials Complete! Retrieve Father's Blade from the sword case in the Red House";
+  else if (hasSword) objective = "⚔ Father's Blade at your side — Enter the Outskirts Cave (far north-east, where the gate road ends)";
 
   // wake handler
   const handleWake = () => {

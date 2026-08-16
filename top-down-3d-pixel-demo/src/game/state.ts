@@ -9,6 +9,8 @@ export const rt = {
     yaw: Math.PI * 0.75,
     speed: 0,
     moving: false,
+    blocking: false,
+    dodgeIframes: 0,
   },
   tinslaire: {
     pos: new THREE.Vector3(SPAWN.x, SPAWN.y, SPAWN.z),
@@ -35,6 +37,7 @@ export const rt = {
     touchX: 0,
     touchY: 0,
     interact: false,
+    shift: false,
   },
 };
 

@@ -54,14 +54,17 @@ export function useKeyboard() {
           rt.cam.targetZoom = Math.max(18, rt.cam.targetZoom / 1.25);
       }
       held.add(e.code);
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") rt.input.shift = true;
       refresh();
     };
     const up = (e: KeyboardEvent) => {
       held.delete(e.code);
+      if (e.code === "ShiftLeft" || e.code === "ShiftRight") rt.input.shift = false;
       refresh();
     };
     const blur = () => {
       held.clear();
+      rt.input.shift = false;
       refresh();
     };
     window.addEventListener("keydown", down, { passive: false });

@@ -18,7 +18,8 @@ export function ScholarPuzzleModal() {
   const [dials, setDials] = useState<number[]>([2, 0, 3, 1]);
   const [solved, setSolved] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [showNotes, setShowNotes] = useState(scholarTrialState === "desk_read");
+  const deskRead = ["desk_read", "puzzle_solved", "completed"].includes(scholarTrialState);
+  const [showNotes, setShowNotes] = useState(deskRead);
 
   const cycleDial = (index: number) => {
     if (solved) return;
@@ -117,19 +118,30 @@ export function ScholarPuzzleModal() {
         <div className="rounded border border-[#203868] bg-[#070c1e] p-3">
           <div className="flex items-center justify-between">
             <span className="text-[8px] font-bold text-[#ffd75e]">📜 RESEARCH JOURNAL CLUE:</span>
-            <button
-              onClick={() => setShowNotes((s) => !s)}
-              className="text-[7.5px] text-[#8fb7ff] underline hover:text-[#ffd75e]"
-            >
-              {showNotes ? "HIDE NOTES" : "SHOW NOTES"}
-            </button>
+            {deskRead ? (
+              <button
+                onClick={() => setShowNotes((s) => !s)}
+                className="text-[7.5px] text-[#8fb7ff] underline hover:text-[#ffd75e]"
+              >
+                {showNotes ? "HIDE NOTES" : "SHOW NOTES"}
+              </button>
+            ) : (
+              <span className="text-[7px] text-[#7f92c4]">🔒 LOCKED</span>
+            )}
           </div>
-          {showNotes && (
-            <div className="mt-2 text-[7.5px] italic leading-relaxed text-[#c0d0e8]">
-              "1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the foundation.<br />
-              2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8]">Blue</span>) filled the trenches.<br />
-              3. Third, the Molten Core (<span className="font-bold text-[#d03838]">Red</span>) warmed the bio-membrane.<br />
-              4. Fourth, the Golden Sun (<span className="font-bold text-[#e8b040]">Gold</span>) illuminated the seal."
+          {deskRead ? (
+            showNotes && (
+              <div className="mt-2 text-[7.5px] italic leading-relaxed text-[#c0d0e8]">
+                "1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the foundation.<br />
+                2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8">Blue</span>) filled the trenches.<br />
+                3. Third, the Molten Core (<span className="font-bold text-[#d03838]">Red</span>) warmed the bio-membrane.<br />
+                4. Fourth, the Golden Sun (<span className="font-bold text-[#e8b040]">Gold</span>) illuminated the seal."
+              </div>
+            )
+          ) : (
+            <div className="mt-2 text-[7.5px] italic leading-relaxed text-[#7f92c4]">
+              The harmony order is written in Elder Sage's journal, open on the study desk. Read the desk first —
+              the shelf is a test of patience, not guessing.
             </div>
           )}
         </div>

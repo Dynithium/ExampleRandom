@@ -224,6 +224,12 @@ wells.push({ x: villageGx(58), z: villageGz(36), y: topOf(4) }); // Central Well
 markets.push({ x: villageGx(15), z: villageGz(40), y: topOf(4) });
 watchtowers.push({ x: villageGx(66), z: villageGz(12), y: topOf(4) });
 
+// Outskirts Cave clearing — flattened dirt pad at the north end of the eastern gate road
+for (let y = 7; y <= 11; y++) for (let x = 63; x <= 67; x++) {
+  setTile(x, y, KIND.DIRT);
+  blocked[villageIdx(x, y)] = 0;
+}
+
 // Lamps along avenues
 [[6, 16], [20, 16], [36, 16], [52, 16], [6, 32], [20, 32], [36, 32], [52, 32], [58, 36]].forEach(([tx, ty]) => {
   const i = OX + tx, j = OZ + ty;
@@ -363,3 +369,9 @@ export function kindAtWorld(x: number, z: number) {
 export function eldervilleWorldPos(tx: number, ty: number) {
   return { x: villageGx(tx), z: villageGz(ty), y: topOf(4) };
 }
+
+/** Wooden archery boards flanking the training clearing (bow practice, Trial of Steel) */
+export const archeryTargets = [eldervilleWorldPos(33, 1), eldervilleWorldPos(39, 1)];
+
+/** The Outskirts Cave mouth at the north end of the eastern gate road */
+export const CAVE_TILE = { tx: 66, ty: 8 };

@@ -13,6 +13,7 @@ import { EldervilleNPCs } from "./EldervilleNPCs";
 import { EldervilleProps } from "./EldervilleProps";
 import { fireflyMat, glowMat, starMat, windowMat } from "./mats";
 import { SIZE } from "./world";
+import { ObjectiveMarker } from "./ObjectiveMarker";
 
 const DAY_SKY = new THREE.Color("#8fd6f2");
 const DUSK_SKY = new THREE.Color("#f09a5c");
@@ -55,7 +56,16 @@ function Environment() {
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     const ui = useUI.getState();
-    if (!ui.paused) rt.env.time = (rt.env.time + dt * 0.0085 * ui.daySpeed) % 1;
+    const elder = useElder.getState();
+    // ~5 real minutes per full day at 1x; freeze while menus/dialogs/story hold the game
+    const frozen =
+      ui.paused ||
+      ui.pauseMenu ||
+      !!elder.activeDialog ||
+      elder.memoryActive ||
+      elder.openingBlack ||
+      elder.scholarPuzzleOpen;
+    if (!frozen) rt.env.time = (rt.env.time + dt * 0.0033 * ui.daySpeed) % 1;
 
     const t = rt.env.time;
     const ang = (t - 0.25) * Math.PI * 2;
@@ -222,6 +232,7 @@ export function Scene() {
           <Fireflies />
         </>
       )}
+      <ObjectiveMarker />
       <EldervilleNPCs />
       <EldervillePlayer />
     </>

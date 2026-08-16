@@ -231,8 +231,20 @@ export const councilCombatTrialDialog: Dialog = {
   lines: [
     "Minslaire! You have proven your virtue across all four trials: Observation at the Well, Intellect in the Archives, Service for the Widow, and Integrity at the Bazaar.",
     "Now the Council tests your steel. In the training clearing behind the Blue House, three practice dummies stand ready.",
-    "Demonstrate your sword strikes (SPACE / J), shield guards (R), and agile dodges (SHIFT).",
+    "Elder Thorn will watch your footwork: STRIKE with SPACE toward your target, hold R to GUARD, and tap SHIFT to DODGE-ROLL — but mind your stamina, it fuels all three.",
+    "Elder Sage has set archery boards beyond the dummies. Loose arrows with K — the blade is for when they get close; the bow is for when they don't.",
     "When the training dummies fall, you shall take your father's blade and enter the Outskirts Cave!",
+  ],
+};
+
+// Outskirts Cave (Act 1 finale beat)
+export const outskirtsCaveEnterDialog: Dialog = {
+  name: "Outskirts Cave",
+  lines: [
+    "You hold a torch high and step past the cold stone teeth of the entrance.",
+    "Deeper, the light flickers off wet rock. Deeper still — two red eyes blink open in the dark...",
+    "— ACT I: THE CALLING — continues here —",
+    "(End of the current expedition build. The Cave Machine awaits in the next update.)",
   ],
 };
 
@@ -396,9 +408,11 @@ export const useElder = create<ElderState>((set, get) => ({
       const wasTraderIntro = src === "traderIntro";
       const wasTraderReturn = src === "traderReturn";
       const wasCouncilCombat = src === "councilCombatTrial";
+      const wasSwordTaken = src === "swordTaken";
 
       const next: Partial<ElderState> = { activeDialog: null, dialogSourceId: null };
       if (wasMemory) { next.memoryActive = false; next.memoryDone = true; next.openingBlack = false; }
+      if (wasSwordTaken) { next.hasSword = true; }
       if (wasTinslaireInside) { next.tinslaireInsideTalked = true; next.eldersAtDoorReady = true; }
       if (wasMossDoor) { next.eldersDoorDialogDone = true; }
       if (wasMossWellIntro) { next.wellTrialState = "assigned"; }

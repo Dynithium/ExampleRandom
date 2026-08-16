@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors } from "./world";
+import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE } from "./world";
 import { rt, useUI } from "./state";
 import {
   useElder,
@@ -36,11 +36,12 @@ import {
   traderHonestyReturnDialog,
   traderCompletedRepeat,
   councilCombatTrialDialog,
+  outskirtsCaveEnterDialog,
   swordCaseDialog,
 } from "./eldervilleStory";
 import { sfx } from "./audio";
 
-const SPEED = 4.8;
+const SPEED = 6.5;
 const RADIUS = 0.3;
 const offsets: [number, number][] = [
   [RADIUS, 0], [-RADIUS, 0], [0, RADIUS], [0, -RADIUS],
@@ -113,6 +114,79 @@ const desired = new THREE.Vector3();
 const fwd = new THREE.Vector3();
 const right = new THREE.Vector3();
 
+// ---- Bow projectiles (K) ----
+type Arrow = { x: number; y: number; z: number; dx: number; dz: number; life: number };
+const arrows: Arrow[] = [];
+const ARROW_SPEED = 15;
+const ARROW_DMG = 12;
+const ARROW_POOL = 6;
+
+function spawnArrow() {
+  if (arrows.length >= ARROW_POOL) return;
+  const p = rt.player;
+  const dx = Math.sin(p.yaw), dz = Math.cos(p.yaw);
+  arrows.push({ x: p.pos.x + dx * 0.5, y: p.pos.y + 0.78, z: p.pos.z + dz * 0.5, dx, dz, life: 1.3 });
+}
+
+function stepArrows(dt: number) {
+  const elder = useElder.getState();
+  const dummyCoords = [eldervilleWorldPos(34, 3), eldervilleWorldPos(36, 3), eldervilleWorldPos(38, 3)];
+  for (let i = arrows.length - 1; i >= 0; i--) {
+    const a = arrows[i];
+    a.x += a.dx * ARROW_SPEED * dt;
+    a.z += a.dz * ARROW_SPEED * dt;
+    a.life -= dt;
+    let dead = a.life <= 0;
+    if (elder.currentArea === "village") {
+      dummyCoords.forEach((c, idx) => {
+        if (!dead && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
+          elder.damageDummy(idx, ARROW_DMG);
+          sfx.hit();
+          dead = true;
+        }
+      });
+      if (!dead) {
+        for (const t of archeryTargets) {
+          if (Math.hypot(t.x - a.x, t.z - a.z) < 0.6) { sfx.block(); dead = true; break; }
+        }
+      }
+    }
+    if (dead) arrows.splice(i, 1);
+  }
+}
+
+function Arrows() {
+  const refs = useRef<(THREE.Group | null)[]>([]);
+  useFrame((_, delta) => {
+    stepArrows(Math.min(delta, 0.05));
+    refs.current.forEach((g, i) => {
+      if (!g) return;
+      const a = arrows[i];
+      g.visible = !!a;
+      if (a) {
+        g.position.set(a.x, a.y, a.z);
+        g.rotation.y = Math.atan2(a.dx, a.dz);
+      }
+    });
+  });
+  return (
+    <>
+      {Array.from({ length: ARROW_POOL }, (_, i) => (
+        <group key={i} ref={(el) => { refs.current[i] = el; }} visible={false}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <boxGeometry args={[0.035, 0.55, 0.035]} />
+            <meshBasicMaterial color="#e8e0c8" toneMapped={false} />
+          </mesh>
+          <mesh position={[0, 0, 0.32]} rotation={[Math.PI / 2, 0, 0]}>
+            <coneGeometry args={[0.045, 0.12, 4]} />
+            <meshBasicMaterial color="#c8d0d8" toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+}
+
 export function EldervillePlayer() {
   const group = useRef<THREE.Group>(null!);
   const legL = useRef<THREE.Group>(null!);
@@ -124,6 +198,14 @@ export function EldervillePlayer() {
   const stepTimer = useRef(0);
   const attackTimer = useRef(0);
   const blockTimer = useRef(0);
+  const bowTimer = useRef(0);
+  const dodgeTimer = useRef(0);
+  const dodgeDir = useRef(new THREE.Vector3(0, 0, 1));
+  const blockHeld = useRef(false);
+  const prevShift = useRef(false);
+  const stAcc = useRef(useElder.getState().st);
+  const stWritten = useRef(Math.round(useElder.getState().st));
+  const swingArc = useRef<THREE.Group>(null!);
   const init = useRef(false);
   const prevArea = useRef<string>(useElder.getState().currentArea);
 
@@ -139,44 +221,57 @@ export function EldervillePlayer() {
       const ui = useUI.getState();
       if (elder.openingBlack || elder.memoryActive || !!elder.activeDialog || ui.pauseMenu) return;
 
-      // Sword Attack (Space or J)
+      // Sword Attack (Space or J) — hits what you are facing
       if (e.code === "Space" || e.code === "KeyJ") {
         if (attackTimer.current <= 0) {
           attackTimer.current = 0.35;
           sfx.slash();
           // Check attack hitbox on training dummies behind Blue House
-          const p = rt.player.pos;
+          const p = rt.player;
+          const facingX = Math.sin(p.yaw), facingZ = Math.cos(p.yaw);
           const dummyCoords = [
             eldervilleWorldPos(34, 3),
             eldervilleWorldPos(36, 3),
             eldervilleWorldPos(38, 3),
           ];
           dummyCoords.forEach((dPos, idx) => {
-            const dist = Math.hypot(dPos.x - p.x, dPos.z - p.z);
+            const dist = Math.hypot(dPos.x - p.pos.x, dPos.z - p.pos.z);
             if (dist < 1.8 && elder.dummiesHealth[idx] > 0) {
-              elder.damageDummy(idx, 20);
-              sfx.hit();
-              if (elder.dummiesHealth.filter(h => h > 0).length <= 1) {
-                sfx.questComplete();
+              const dot = ((dPos.x - p.pos.x) * facingX + (dPos.z - p.pos.z) * facingZ) / (dist || 1);
+              if (dot > 0.34) {
+                elder.damageDummy(idx, 20);
+                sfx.hit();
+                if (elder.dummiesHealth.filter(h => h > 0).length <= 1) {
+                  sfx.questComplete();
+                }
               }
             }
           });
         }
       }
 
-      // Shield Block (R)
-      if (e.code === "KeyR") {
-        blockTimer.current = 0.4;
+      // Shield Block (hold R)
+      if (e.code === "KeyR" && !e.repeat && !blockHeld.current) {
+        blockHeld.current = true;
         sfx.block();
       }
 
-      // Bow Shoot (K)
-      if (e.code === "KeyK") {
+      // Bow Shoot (K) — real arrow projectile
+      if (e.code === "KeyK" && !e.repeat && bowTimer.current <= 0) {
+        bowTimer.current = 0.55;
         sfx.bowShoot();
+        spawnArrow();
       }
     };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "KeyR") blockHeld.current = false;
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKeyUp);
+    };
   }, []);
 
   useFrame((state, delta) => {
@@ -192,6 +287,7 @@ export function EldervillePlayer() {
 
     if (attackTimer.current > 0) attackTimer.current -= dt;
     if (blockTimer.current > 0) blockTimer.current -= dt;
+    if (bowTimer.current > 0) bowTimer.current -= dt;
 
     const blockedByStory = elder.openingBlack || elder.memoryActive || !!elder.activeDialog || ui.pauseMenu;
     let ix = 0, iy = 0;
@@ -207,18 +303,69 @@ export function EldervillePlayer() {
     const yaw = rt.cam.yaw;
     fwd.set(-Math.sin(yaw),0,-Math.cos(yaw));
     right.set(Math.cos(yaw),0,-Math.sin(yaw));
-    const mx = right.x * ix + fwd.x * iy;
-    const mz = right.z * ix + fwd.z * iy;
-    const moving = !blockedByStory && Math.hypot(mx,mz) > 0.05;
+    let mx = right.x * ix + fwd.x * iy;
+    let mz = right.z * ix + fwd.z * iy;
+    const mlen = Math.hypot(mx, mz);
+    if (mlen > 1) { mx/=mlen; mz/=mlen; }
+    const wantsMove = !blockedByStory && mlen > 0.05;
+
+    // ---- stamina economy: dodge roll (tap SHIFT), sprint (hold SHIFT), guard (hold R) ----
+    // the accumulator keeps fractional progress across frames; re-seed if the store
+    // was changed elsewhere (new game / load save)
+    if (Math.abs(elder.st - stWritten.current) > 1) {
+      stAcc.current = elder.st;
+      stWritten.current = Math.round(elder.st);
+    }
+    let stVal = stAcc.current;
+    if (rt.input.shift && !prevShift.current && !blockedByStory && dodgeTimer.current <= 0 && stVal >= 25) {
+      if (mlen > 0.05) { dodgeDir.current.set(mx / mlen, 0, mz / mlen); }
+      else { dodgeDir.current.set(Math.sin(p.yaw), 0, Math.cos(p.yaw)); }
+      dodgeTimer.current = 0.42;
+      p.dodgeIframes = 0.5;
+      stVal -= 25;
+      sfx.dodge();
+    }
+    prevShift.current = rt.input.shift;
+
+    let sprinting = false;
+    if (rt.input.shift && wantsMove && dodgeTimer.current <= 0 && stVal > 0.5) {
+      sprinting = true;
+      stVal -= 9 * dt;
+    }
+
+    const guarding = blockHeld.current && !blockedByStory && stVal > 0.5;
+    if (guarding) { blockTimer.current = 0.2; stVal -= 6 * dt; }
+    p.blocking = guarding;
+
+    let moveX = mx, moveZ = mz, moving = wantsMove;
+    let speed = elder.carryingGrain ? SPEED * 0.75 : SPEED;
+    if (sprinting) speed *= 1.45;
+    if (dodgeTimer.current > 0) {
+      dodgeTimer.current -= dt;
+      moveX = dodgeDir.current.x;
+      moveZ = dodgeDir.current.z;
+      speed = SPEED * 2.4;
+      moving = true;
+    }
+    if (p.dodgeIframes > 0) p.dodgeIframes -= dt;
+
+    if (!sprinting && !guarding && dodgeTimer.current <= 0) stVal += 14 * dt;
+    stVal = THREE.MathUtils.clamp(stVal, 0, 100);
+    stAcc.current = stVal;
+    const stR = Math.round(stVal);
+    if (stR !== stWritten.current) {
+      stWritten.current = stR;
+      useElder.setState({ st: stR });
+    }
+
     p.moving = moving;
     p.speed += ((moving?1:0) - p.speed) * (1 - Math.exp(-dt*16));
 
     // Movement
     if (moving) {
       const currentTop = elder.currentArea==="village" ? groundAtWorld(p.pos.x,p.pos.z) : INT_Y;
-      const speed = elder.carryingGrain ? SPEED * 0.75 : SPEED;
-      const nx = p.pos.x + mx * speed * dt;
-      const nz = p.pos.z + mz * speed * dt;
+      const nx = p.pos.x + moveX * speed * dt;
+      const nz = p.pos.z + moveZ * speed * dt;
       let canX = false, canZ = false;
       if (elder.currentArea==="village") {
         canX = canWalkWorld(nx, p.pos.z, currentTop) && !npcBlockedWorld(nx,p.pos.z);
@@ -238,7 +385,7 @@ export function EldervillePlayer() {
       }
       if(canX) p.pos.x = nx;
       if(canZ) p.pos.z = nz;
-      const targetYaw = Math.atan2(mx,mz);
+      const targetYaw = Math.atan2(moveX,moveZ);
       let d=targetYaw - p.yaw; while(d>Math.PI) d-=Math.PI*2; while(d<-Math.PI) d+=Math.PI*2;
       p.yaw += d * (1 - Math.exp(-dt*14));
       phase.current += dt*11;
@@ -283,6 +430,18 @@ export function EldervillePlayer() {
       group.current.rotation.y = p.yaw;
     }
 
+    // sword swing arc — bright at the strike, fading through the recovery
+    if (swingArc.current) {
+      const show = attackTimer.current > 0.12;
+      swingArc.current.visible = show;
+      if (show) {
+        swingArc.current.position.set(p.pos.x, p.pos.y + 0.75, p.pos.z);
+        swingArc.current.rotation.y = p.yaw;
+        const mat = (swingArc.current.children[0] as THREE.Mesh).material as THREE.MeshBasicMaterial;
+        mat.opacity = THREE.MathUtils.clamp(attackTimer.current * 3, 0, 0.95);
+      }
+    }
+
     // Camera
     const pitch=0.62, dist=46;
     desired.set(p.pos.x + Math.sin(yaw)*Math.cos(pitch)*dist, p.pos.y + Math.sin(pitch)*dist, p.pos.z + Math.cos(yaw)*Math.cos(pitch)*dist);
@@ -296,12 +455,17 @@ export function EldervillePlayer() {
     // Area Transitions
     if (!blockedByStory) {
       if (elder.currentArea==="village") {
-        for(const d of villageDoors){
-          const dist=Math.hypot(d.x - p.pos.x, d.z - p.pos.z);
-          if(dist<0.75){
-            useElder.getState().setArea(d.interior, d.interior);
-            const offX=INT_OFF_X, offZ=INT_OFF_Z;
-            p.pos.set(offX + 7 + 0.5, INT_Y, offZ + 8 + 0.5);
+          for(const d of villageDoors){
+            const dist=Math.hypot(d.x - p.pos.x, d.z - p.pos.z);
+            if(dist<0.75){
+              useElder.getState().setArea(d.interior, d.interior);
+              // hearth rest: stepping inside mends wounds (+40 HP, docs)
+              const nowInside = useElder.getState();
+              if (nowInside.hp < 100) {
+                useElder.setState({ hp: Math.min(100, nowInside.hp + 40) });
+              }
+              const offX=INT_OFF_X, offZ=INT_OFF_Z;
+              p.pos.set(offX + 7 + 0.5, INT_Y, offZ + 8 + 0.5);
             p.yaw = Math.PI;
             camTarget.copy(p.pos);
             const yawSnap = rt.cam.yaw;
@@ -588,6 +752,41 @@ export function EldervillePlayer() {
             bestDialog = { dlg: councilCombatTrialDialog, source: "councilCombatTrial" };
           }
         }
+
+        // Outskirts Cave @ north end of the eastern gate road
+        const cavePos = eldervilleWorldPos(CAVE_TILE.tx, CAVE_TILE.ty);
+        const caveDist = Math.hypot(cavePos.x - p.pos.x, cavePos.z - p.pos.z);
+        if (caveDist < bestDist && caveDist < 2.2) {
+          bestDist = caveDist;
+          if (elder.hasSword) {
+            prompt = "E · Enter the Outskirts Cave";
+            bestDialog = { dlg: outskirtsCaveEnterDialog, source: "caveEnter" };
+          } else if (elder.combatTrialState === "completed") {
+            prompt = "E · Peer Into the Dark";
+            bestDialog = {
+              dlg: {
+                name: "Outskirts Cave",
+                lines: [
+                  "The cave mouth exhales cold, machine-tinged air.",
+                  "Without your father's blade at your side, you are not ready. Retrieve it from the Red House sword case.",
+                ],
+              },
+              source: "caveLocked",
+            };
+          } else {
+            prompt = "E · Peer Into the Dark";
+            bestDialog = {
+              dlg: {
+                name: "Outskirts Cave",
+                lines: [
+                  "A dark maw in the hillside where the forest begins. Something stirs inside.",
+                  "The Council's trials come first — prove your virtue, then your steel.",
+                ],
+              },
+              source: "caveNormal",
+            };
+          }
+        }
       }
 
       // Tinslaire in Village during daytime
@@ -640,8 +839,17 @@ export function EldervillePlayer() {
 
   // Player Mesh with sheathed sword, life-suit bio-glow, arms, legs
   return (
-    <group ref={group}>
-      <group ref={legL} position={[0.13,0.36,0]}>
+    <group>
+      <Arrows />
+      {/* sword swing arc (world-space, follows the player) */}
+      <group ref={swingArc} visible={false}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.62, 1.05, 12, 1, -Math.PI / 2 - 1.1, 2.2]} />
+          <meshBasicMaterial color="#ffe9a8" transparent opacity={0.9} side={THREE.DoubleSide} toneMapped={false} />
+        </mesh>
+      </group>
+      <group ref={group}>
+        <group ref={legL} position={[0.13,0.36,0]}>
         <mesh position={[0,-0.18,0]} castShadow><boxGeometry args={[0.18,0.38,0.18]} /><meshLambertMaterial color="#2f3d6b" /></mesh>
         <mesh position={[0,-0.38,0.03]} castShadow><boxGeometry args={[0.2,0.1,0.24]} /><meshLambertMaterial color="#33281f" /></mesh>
       </group>
@@ -708,6 +916,7 @@ export function EldervillePlayer() {
       <mesh position={[0,1.27,0]} castShadow><boxGeometry args={[0.46,0.14,0.44]} /><meshLambertMaterial color="#3f8f57" /></mesh>
       <mesh position={[0,1.19,0.28]} castShadow><boxGeometry args={[0.44,0.06,0.16]} /><meshLambertMaterial color="#2f6b41" /></mesh>
       <mesh position={[0,1.36,0]} castShadow><boxGeometry args={[0.12,0.08,0.12]} /><meshLambertMaterial color="#ffd75e" /></mesh>
+      </group>
     </group>
   );
 }

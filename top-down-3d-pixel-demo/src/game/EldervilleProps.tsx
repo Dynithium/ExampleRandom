@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { wells, forges, markets, watchtowers, gardens, eldervilleWorldPos } from "./world";
+import { wells, forges, markets, watchtowers, gardens, eldervilleWorldPos, archeryTargets, CAVE_TILE } from "./world";
 import { useElder } from "./eldervilleStory";
 
 function elderX(tx: number) { return eldervilleWorldPos(tx, 0).x; }
@@ -160,6 +160,32 @@ export function TrainingDummies() {
     eldervilleWorldPos(36, 3),
     eldervilleWorldPos(38, 3),
   ];
+  const rig = useRef<(THREE.Group | null)[]>([]);
+  const overlayRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const flash = useRef([0, 0, 0]);
+  const prevHp = useRef([...dummiesHealth]);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+    dummiesHealth.forEach((hp, i) => {
+      if (hp < prevHp.current[i]) flash.current[i] = 1;
+      prevHp.current[i] = hp;
+    });
+    rig.current.forEach((g, i) => {
+      if (!g) return;
+      const f = flash.current[i];
+      if (f > 0) {
+        flash.current[i] = Math.max(0, f - dt * 2.6);
+        g.rotation.z = Math.sin(f * 34) * 0.16 * f;
+      } else {
+        g.rotation.z = 0;
+      }
+      const overlay = overlayRefs.current[i];
+      if (overlay) {
+        (overlay.material as THREE.MeshBasicMaterial).opacity = flash.current[i] * 0.75;
+      }
+    });
+  });
 
   return (
     <>
@@ -178,9 +204,9 @@ export function TrainingDummies() {
               <boxGeometry args={[0.7, 0.1, 0.1]} />
               <meshLambertMaterial color="#684830" />
             </mesh>
-            {/* Straw Body */}
-            {isAlive && (
-              <>
+            {isAlive ? (
+              /* Straw Body + head + hp bar, wobbles when struck */
+              <group ref={(el) => { rig.current[idx] = el; }}>
                 <mesh position={[0, 0.7, 0]} castShadow>
                   <boxGeometry args={[0.38, 0.55, 0.25]} />
                   <meshLambertMaterial color="#d4be72" />
@@ -195,6 +221,11 @@ export function TrainingDummies() {
                   <boxGeometry args={[0.28, 0.28, 0.28]} />
                   <meshLambertMaterial color="#e0cb82" />
                 </mesh>
+                {/* hit flash overlay (opacity driven in useFrame) */}
+                <mesh ref={(el) => { overlayRefs.current[idx] = el; }} position={[0, 0.85, 0]}>
+                  <boxGeometry args={[0.44, 1.1, 0.34]} />
+                  <meshBasicMaterial color="#ff5040" transparent opacity={0} toneMapped={false} />
+                </mesh>
                 {/* Mini Health Bar */}
                 <group position={[0, 1.4, 0]}>
                   <mesh position={[0, 0, 0]}>
@@ -206,12 +237,90 @@ export function TrainingDummies() {
                     <meshBasicMaterial color="#48a028" />
                   </mesh>
                 </group>
-              </>
+              </group>
+            ) : (
+              /* fallen straw heap once defeated */
+              <mesh position={[0, 0.12, 0.18]} rotation={[0.15, 0.4, Math.PI / 2 - 0.15]} castShadow>
+                <boxGeometry args={[0.38, 0.5, 0.28]} />
+                <meshLambertMaterial color="#b8a45e" />
+              </mesh>
             )}
           </group>
         );
       })}
     </>
+  );
+}
+
+// Wooden archery boards flanking the clearing (bow practice)
+export function ArcheryBoards() {
+  return (
+    <>
+      {archeryTargets.map((pos, i) => (
+        <group key={i} position={[pos.x, pos.y, pos.z]}>
+          <mesh position={[0, 0.9, 0]} castShadow>
+            <boxGeometry args={[0.12, 1.8, 0.12]} />
+            <meshLambertMaterial color="#684830" />
+          </mesh>
+          <mesh position={[0, 1.5, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.9, 0.9, 0.12]} />
+            <meshLambertMaterial color="#e0cb82" />
+          </mesh>
+          <mesh position={[0, 1.5, 0.08]}>
+            <boxGeometry args={[0.55, 0.55, 0.03]} />
+            <meshLambertMaterial color="#c04038" />
+          </mesh>
+          <mesh position={[0, 1.5, 0.1]}>
+            <boxGeometry args={[0.25, 0.25, 0.03]} />
+            <meshLambertMaterial color="#f0e8c8" />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+}
+
+// The Outskirts Cave — dark mouth in a rock mound at the end of the eastern gate road
+export function OutskirtsCave() {
+  const pos = eldervilleWorldPos(CAVE_TILE.tx, CAVE_TILE.ty);
+  return (
+    <group position={[pos.x, pos.y, pos.z]}>
+      {/* rock mound (opening faces south, toward the road) */}
+      <mesh position={[0, 1.2, -0.8]} castShadow receiveShadow>
+        <boxGeometry args={[4.4, 2.8, 1.6]} />
+        <meshLambertMaterial color="#6e6a5e" />
+      </mesh>
+      <mesh position={[-1.7, 1.9, -0.8]} castShadow>
+        <boxGeometry args={[1.4, 4.2, 1.6]} />
+        <meshLambertMaterial color="#7a766a" />
+      </mesh>
+      <mesh position={[1.7, 1.9, -0.8]} castShadow>
+        <boxGeometry args={[1.4, 4.2, 1.6]} />
+        <meshLambertMaterial color="#7a766a" />
+      </mesh>
+      <mesh position={[0, 2.5, -0.8]} castShadow>
+        <boxGeometry args={[1.8, 1.6, 1.7]} />
+        <meshLambertMaterial color="#65615a" />
+      </mesh>
+      {/* dark mouth */}
+      <mesh position={[0, 0.85, 0.02]}>
+        <boxGeometry args={[1.7, 1.7, 0.25]} />
+        <meshBasicMaterial color="#05060c" />
+      </mesh>
+      {/* warning torches */}
+      {[-1.4, 1.4].map((x) => (
+        <group key={x} position={[x, 0, 0.7]}>
+          <mesh position={[0, 0.55, 0]} castShadow>
+            <boxGeometry args={[0.1, 1.1, 0.1]} />
+            <meshLambertMaterial color="#684830" />
+          </mesh>
+          <mesh position={[0, 1.18, 0]}>
+            <boxGeometry args={[0.18, 0.22, 0.18]} />
+            <meshBasicMaterial color="#f89038" toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   );
 }
 
@@ -245,7 +354,9 @@ export function EldervilleProps() {
       <EldervilleWatchtowers />
       <EldervilleGardens />
       <TrainingDummies />
+      <ArcheryBoards />
       <GrainSackProp />
+      <OutskirtsCave />
     </>
   );
 }

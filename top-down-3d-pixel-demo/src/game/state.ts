@@ -50,12 +50,14 @@ export type UIState = {
   daySpeed: number;
   clock: string;
   started: boolean;
+  pauseMenu: boolean;
   setPrompt: (p: string | null) => void;
   say: (d: { title: string; text: string } | null) => void;
   setPixel: (p: number) => void;
-  toggle: (k: "scanlines" | "muted" | "paused") => void;
+  toggle: (k: "scanlines" | "muted" | "paused" | "pauseMenu") => void;
   setDaySpeed: (s: number) => void;
   setClock: (c: string) => void;
+  setPauseMenu: (open: boolean) => void;
   start: () => void;
 };
 
@@ -69,11 +71,13 @@ export const useUI = create<UIState>((set) => ({
   daySpeed: 1,
   clock: "06:14",
   started: false,
+  pauseMenu: false,
   setPrompt: (prompt) => set((s) => (s.prompt === prompt ? s : { prompt })),
   say: (dialogue) => set({ dialogue }),
   setPixel: (pixel) => set({ pixel }),
   toggle: (k) => set((s) => ({ [k]: !s[k] }) as never),
   setDaySpeed: (daySpeed) => set({ daySpeed }),
   setClock: (clock) => set((s) => (s.clock === clock ? s : { clock })),
+  setPauseMenu: (pauseMenu) => set({ pauseMenu }),
   start: () => set({ started: true }),
 }));

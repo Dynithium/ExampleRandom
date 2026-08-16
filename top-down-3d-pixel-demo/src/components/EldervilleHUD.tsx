@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useElder, fatherMemoryLines } from "../game/eldervilleStory";
+import { useElder } from "../game/eldervilleStory";
 import { useUI } from "../game/state";
 import { MemoryCutsceneOverlay } from "../game/MemoryCutscene3D";
 import { ScholarPuzzleModal } from "./ScholarPuzzleModal";
@@ -67,14 +67,6 @@ function OpeningBlack({ onWake }: { onWake: () => void }) {
   );
 }
 
-function MemoryCutscene({ index }: { index: number }) {
-  return (
-    <div className="absolute inset-0 z-20">
-      <MemoryCutscene3D index={index} />
-    </div>
-  );
-}
-
 export function EldervilleHUD() {
   const started = useUI((s) => s.started);
   const openingBlack = useElder((s) => s.openingBlack);
@@ -96,6 +88,21 @@ export function EldervilleHUD() {
   const st = useElder((s) => s.st);
   const advanceDialog = useElder((s) => s.advanceDialog);
   const locationName = currentArea === "village" ? "Elderville Settlement" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead (Widow Oren)", homesteadB: "Weaver's Homestead" } as any)[currentInterior] || currentArea : currentArea;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "e") {
+        const s = useElder.getState();
+        if (s.openingBlack && !s.memoryActive) {
+          e.preventDefault();
+          useUI.getState().start();
+          s.startMemory();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // If on Title Screen, do not render HUD or opening black
   if (!started) return null;
@@ -136,21 +143,6 @@ export function EldervilleHUD() {
       s.startMemory();
     }
   };
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "e") {
-        const s = useElder.getState();
-        if (s.openingBlack && !s.memoryActive) {
-          e.preventDefault();
-          useUI.getState().start();
-          s.startMemory();
-        }
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   return (
     <>

@@ -21,9 +21,9 @@ export function InteriorRoom() {
   const map = data.map;
   const W = map[0].length;
   const H = map.length;
-  // offset so room centered at far away (50,50) so village remains visible and not z-fighting
-  const offX = 50 - W / 2;
-  const offZ = 50 - H / 2;
+  // offset so room centered far away at (80,80) so village remains visible and not overlapping
+  const offX = 80 - W / 2;
+  const offZ = 80 - H / 2;
 
   const centerX = offX + W / 2;
   const centerZ = offZ + H / 2;
@@ -175,18 +175,4 @@ export function InteriorRoom() {
       <hemisphereLight args={["#fff8e0", "#a07048", 0.6]} />
     </group>
   );
-}
-
-// Utility to check if interior tile is solid (like game.js isSolid)
-export function isInteriorSolid(map: number[][], tx: number, tz: number) {
-  if (tx < 0 || tz < 0 || tx >= map[0].length || tz >= map.length) return true;
-  const t = map[tz][tx];
-  return t === 7 || t === 8 || t === 9; // wall, bed, sword case block (like game.js)
-}
-
-// For exterior door detection in elderville (world tiles)
-export function isVillageDoorAt(tx: number, ty: number): string | null {
-  const doors: Record<string, [number, number]> = { council: [8, 7], home: [30, 7], homesteadA: [8, 20], homesteadB: [30, 20] };
-  for (const [k, [dx, dy]] of Object.entries(doors)) if (dx === tx && dy === ty) return k;
-  return null;
 }

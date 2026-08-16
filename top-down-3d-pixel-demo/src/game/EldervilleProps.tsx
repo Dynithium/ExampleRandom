@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { wells, forges, markets, watchtowers, gardens, eldervilleWorldPos } from "./world";
+import { useElder } from "./eldervilleStory";
 
 function elderX(tx: number) { return eldervilleWorldPos(tx, 0).x; }
 function elderZ(ty: number) { return eldervilleWorldPos(0, ty).z; }
@@ -45,12 +46,6 @@ export function EldervilleWells() {
 }
 
 export function EldervilleForges() {
-  const ref = useRef<THREE.Group>(null!);
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const flicker = Math.floor(t * 8) % 2 === 0;
-    // find fire meshes and toggle emissive? simple: opacity flicker via scale
-  });
   return (
     <>
       {forges.map((f, i) => (
@@ -157,21 +152,86 @@ export function EldervilleGardens() {
   );
 }
 
-export function EldervilleEastGate() {
+// Training Clearing Dummies behind Blue House at [34, 3], [36, 3], [38, 3]
+export function TrainingDummies() {
+  const dummiesHealth = useElder((s) => s.dummiesHealth);
+  const coords = [
+    eldervilleWorldPos(34, 3),
+    eldervilleWorldPos(36, 3),
+    eldervilleWorldPos(38, 3),
+  ];
+
   return (
-    <group>
-      <group position={[elderX(44), 0, elderZ(8)]}>
-        <mesh position={[0, 1.0, 0]} castShadow>
-          <boxGeometry args={[0.18, 2.0, 0.18]} />
-          <meshLambertMaterial color="#684830" />
-        </mesh>
-      </group>
-      <group position={[elderX(44), 0, elderZ(9)]}>
-        <mesh position={[0, 1.0, 0]} castShadow>
-          <boxGeometry args={[0.18, 2.0, 0.18]} />
-          <meshLambertMaterial color="#684830" />
-        </mesh>
-      </group>
+    <>
+      {coords.map((pos, idx) => {
+        const hp = dummiesHealth[idx];
+        const isAlive = hp > 0;
+        return (
+          <group key={idx} position={[pos.x, pos.y, pos.z]}>
+            {/* Wooden Base Post */}
+            <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
+              <boxGeometry args={[0.12, 1.0, 0.12]} />
+              <meshLambertMaterial color="#684830" />
+            </mesh>
+            {/* Cross Arms */}
+            <mesh position={[0, 0.75, 0]} castShadow>
+              <boxGeometry args={[0.7, 0.1, 0.1]} />
+              <meshLambertMaterial color="#684830" />
+            </mesh>
+            {/* Straw Body */}
+            {isAlive && (
+              <>
+                <mesh position={[0, 0.7, 0]} castShadow>
+                  <boxGeometry args={[0.38, 0.55, 0.25]} />
+                  <meshLambertMaterial color="#d4be72" />
+                </mesh>
+                {/* Target Patch */}
+                <mesh position={[0, 0.7, 0.13]}>
+                  <boxGeometry args={[0.2, 0.2, 0.02]} />
+                  <meshLambertMaterial color="#c04038" />
+                </mesh>
+                {/* Straw Head */}
+                <mesh position={[0, 1.1, 0]} castShadow>
+                  <boxGeometry args={[0.28, 0.28, 0.28]} />
+                  <meshLambertMaterial color="#e0cb82" />
+                </mesh>
+                {/* Mini Health Bar */}
+                <group position={[0, 1.4, 0]}>
+                  <mesh position={[0, 0, 0]}>
+                    <planeGeometry args={[0.6, 0.08]} />
+                    <meshBasicMaterial color="#181818" />
+                  </mesh>
+                  <mesh position={[-0.3 + (hp / 60) * 0.3, 0, 0.01]}>
+                    <planeGeometry args={[(hp / 60) * 0.58, 0.06]} />
+                    <meshBasicMaterial color="#48a028" />
+                  </mesh>
+                </group>
+              </>
+            )}
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
+// Grain sack on the crop terrace at [30, 36] for Trial 3
+export function GrainSackProp() {
+  const widowTrialState = useElder((s) => s.widowTrialState);
+  const carryingGrain = useElder((s) => s.carryingGrain);
+  if (carryingGrain || widowTrialState === "delivered" || widowTrialState === "completed") return null;
+
+  const pos = eldervilleWorldPos(30, 36);
+  return (
+    <group position={[pos.x, pos.y + 0.15, pos.z]}>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[0.55, 0.35, 0.45]} />
+        <meshLambertMaterial color="#e8c878" />
+      </mesh>
+      <mesh position={[0, 0.18, 0]}>
+        <boxGeometry args={[0.25, 0.1, 0.25]} />
+        <meshLambertMaterial color="#d4b462" />
+      </mesh>
     </group>
   );
 }
@@ -184,6 +244,8 @@ export function EldervilleProps() {
       <EldervilleMarkets />
       <EldervilleWatchtowers />
       <EldervilleGardens />
+      <TrainingDummies />
+      <GrainSackProp />
     </>
   );
 }

@@ -26,7 +26,6 @@ export default function App() {
         const next = rt.cam.targetZoom * (1 - e.deltaY * 0.0012);
         rt.cam.targetZoom = Math.min(96, Math.max(18, next));
       }}
-      onPointerDown={() => useUI.getState().start()}
     >
       <Canvas
         shadows="basic"

@@ -10,6 +10,13 @@ export const rt = {
     speed: 0,
     moving: false,
   },
+  tinslaire: {
+    pos: new THREE.Vector3(SPAWN.x, SPAWN.y, SPAWN.z),
+    yaw: 0,
+    speed: 0,
+    moving: false,
+    isNight: false,
+  },
   cam: {
     yaw: Math.PI * 0.25,
     targetYaw: Math.PI * 0.25,

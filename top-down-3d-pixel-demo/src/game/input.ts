@@ -49,7 +49,7 @@ export function useKeyboard() {
           sfx.ui();
         }
         if (e.code === "Equal" || e.code === "NumpadAdd")
-          rt.cam.targetZoom = Math.min(90, rt.cam.targetZoom * 1.25);
+          rt.cam.targetZoom = Math.min(96, rt.cam.targetZoom * 1.25);
         if (e.code === "Minus" || e.code === "NumpadSubtract")
           rt.cam.targetZoom = Math.max(18, rt.cam.targetZoom / 1.25);
       }

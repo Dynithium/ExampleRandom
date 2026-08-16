@@ -14,11 +14,9 @@ export const rt = {
     invuln: 0,
   },
   tinslaire: {
+    /** live village position, maintained by the wandering NPC component */
     pos: new THREE.Vector3(SPAWN.x, SPAWN.y, SPAWN.z),
     yaw: 0,
-    speed: 0,
-    moving: false,
-    isNight: false,
   },
   boss: {
     /** live Cave Machine position, maintained by the boss component */
@@ -47,11 +45,8 @@ export const rt = {
   },
 };
 
-export const collected = new Set<number>();
-
 export type UIState = {
   prompt: string | null;
-  dialogue: { title: string; text: string } | null;
   pixel: number;
   scanlines: boolean;
   muted: boolean;
@@ -61,7 +56,6 @@ export type UIState = {
   started: boolean;
   pauseMenu: boolean;
   setPrompt: (p: string | null) => void;
-  say: (d: { title: string; text: string } | null) => void;
   setPixel: (p: number) => void;
   toggle: (k: "scanlines" | "muted" | "paused" | "pauseMenu") => void;
   setDaySpeed: (s: number) => void;
@@ -72,7 +66,6 @@ export type UIState = {
 
 export const useUI = create<UIState>((set) => ({
   prompt: null,
-  dialogue: null,
   pixel: 4, // upscale factor: dpr = 1 / pixel
   scanlines: true,
   muted: false,
@@ -82,7 +75,6 @@ export const useUI = create<UIState>((set) => ({
   started: false,
   pauseMenu: false,
   setPrompt: (prompt) => set((s) => (s.prompt === prompt ? s : { prompt })),
-  say: (dialogue) => set({ dialogue }),
   setPixel: (pixel) => set({ pixel }),
   toggle: (k) => set((s) => ({ [k]: !s[k] }) as never),
   setDaySpeed: (daySpeed) => set({ daySpeed }),

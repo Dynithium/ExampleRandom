@@ -300,42 +300,12 @@ export const lifeSuitRespawnDialog: Dialog = {
   ],
 };
 
-export const villageNPCsData: { id: string; name: string; tx: number; ty: number; color: string; dialog: Dialog; repeat: Dialog }[] = [
-  {
-    id: "tinslaire",
-    name: "Tinslaire",
-    tx: 12, ty: 13, color: "#4a90d9",
-    dialog: tinslaireVillageDialog,
-    repeat: tinslaireVillageRepeat,
-  },
-  {
-    id: "elderMoss",
-    name: "Elder Moss",
-    tx: 59, ty: 35, color: "#8b7355",
-    dialog: elderMossWellIntroDialog,
-    repeat: elderMossWellAssignedRepeat,
-  },
-  {
-    id: "elderSage",
-    name: "Elder Sage",
-    tx: 32, ty: 12, color: "#73558b",
-    dialog: elderSageStudyIntroDialog,
-    repeat: elderSageStudyAssignedRepeat,
-  },
-  {
-    id: "elderThorn",
-    name: "Elder Thorn",
-    tx: 16, ty: 26, color: "#6b6b8b",
-    dialog: elderThornIntroDialog,
-    repeat: elderThornAssignedRepeat,
-  },
-  {
-    id: "bazaarTrader",
-    name: "Bazaar Trader",
-    tx: 15, ty: 40, color: "#c07840",
-    dialog: traderIntroDialog,
-    repeat: traderIntroDialog,
-  },
+export const villageNPCsData: { id: string; name: string; tx: number; ty: number; color: string }[] = [
+  { id: "tinslaire", name: "Tinslaire", tx: 12, ty: 13, color: "#4a90d9" },
+  { id: "elderMoss", name: "Elder Moss", tx: 59, ty: 35, color: "#8b7355" },
+  { id: "elderSage", name: "Elder Sage", tx: 32, ty: 12, color: "#73558b" },
+  { id: "elderThorn", name: "Elder Thorn", tx: 16, ty: 26, color: "#6b6b8b" },
+  { id: "bazaarTrader", name: "Bazaar Trader", tx: 15, ty: 40, color: "#c07840" },
 ];
 
 export const swordCaseDialog: Dialog = {
@@ -502,6 +472,8 @@ export const useElder = create<ElderState>((set, get) => ({
       const wasThornIntro = src === "elderThornIntro";
       const wasGrainPickup = src === "gardenGrainPickup";
       const wasWidowDeliver = src === "widowDeliverFlow";
+      const wasMinslaireDecline = src === "minslaireDecline";
+      const wasWidowBlessedFinal = src === "widowBlessedFinal";
       const wasThornComplete = src === "elderThornComplete";
       const wasTraderIntro = src === "traderIntro";
       const wasTraderReturn = src === "traderReturn";
@@ -536,7 +508,7 @@ export const useElder = create<ElderState>((set, get) => ({
       if (wasSageStudyDeliver) { next.scholarTrialState = "completed"; }
       if (wasThornIntro) { next.widowTrialState = "assigned"; }
       if (wasGrainPickup) { next.widowTrialState = "grain_picked"; next.carryingGrain = true; }
-      if (wasWidowDeliver) { next.widowTrialState = "delivered"; next.carryingGrain = false; }
+      if (wasWidowDeliver) { next.carryingGrain = false; }
       if (wasThornComplete) { next.widowTrialState = "completed"; }
       if (wasTraderIntro) { next.marketTrialState = "overpaid"; }
       if (wasTraderReturn) { next.marketTrialState = "completed"; }
@@ -547,6 +519,15 @@ export const useElder = create<ElderState>((set, get) => ({
         (next as any).spoken = ns;
       }
       set(next as any);
+
+      // chained beats — the Widow's reward, honorably refused, then her blessing
+      if (wasWidowDeliver) {
+        get().showDialog(minslaireDeclineRewardDialog, "minslaireDecline");
+      } else if (wasMinslaireDecline) {
+        get().showDialog(widowOrenBlessedDialog, "widowBlessedFinal");
+      } else if (wasWidowBlessedFinal) {
+        set({ widowTrialState: "delivered" });
+      }
     }
   },
   setArea: (area, interior) => set({ currentArea: area, currentInterior: interior }),
@@ -557,7 +538,3 @@ export function isInside() {
   const s = useElder.getState();
   return s.currentArea !== "village";
 }
-
-const _offX = 72.5, _offZ = 75;
-rt.player.pos.set(_offX + 4 + 0.5, 2, _offZ + 5 + 0.5);
-rt.player.yaw = Math.PI;

@@ -5,7 +5,6 @@ import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, 
 import { rt, useUI } from "./state";
 import {
   useElder,
-  villageNPCsData,
   eldersAtDoorPositions,
   tinslaireInsideDialog,
   tinslaireInsideRepeat,
@@ -647,18 +646,7 @@ export function EldervillePlayer() {
         bestDist = widowDist;
         if (elder.carryingGrain) {
           prompt = "E · Deliver Harvest Grain";
-          bestDialog = {
-            dlg: {
-              name: "Widow Oren",
-              lines: [
-                "Oh, bless your noble heart, Minslaire! You carried the heavy harvest grain all the way here!",
-                "(She sets down her warm tea and offers 3 silver coins in gratitude)",
-                "(You honorably refuse the coin, saying strength is a debt of service without reward)",
-                "(Tears fill her gentle eyes) Your father walked with that exact same honor, child. May the suit's warmth keep you safe!",
-              ],
-            },
-            source: "widowDeliverFlow",
-          };
+          bestDialog = { dlg: widowOrenDeliverDialog, source: "widowDeliverFlow" };
         } else if (elder.widowTrialState === "delivered" || elder.widowTrialState === "completed") {
           prompt = "E · Talk to Widow Oren";
           bestDialog = { dlg: widowOrenBlessedDialog, source: "widowBlessed" };

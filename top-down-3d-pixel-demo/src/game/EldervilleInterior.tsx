@@ -1,5 +1,3 @@
-import * as THREE from "three";
-import { useRef, useLayoutEffect } from "react";
 import { interiors } from "./world";
 import { useElder } from "./eldervilleStory";
 
@@ -7,7 +5,6 @@ const floorColor = "#c89858";
 const wallColor = "#a07048";
 const wallDark = "#805830";
 const bedColor = "#c05050";
-const bedLight = "#e07068";
 const wood = "#906848";
 const woodDark = "#684830";
 

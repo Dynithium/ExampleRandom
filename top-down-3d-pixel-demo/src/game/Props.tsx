@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { houses, lamps, rocks, signs, trees, SIZE } from "./world";
+import { houses, lamps, rocks, trees, SIZE } from "./world";
 import { rt } from "./state";
 import { fireflyMat, glowMat, windowMat } from "./mats";
 
@@ -171,29 +171,6 @@ function Lamp({ l }: { l: (typeof lamps)[number] }) {
   );
 }
 
-function Signpost({ s }: { s: (typeof signs)[number] }) {
-  return (
-    <group position={[s.x, s.y, s.z]} rotation-y={-Math.PI / 4}>
-      <mesh position={[0, 0.4, 0]} castShadow>
-        <boxGeometry args={[0.14, 0.8, 0.14]} />
-        <meshLambertMaterial color="#6d4426" />
-      </mesh>
-      <mesh position={[0, 0.85, 0.04]} castShadow receiveShadow>
-        <boxGeometry args={[0.9, 0.55, 0.1]} />
-        <meshLambertMaterial color="#b98a53" />
-      </mesh>
-      <mesh position={[0, 0.85, 0.1]}>
-        <boxGeometry args={[0.66, 0.08, 0.02]} />
-        <meshLambertMaterial color="#513521" />
-      </mesh>
-      <mesh position={[0, 0.72, 0.1]}>
-        <boxGeometry args={[0.5, 0.07, 0.02]} />
-        <meshLambertMaterial color="#513521" />
-      </mesh>
-    </group>
-  );
-}
-
 /** Night-time fireflies drifting over the meadows. */
 export function Fireflies() {
   const ref = useRef<THREE.InstancedMesh>(null!);
@@ -283,9 +260,6 @@ export function Village() {
       ))}
       {lamps.map((l, n) => (
         <Lamp key={n} l={l} />
-      ))}
-      {signs.map((s, n) => (
-        <Signpost key={n} s={s} />
       ))}
     </>
   );

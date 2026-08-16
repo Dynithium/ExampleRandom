@@ -107,7 +107,6 @@ function TinslaireVillage() {
     const dt = Math.min(delta, 0.05);
     const elder = useElder.getState();
     const isNight = rt.env.night > 0.45;
-    rt.tinslaire.isNight = isNight;
     // gone home at night — hide the mesh too, or he reads as a ghost you walk through
     if (g.current) g.current.visible = !isNight;
     if (isNight) return;
@@ -159,7 +158,6 @@ function TinslaireVillage() {
     // write to rt so EldervillePlayer can read it for interaction/collision
     rt.tinslaire.pos.copy(pos.current);
     rt.tinslaire.yaw = yaw.current;
-    rt.tinslaire.moving = moving;
 
     // animations
     const swing = moving ? Math.sin(phase.current) * 0.55 : 0;

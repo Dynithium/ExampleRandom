@@ -347,7 +347,6 @@ function TitleScreen() {
 
 export function HUD() {
   const prompt = useUI((s) => s.prompt);
-  const dialogue = useUI((s) => s.dialogue);
   const pauseMenu = useUI((s) => s.pauseMenu);
   const started = useUI((s) => s.started);
   const [touch, setTouch] = useState(false);
@@ -364,8 +363,8 @@ export function HUD() {
       {/* ------------------------------------------------------- Pause Menu */}
       {started && pauseMenu && <PauseMenu />}
 
-      {/* -------------------------------------------------- prompt + dialog */}
-      {started && prompt && !dialogue && !pauseMenu && (
+      {/* -------------------------------------------------- interact prompt */}
+      {started && prompt && !pauseMenu && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2">
           <div className="panel floaty px-3 py-2 text-[8.5px] font-bold text-[#ffe9a8] shadow-lg">
             <span className="text-[#ffd75e]">{touch ? "[A]" : "[E]"}</span> {prompt}

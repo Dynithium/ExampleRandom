@@ -55,15 +55,11 @@ export const shade = new Float32Array(SIZE * SIZE);
 export type Tree = { x: number; z: number; y: number; s: number; hue: number; trunk: number };
 export type House = { x: number; z: number; y: number; rot: number; wall: string; roof: string; id: string };
 export type Lamp = { x: number; z: number; y: number };
-export type Sign = { x: number; z: number; y: number; title: string; text: string };
-export type Coin = { x: number; z: number; y: number };
 export type Rock = { x: number; z: number; y: number; s: number };
 
 export const trees: Tree[] = [];
 export const houses: House[] = [];
 export const lamps: Lamp[] = [];
-export const signs: Sign[] = [];
-export const coins: Coin[] = [];
 export const rocks: Rock[] = [];
 
 // Elderville-specific props
@@ -256,13 +252,13 @@ const SOLID_PROPS: [number, number][] = [
 ];
 for (const [tx, ty] of SOLID_PROPS) reserve(OX + tx, OZ + ty);
 
-// Trees
+// Trees — sparse scatter on the meadows (never on reserved props or paths)
 for (let j = 1; j < SIZE - 1; j++) for (let i = 1; i < SIZE - 1; i++) {
   const n = idx(i, j);
   if (blocked[n]) continue;
   const k = kinds[n];
   const r = hash2(i * 13 + 3, j * 29 + 17);
-  if ((k === KIND.GRASS || k === KIND.GRASS_DARK) && r < 0.025 && !(i >= OX && i < OX + VILLAGE_W && j >= OZ && j < OZ + VILLAGE_H && k === KIND.DIRT)) {
+  if ((k === KIND.GRASS || k === KIND.GRASS_DARK) && r < 0.025) {
     trees.push({
       x: gx(i) + (hash2(i, j) - 0.5) * 0.4,
       z: gx(j) + (hash2(j, i) - 0.5) * 0.4,
@@ -284,10 +280,8 @@ for (let j = 1; j < SIZE - 1; j++) for (let i = 1; i < SIZE - 1; i++) {
   }
 }
 
-export const TOTAL_COINS = 0;
 // Spawn at Red House door outside (12, 11) world
 export const SPAWN = { x: villageGx(12), z: villageGz(11), y: topOf(4) };
-export const VILLAGE = { i: OX + 36, j: OZ + 25 };
 
 // Door definitions for transition
 export const villageDoors = [

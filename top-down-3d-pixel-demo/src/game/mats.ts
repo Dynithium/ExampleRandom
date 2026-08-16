@@ -22,5 +22,3 @@ export const starMat = new THREE.MeshBasicMaterial({
   opacity: 0,
   fog: false,
 });
-
-export const box = new THREE.BoxGeometry(1, 1, 1);

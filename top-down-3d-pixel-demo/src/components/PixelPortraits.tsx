@@ -11,7 +11,15 @@ export type PortraitKey =
   | "Bazaar Trader"
   | "Central Well"
   | "Sword Case"
-  | "The Council of Elders";
+  | "The Council of Elders"
+  | "Scholar's Journal"
+  | "Archive Shelf"
+  | "Harvest Grain"
+  | "Outskirts Cave"
+  | "???"
+  | "Cave Machine"
+  | "Life Suit"
+  | "The Forge";
 
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color;
@@ -158,6 +166,130 @@ export function drawPortrait(ctx: CanvasRenderingContext2D, name: string) {
     px(ctx, 14, 10, 2, 2, "#201810");
     px(ctx, 8, 13, 8, 2, "#402818");
     px(ctx, 10, 15, 4, 2, "#402818");
+  } else if (name === "Minslaire") {
+    // Minslaire: red tunic like his mesh, green cap with gold feather, determined eyes
+    // Tunic
+    px(ctx, 4, 18, 16, 6, "#e2544f");
+    px(ctx, 9, 18, 6, 2, "#903838");
+    // Bio-suit core glow
+    px(ctx, 10, 19, 4, 3, "#70d6ff");
+    // Face
+    px(ctx, 6, 8, 12, 10, "#f0b98d");
+    px(ctx, 5, 9, 14, 8, "#f0b98d");
+    // Hair
+    px(ctx, 5, 4, 14, 5, "#3f8f57");
+    px(ctx, 7, 3, 10, 3, "#2f6b41");
+    // Eyes
+    px(ctx, 8, 10, 2, 2, "#241a14");
+    px(ctx, 14, 10, 2, 2, "#241a14");
+    px(ctx, 8, 10, 1, 1, "#ffffff");
+    px(ctx, 14, 10, 1, 1, "#ffffff");
+    // Determined mouth
+    px(ctx, 10, 15, 4, 1, "#b06050");
+    // Gold feather in cap
+    px(ctx, 16, 2, 2, 4, "#ffd75e");
+  } else if (name === "Scholar's Journal" || name === "Archive Shelf") {
+    // Open journal: leather cover, lined pages, ink script
+    px(ctx, 3, 5, 18, 15, "#684830");
+    px(ctx, 5, 6, 14, 13, "#f0e8d0");
+    px(ctx, 11, 6, 2, 13, "#c8b890");
+    // Script lines
+    px(ctx, 6, 8, 4, 1, "#584830");
+    px(ctx, 6, 10, 4, 1, "#584830");
+    px(ctx, 6, 12, 3, 1, "#584830");
+    px(ctx, 13, 8, 4, 1, "#584830");
+    px(ctx, 13, 10, 4, 1, "#584830");
+    px(ctx, 13, 12, 3, 1, "#584830");
+    // Elemental margin notes: green, blue, red, gold
+    px(ctx, 6, 15, 2, 2, "#48a028");
+    px(ctx, 9, 15, 2, 2, "#3890c8");
+    px(ctx, 13, 15, 2, 2, "#d03838");
+    px(ctx, 16, 15, 2, 2, "#e8b040");
+    // Ribbon bookmark
+    px(ctx, 17, 3, 2, 5, "#c04038");
+  } else if (name === "Harvest Grain") {
+    // Heavy golden sack, tied neck, a few stray grains
+    px(ctx, 5, 7, 14, 14, "#e8c878");
+    px(ctx, 6, 8, 12, 12, "#d4b462");
+    px(ctx, 9, 4, 6, 4, "#c8a050");
+    px(ctx, 10, 3, 4, 2, "#8a6830");
+    // Sack stitching
+    px(ctx, 6, 12, 12, 1, "#b89050");
+    px(ctx, 6, 15, 12, 1, "#b89050");
+    // Stray grains
+    px(ctx, 4, 20, 2, 2, "#f0d890");
+    px(ctx, 18, 20, 2, 2, "#f0d890");
+    px(ctx, 11, 21, 2, 2, "#f0d890");
+  } else if (name === "Outskirts Cave") {
+    // Dark cave mouth in gray rock, cold blue depth, one torch glow
+    px(ctx, 2, 3, 20, 19, "#5a564c");
+    px(ctx, 4, 5, 16, 17, "#6e6a5e");
+    px(ctx, 6, 8, 12, 14, "#0a0c16");
+    px(ctx, 8, 10, 8, 12, "#05060c");
+    // Rock teeth
+    px(ctx, 6, 7, 2, 3, "#7a766a");
+    px(ctx, 16, 7, 2, 3, "#7a766a");
+    px(ctx, 10, 6, 4, 2, "#8a8276");
+    // Torch glow at the entrance
+    px(ctx, 5, 16, 2, 3, "#ff9038");
+    px(ctx, 5, 15, 2, 1, "#ffe9a0");
+  } else if (name === "???") {
+    // The unknown: pure dark, two faint red eyes blinking open
+    px(ctx, 0, 0, 24, 24, "#05060c");
+    px(ctx, 0, 0, 24, 24, "#0a0e1c");
+    px(ctx, 6, 10, 4, 2, "#7a1016");
+    px(ctx, 14, 10, 4, 2, "#7a1016");
+    px(ctx, 7, 10, 2, 1, "#ff2030");
+    px(ctx, 15, 10, 2, 1, "#ff2030");
+  } else if (name === "Cave Machine") {
+    // The rusted first machine: chassis plates, rivets, one great red eye
+    px(ctx, 3, 6, 18, 14, "#7a4f34");
+    px(ctx, 4, 7, 16, 12, "#8f6446");
+    px(ctx, 14, 8, 6, 5, "#5f4028");
+    // Rivets
+    px(ctx, 5, 8, 2, 2, "#4a3020");
+    px(ctx, 5, 16, 2, 2, "#4a3020");
+    px(ctx, 17, 15, 2, 2, "#4a3020");
+    // The great eye
+    px(ctx, 7, 10, 8, 6, "#1a0a0a");
+    px(ctx, 8, 11, 6, 4, "#ff1a20");
+    px(ctx, 9, 12, 2, 2, "#ffd0c0");
+    // Antenna tip
+    px(ctx, 6, 3, 2, 3, "#4a3020");
+    px(ctx, 6, 2, 2, 2, "#ffd75e");
+    // Jaw grills
+    px(ctx, 6, 18, 12, 1, "#3a2818");
+    px(ctx, 6, 20, 12, 1, "#3a2818");
+  } else if (name === "Life Suit") {
+    // The bio-synthetic suit core: dark chest, glowing blue membrane
+    px(ctx, 3, 4, 18, 16, "#222838");
+    px(ctx, 5, 6, 14, 12, "#2a3248");
+    // Core
+    px(ctx, 9, 9, 6, 7, "#0a2a3a");
+    px(ctx, 10, 10, 4, 5, "#70d6ff");
+    px(ctx, 11, 11, 2, 2, "#d0f4ff");
+    // Chest seams
+    px(ctx, 5, 8, 14, 1, "#3a4a68");
+    px(ctx, 5, 16, 14, 1, "#3a4a68");
+    // Shoulder vents
+    px(ctx, 4, 6, 3, 2, "#50c8ff");
+    px(ctx, 17, 6, 3, 2, "#50c8ff");
+  } else if (name === "The Forge") {
+    // Anvil, coals, and thecompass being forged: warm fire under steel
+    px(ctx, 4, 4, 16, 4, "#40444c");
+    px(ctx, 6, 2, 12, 3, "#585c64");
+    // Anvil
+    px(ctx, 5, 8, 14, 3, "#c8d0d8");
+    px(ctx, 10, 11, 4, 5, "#a0a8b0");
+    px(ctx, 7, 16, 10, 2, "#c8d0d8");
+    // Fire
+    px(ctx, 5, 19, 14, 3, "#f87828");
+    px(ctx, 7, 18, 10, 2, "#ffc852");
+    px(ctx, 10, 17, 4, 2, "#fff0b0");
+    // Brass disc with the red eye — the compass
+    px(ctx, 15, 5, 5, 5, "#e8b040");
+    px(ctx, 16, 6, 3, 3, "#b08020");
+    px(ctx, 17, 7, 1, 1, "#ff2030");
   } else if (name === "Central Well") {
     // Well: Shingle roof, stone cylinder, blue water depth
     // Roof

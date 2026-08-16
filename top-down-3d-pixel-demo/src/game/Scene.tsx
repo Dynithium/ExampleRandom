@@ -3,8 +3,6 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Foliage, Terrain, Water } from "./Terrain";
 import { Boat, Fireflies, Rocks, Trees, Village } from "./Props";
-import { Player } from "./Player";
-import { Villagers } from "./NPCs";
 import { rt, useUI } from "./state";
 import { useElder } from "./eldervilleStory";
 import { InteriorRoom } from "./EldervilleInterior";
@@ -12,7 +10,6 @@ import { EldervillePlayer } from "./EldervillePlayer";
 import { EldervilleNPCs } from "./EldervilleNPCs";
 import { EldervilleProps } from "./EldervilleProps";
 import { fireflyMat, glowMat, starMat, windowMat } from "./mats";
-import { SIZE } from "./world";
 import { ObjectiveMarker } from "./ObjectiveMarker";
 import { CaveScene } from "./Cave";
 

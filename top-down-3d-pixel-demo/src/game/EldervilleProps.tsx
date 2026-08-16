@@ -4,9 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import { wells, forges, markets, watchtowers, gardens, eldervilleWorldPos, archeryTargets, CAVE_TILE } from "./world";
 import { useElder } from "./eldervilleStory";
 
-function elderX(tx: number) { return eldervilleWorldPos(tx, 0).x; }
-function elderZ(ty: number) { return eldervilleWorldPos(0, ty).z; }
-
 export function EldervilleWells() {
   return (
     <>

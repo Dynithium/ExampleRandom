@@ -7,7 +7,7 @@ import {
   villageNPCsData,
   eldersAtDoorPositions,
 } from "./eldervilleStory";
-import { rt } from "./state";
+import { rt, useUI } from "./state";
 
 // Simple voxel NPC mesh
 function NpcMesh({ pos, color, name, isElder, yaw = 0 }: { pos: THREE.Vector3; color: string; name: string; isElder?: boolean; yaw?: number }) {
@@ -108,7 +108,9 @@ function TinslaireVillage() {
     const elder = useElder.getState();
     const isNight = rt.env.night > 0.45;
     rt.tinslaire.isNight = isNight;
-    if (isNight) return; // not in village at night
+    // gone home at night — hide the mesh too, or he reads as a ghost you walk through
+    if (g.current) g.current.visible = !isNight;
+    if (isNight) return;
 
     const isTalking = !!elder.activeDialog && elder.dialogSourceId === "tinslaireVillage";
     let moving = false;
@@ -265,6 +267,8 @@ export function EldervilleNPCs() {
   const currentArea = useElder((s) => s.currentArea);
   const eldersAtDoorReady = useElder((s) => s.eldersAtDoorReady);
   const eldersDoorDialogDone = useElder((s) => s.eldersDoorDialogDone);
+  // the clock ticks every few seconds of play, keeping the render-time night check fresh
+  useUI((s) => s.clock);
   const isNight = rt.env.night > 0.45;
 
   // Inside home interior:

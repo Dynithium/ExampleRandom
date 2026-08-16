@@ -63,7 +63,8 @@ function isInteriorSolidAt(map: number[][], wx: number, wz: number, offX: number
   const tz = Math.floor(wz - offZ);
   if (tx < 0 || tz < 0 || tx >= map[0].length || tz >= map.length) return true;
   const t = map[tz][tx];
-  return t === 7 || t === 8 || t === 9 || t === 17 || t === 18 || t === 19;
+  // chairs (18) are knee-high stools — walk past them, don't let them wall you off
+  return t === 7 || t === 8 || t === 9 || t === 17 || t === 19;
 }
 
 const caveSolidAtWorld = (x: number, z: number) => {

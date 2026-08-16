@@ -236,6 +236,26 @@ for (let y = 7; y <= 11; y++) for (let x = 63; x <= 67; x++) {
   lamps.push({ x: gx(i), z: gx(j), y: topOf(heights[idx(i, j)]) });
 });
 
+// Bypass tiles beside the watchtower so the gate road keeps flowing around its post
+setTile(65, 12, KIND.DIRT);
+setTile(67, 12, KIND.DIRT);
+
+// Solid props — every structure gets a hitbox (runs before trees so nothing double-spawns):
+// lamps, the Central Well, the Forge, market stalls, the watchtower, training dummies,
+// archery boards, the grain sack, and the cave mouth's rock mound.
+const SOLID_PROPS: [number, number][] = [
+  ...[[6, 16], [20, 16], [36, 16], [52, 16], [6, 32], [20, 32], [36, 32], [52, 32], [58, 36]].map(([x, y]) => [x, y] as [number, number]),
+  [58, 36],       // Central Well (shares the lamp tile)
+  [51, 7], [52, 7],  // Forge & chimney
+  [15, 40], [16, 40], // Bazaar stall & counter
+  [66, 12],       // watchtower
+  [34, 3], [36, 3], [38, 3], // training dummies
+  [33, 1], [39, 1], // archery boards
+  [30, 36],       // grain sack
+  [64, 8], [65, 8], [66, 8], [67, 8], // cave mouth rock mound
+];
+for (const [tx, ty] of SOLID_PROPS) reserve(OX + tx, OZ + ty);
+
 // Trees
 for (let j = 1; j < SIZE - 1; j++) for (let i = 1; i < SIZE - 1; i++) {
   const n = idx(i, j);

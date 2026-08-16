@@ -28,8 +28,16 @@ function targetFor(s: ReturnType<typeof useElder.getState>): { x: number; z: num
     if (s.carryingGrain) return i(6, 5);
     return null;
   }
+  if (s.currentArea === "cave") {
+    if (s.caveStage === "entered") return i(7, 7); // deeper into the dark
+    if (s.caveStage === "boss_awake") return i(7.5, 3.5); // the machine
+    if (s.caveStage === "boss_defeated" && !s.carryingBody) return null; // lift where it fell (nearby)
+    if (s.carryingBody) return i(7, 20); // entrance mat
+    return null;
+  }
   if (s.currentArea !== "village") return null;
 
+  if (s.carryingBody) return v(52, 7); // the Forge
   if (!s.eldersDoorDialogDone) return v(12, 11.5);
   if (s.wellTrialState === "not_started" || s.wellTrialState === "assigned" || s.wellTrialState === "inspected") {
     return s.wellTrialState === "assigned" ? v(58, 36) : v(59, 35);

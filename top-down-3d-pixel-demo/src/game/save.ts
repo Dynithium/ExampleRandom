@@ -29,6 +29,10 @@ export type SaveData = {
     dummiesHealth: number[];
     carryingGrain: boolean;
     hasSword: boolean;
+    caveStage: string;
+    bossHp: number;
+    carryingBody: boolean;
+    hasCompass: boolean;
     currentArea: string;
     currentInterior: string | null;
     hp: number;
@@ -75,6 +79,10 @@ export function saveGame(key = SAVE_KEY): boolean {
         dummiesHealth: elder.dummiesHealth,
         carryingGrain: elder.carryingGrain,
         hasSword: elder.hasSword,
+        caveStage: elder.caveStage,
+        bossHp: elder.bossHp,
+        carryingBody: elder.carryingBody,
+        hasCompass: elder.hasCompass,
         currentArea: elder.currentArea,
         currentInterior: elder.currentInterior,
         hp: elder.hp,
@@ -130,6 +138,10 @@ export function loadGame(key = SAVE_KEY): boolean {
       dummiesHealth: data.elderState.dummiesHealth || [60, 60, 60],
       carryingGrain: data.elderState.carryingGrain,
       hasSword: data.elderState.hasSword,
+      caveStage: (data.elderState.caveStage as any) || "not_entered",
+      bossHp: data.elderState.bossHp ?? 40,
+      carryingBody: data.elderState.carryingBody,
+      hasCompass: data.elderState.hasCompass,
       currentArea: data.elderState.currentArea,
       currentInterior: data.elderState.currentInterior,
       hp: data.elderState.hp,
@@ -189,7 +201,12 @@ export function getSaveSummary(key = SAVE_KEY) {
     const mm = Math.floor((mins % 60) / 10) * 10;
     const clock = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 
-    const loc = data.elderState.currentArea === "village" ? "Elderville" : data.elderState.currentInterior || "Interior";
+    const loc =
+      data.elderState.currentArea === "village"
+        ? "Elderville"
+        : data.elderState.currentArea === "cave"
+          ? "Outskirts Cave"
+          : data.elderState.currentInterior || "Interior";
 
     return {
       date,
@@ -226,6 +243,10 @@ export function startNewGame(): void {
     dummiesHealth: [60, 60, 60],
     carryingGrain: false,
     hasSword: false,
+    caveStage: "not_entered",
+    bossHp: 40,
+    carryingBody: false,
+    hasCompass: false,
     scholarPuzzleOpen: false,
     currentArea: "home",
     currentInterior: "home",

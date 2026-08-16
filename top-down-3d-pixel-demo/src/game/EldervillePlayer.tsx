@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE } from "./world";
+import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS } from "./world";
 import { rt, useUI } from "./state";
 import {
   useElder,
@@ -37,6 +37,8 @@ import {
   traderCompletedRepeat,
   councilCombatTrialDialog,
   outskirtsCaveEnterDialog,
+  caveBodyLiftDialog,
+  forgeDeliverDialog,
   swordCaseDialog,
 } from "./eldervilleStory";
 import { sfx } from "./audio";
@@ -63,6 +65,12 @@ function isInteriorSolidAt(map: number[][], wx: number, wz: number, offX: number
   const t = map[tz][tx];
   return t === 7 || t === 8 || t === 9 || t === 17 || t === 18 || t === 19;
 }
+
+const caveSolidAtWorld = (x: number, z: number) => {
+  const tx = Math.floor(x - INT_OFF_X), ty = Math.floor(z - INT_OFF_Z);
+  if (tx < 0 || ty < 0 || ty >= caveMap.length || tx >= caveMap[0].length) return true;
+  return caveSolidAt(caveMap[ty][tx]);
+};
 
 const INT_OFF_X = 72.5, INT_OFF_Z = 75, INT_Y = 2;
 function npcBlockedWorld(x: number, z: number) {
@@ -137,7 +145,14 @@ function stepArrows(dt: number) {
     a.z += a.dz * ARROW_SPEED * dt;
     a.life -= dt;
     let dead = a.life <= 0;
-    if (elder.currentArea === "village") {
+    if (elder.currentArea === "cave") {
+      const b = rt.boss.pos;
+      if (elder.caveStage === "boss_awake" && Math.hypot(b.x - a.x, b.z - a.z) < 0.85) {
+        elder.damageBoss(ARROW_DMG);
+        sfx.hit();
+        dead = true;
+      }
+    } else if (elder.currentArea === "village") {
       dummyCoords.forEach((c, idx) => {
         if (!dead && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
           elder.damageDummy(idx, ARROW_DMG);
@@ -189,6 +204,7 @@ function Arrows() {
 
 export function EldervillePlayer() {
   const group = useRef<THREE.Group>(null!);
+  const carryingBody = useElder((s) => s.carryingBody);
   const legL = useRef<THREE.Group>(null!);
   const legR = useRef<THREE.Group>(null!);
   const armL = useRef<THREE.Group>(null!);
@@ -220,15 +236,31 @@ export function EldervillePlayer() {
       const elder = useElder.getState();
       const ui = useUI.getState();
       if (elder.openingBlack || elder.memoryActive || !!elder.activeDialog || ui.pauseMenu) return;
+      if (elder.carryingBody) return; // hands are full with the chassis
 
       // Sword Attack (Space or J) — hits what you are facing
       if (e.code === "Space" || e.code === "KeyJ") {
         if (attackTimer.current <= 0) {
           attackTimer.current = 0.35;
           sfx.slash();
-          // Check attack hitbox on training dummies behind Blue House
           const p = rt.player;
           const facingX = Math.sin(p.yaw), facingZ = Math.cos(p.yaw);
+
+          // The Cave Machine (Outskirts Cave)
+          if (elder.currentArea === "cave" && elder.caveStage === "boss_awake") {
+            const b = rt.boss.pos;
+            const dist = Math.hypot(b.x - p.pos.x, b.z - p.pos.z);
+            if (dist < 2.0) {
+              const dot = ((b.x - p.pos.x) * facingX + (b.z - p.pos.z) * facingZ) / (dist || 1);
+              if (dot > 0.3) {
+                elder.damageBoss(20);
+                sfx.hit();
+                return;
+              }
+            }
+          }
+
+          // Training dummies behind Blue House
           const dummyCoords = [
             eldervilleWorldPos(34, 3),
             eldervilleWorldPos(36, 3),
@@ -316,8 +348,9 @@ export function EldervillePlayer() {
       stAcc.current = elder.st;
       stWritten.current = Math.round(elder.st);
     }
+    const handsFull = elder.carryingBody; // hauling the chassis: no acrobatics
     let stVal = stAcc.current;
-    if (rt.input.shift && !prevShift.current && !blockedByStory && dodgeTimer.current <= 0 && stVal >= 25) {
+    if (rt.input.shift && !prevShift.current && !blockedByStory && !handsFull && dodgeTimer.current <= 0 && stVal >= 25) {
       if (mlen > 0.05) { dodgeDir.current.set(mx / mlen, 0, mz / mlen); }
       else { dodgeDir.current.set(Math.sin(p.yaw), 0, Math.cos(p.yaw)); }
       dodgeTimer.current = 0.42;
@@ -328,17 +361,17 @@ export function EldervillePlayer() {
     prevShift.current = rt.input.shift;
 
     let sprinting = false;
-    if (rt.input.shift && wantsMove && dodgeTimer.current <= 0 && stVal > 0.5) {
+    if (rt.input.shift && wantsMove && !handsFull && dodgeTimer.current <= 0 && stVal > 0.5) {
       sprinting = true;
       stVal -= 9 * dt;
     }
 
-    const guarding = blockHeld.current && !blockedByStory && stVal > 0.5;
+    const guarding = blockHeld.current && !blockedByStory && !handsFull && stVal > 0.5;
     if (guarding) { blockTimer.current = 0.2; stVal -= 6 * dt; }
     p.blocking = guarding;
 
     let moveX = mx, moveZ = mz, moving = wantsMove;
-    let speed = elder.carryingGrain ? SPEED * 0.75 : SPEED;
+    let speed = elder.carryingGrain ? SPEED * 0.75 : elder.carryingBody ? SPEED * 0.55 : SPEED;
     if (sprinting) speed *= 1.45;
     if (dodgeTimer.current > 0) {
       dodgeTimer.current -= dt;
@@ -348,6 +381,7 @@ export function EldervillePlayer() {
       moving = true;
     }
     if (p.dodgeIframes > 0) p.dodgeIframes -= dt;
+    if (p.invuln > 0) p.invuln -= dt;
 
     if (!sprinting && !guarding && dodgeTimer.current <= 0) stVal += 14 * dt;
     stVal = THREE.MathUtils.clamp(stVal, 0, 100);
@@ -372,10 +406,11 @@ export function EldervillePlayer() {
         canZ = canWalkWorld(p.pos.x, nz, currentTop) && !npcBlockedWorld(p.pos.x,nz);
       } else {
         const interior = interiors[elder.currentArea];
-        if(interior){
-          const map=interior.map, offX=INT_OFF_X, offZ=INT_OFF_Z;
+        const inCave = elder.currentArea === "cave";
+        if(inCave || interior){
+          const map = inCave ? caveMap : interior.map, offX=INT_OFF_X, offZ=INT_OFF_Z;
           const check = (x:number,z:number)=>{
-            if(isInteriorSolidAt(map,x,z,offX,offZ)) return false;
+            if(inCave ? caveSolidAtWorld(x,z) : isInteriorSolidAt(map,x,z,offX,offZ)) return false;
             if(npcBlockedWorld(x,z)) return false;
             return true;
           };
@@ -479,6 +514,24 @@ export function EldervillePlayer() {
           }
         }
       } else {
+        if (elder.currentArea === "cave") {
+          // exit mat at the cave mouth — back out to the village
+          const matX = INT_OFF_X + CAVE_LANDMARKS.exitMat.tx + 0.5;
+          const matZ = INT_OFF_Z + CAVE_LANDMARKS.exitMat.ty + 0.5;
+          if (Math.hypot(p.pos.x - matX, p.pos.z - matZ) < 0.65) {
+            const wpSouth = eldervilleWorldPos(CAVE_TILE.tx, CAVE_TILE.ty + 1);
+            useElder.getState().setArea("village", null);
+            p.pos.set(wpSouth.x, wpSouth.y, wpSouth.z);
+            camTarget.copy(p.pos);
+            const yawSnap2 = rt.cam.yaw;
+            const pitchSnap2 = 0.62, distSnap2 = 46;
+            desired.set(p.pos.x + Math.sin(yawSnap2) * Math.cos(pitchSnap2) * distSnap2, p.pos.y + Math.sin(pitchSnap2) * distSnap2, p.pos.z + Math.cos(yawSnap2) * Math.cos(pitchSnap2) * distSnap2);
+            state.camera.position.copy(desired);
+            state.camera.lookAt(p.pos.x, p.pos.y + 0.9, p.pos.z);
+            init.current = true;
+            sfx.door();
+          }
+        }
         const interior = interiors[elder.currentArea];
         if(interior){
           const offX=INT_OFF_X, offZ=INT_OFF_Z;
@@ -612,6 +665,17 @@ export function EldervillePlayer() {
         } else {
           prompt = "E · Talk to Widow Oren";
           bestDialog = { dlg: { name: "Widow Oren", lines: ["Welcome, child. The winter chill creeps through the floorboards..."] }, source: "widowNormal" };
+        }
+      }
+    } else if (elder.currentArea === "cave") {
+      // the fallen machine — Moss said to bring back the body
+      if (elder.caveStage === "boss_defeated" && !elder.carryingBody) {
+        const bp = rt.boss.pos;
+        const bDist = Math.hypot(bp.x - p.pos.x, bp.z - p.pos.z);
+        if (bDist < bestDist && bDist < 2.0) {
+          bestDist = bDist;
+          prompt = "E · Lift the Machine Body";
+          bestDialog = { dlg: caveBodyLiftDialog, source: "bodyLift" };
         }
       }
     } else if (elder.currentArea==="village") {
@@ -750,6 +814,17 @@ export function EldervillePlayer() {
             bestDist = cDist;
             prompt = "E · Council Blade Trial";
             bestDialog = { dlg: councilCombatTrialDialog, source: "councilCombatTrial" };
+          }
+        }
+
+        // Forge delivery — haul the machine body to Elder Sage's anvil
+        if (elder.carryingBody) {
+          const forgePos = eldervilleWorldPos(FORGE_TILE.tx, FORGE_TILE.ty);
+          const fDist = Math.hypot(forgePos.x - p.pos.x, forgePos.z - p.pos.z);
+          if (fDist < bestDist && fDist < 2.2) {
+            bestDist = fDist;
+            prompt = "E · Deliver the Machine to the Forge";
+            bestDialog = { dlg: forgeDeliverDialog, source: "forgeDeliver" };
           }
         }
 
@@ -908,6 +983,24 @@ export function EldervillePlayer() {
         <mesh position={[0,-0.17,0]} castShadow><boxGeometry args={[0.14,0.36,0.16]} /><meshLambertMaterial color="#c9433f" /></mesh>
         <mesh position={[0,-0.38,0]} castShadow><boxGeometry args={[0.15,0.12,0.17]} /><meshLambertMaterial color="#f0b98d" /></mesh>
       </group>
+
+      {/* Hauled machine chassis — slung on the back, eye still ticking */}
+      {carryingBody && (
+        <group position={[0, 0.88, -0.46]} rotation={[0.16, 0, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.62, 0.5, 0.44]} />
+            <meshLambertMaterial color="#7a4f34" />
+          </mesh>
+          <mesh position={[0.2, 0.16, 0.2]}>
+            <boxGeometry args={[0.22, 0.16, 0.18]} />
+            <meshLambertMaterial color="#5f4028" />
+          </mesh>
+          <mesh position={[0.05, 0.27, 0.05]}>
+            <boxGeometry args={[0.1, 0.08, 0.04]} />
+            <meshBasicMaterial color="#ff2030" toneMapped={false} />
+          </mesh>
+        </group>
+      )}
 
       {/* Head & Hair */}
       <mesh position={[0,1.02,0]} castShadow><boxGeometry args={[0.42,0.4,0.4]} /><meshLambertMaterial color="#f0b98d" /></mesh>

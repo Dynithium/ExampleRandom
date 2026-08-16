@@ -11,6 +11,7 @@ export const rt = {
     moving: false,
     blocking: false,
     dodgeIframes: 0,
+    invuln: 0,
   },
   tinslaire: {
     pos: new THREE.Vector3(SPAWN.x, SPAWN.y, SPAWN.z),
@@ -18,6 +19,11 @@ export const rt = {
     speed: 0,
     moving: false,
     isNight: false,
+  },
+  boss: {
+    /** live Cave Machine position, maintained by the boss component */
+    pos: new THREE.Vector3(80, 2, 80.5),
+    yaw: 0,
   },
   cam: {
     yaw: Math.PI * 0.25,

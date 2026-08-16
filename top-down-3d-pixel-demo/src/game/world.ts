@@ -375,3 +375,55 @@ export const archeryTargets = [eldervilleWorldPos(33, 1), eldervilleWorldPos(39,
 
 /** The Outskirts Cave mouth at the north end of the eastern gate road */
 export const CAVE_TILE = { tx: 66, ty: 8 };
+
+/** The Forge anvil in the Artisan District — where the machine body must be delivered */
+export const FORGE_TILE = { tx: 52, ty: 7 };
+
+/**
+ * The Outskirts Cave interior (Act 1 finale). Same virtual offset as other
+ * interiors (72.5, 75) — only one area renders at a time.
+ * Legend: W=wall S=stalagmite(solid) r=rubble m=glow-moss .=floor X=exit mat
+ */
+const CAVE_ROWS = [
+  "WWWWWWWWWWWWWWWW",
+  "WWW..rr......r.W",
+  "WW..S.......S..W",
+  "WW.............W",
+  "WW..m........m.W",
+  "WWW...........WW",
+  "WWWWW......WWWWW",
+  "WWWWW..WW..WWWWW",
+  "WWWW...WW...WWWW",
+  "WWW....WW....WWW",
+  "WW.....WW.....WW",
+  "WW..S..WW..S..WW",
+  "WWWW..WWWW..WWWW",
+  "WWWWW..WW..WWWWW",
+  "WWWW...WW...WWWW",
+  "WWW....WW....WWW",
+  "WWm....WW....mWW",
+  "WW.....WW.....WW",
+  "WWW....WW....WWW",
+  "WWWW........WWWW",
+  "WWWWW......WWWWW",
+  "WWWWW..X...WWWWW",
+];
+
+const CAVE_LEGEND: Record<string, number> = { W: 1, S: 2, r: 3, m: 4, ".": 0, X: 16 };
+
+/** Tile grid of the cave (0 floor · 1 wall · 2 stalagmite · 3 rubble · 4 glow-moss · 16 exit mat) */
+export const caveMap: number[][] = CAVE_ROWS.map((row) => [...row].map((ch) => CAVE_LEGEND[ch] ?? 0));
+
+/** Cave landmarks in interior-tile coordinates */
+export const CAVE_LANDMARKS = {
+  /** spawn just north of the entrance mat */
+  spawn: { tx: 7, ty: 19 },
+  /** the exit mat at the cave mouth */
+  exitMat: { tx: 7, ty: 20 },
+  /** the Cave Machine's dormant anchor in the north chamber */
+  boss: { tx: 7.5, ty: 3.5 },
+};
+
+export function caveSolidAt(mapTile: number) {
+  return mapTile === 1 || mapTile === 2;
+}

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { rt } from "./state";
+import { sfx } from "./audio";
 
 export const fatherMemoryLines = [
   "Everything and everyone has a purpose, which reflects their maker.",
@@ -237,14 +238,65 @@ export const councilCombatTrialDialog: Dialog = {
   ],
 };
 
-// Outskirts Cave (Act 1 finale beat)
+// Outskirts Cave (Act 1 finale)
 export const outskirtsCaveEnterDialog: Dialog = {
   name: "Outskirts Cave",
   lines: [
-    "You hold a torch high and step past the cold stone teeth of the entrance.",
-    "Deeper, the light flickers off wet rock. Deeper still — two red eyes blink open in the dark...",
-    "— ACT I: THE CALLING — continues here —",
-    "(End of the current expedition build. The Cave Machine awaits in the next update.)",
+    "You take a torch from the post and step past the cold stone teeth of the entrance.",
+    "The air changes at once — damp, still, and humming with something older than the village.",
+    "Elder Moss's words follow you in: 'Whatever you find — bring it back. All of it. Don't leave the body.'",
+  ],
+};
+
+export const caveBossAwakeDialog: Dialog = {
+  name: "???",
+  lines: [
+    "(GRRRRK... WHIRRR... CLANK...)",
+    "Two red eyes blink open in the dark.",
+    "The Cave Machine shudders awake — rusted, wrong. The first machine anyone in Elderville has ever seen.",
+    "(Strike with SPACE. Loose arrows with K. SHIFT to dodge its lunges. Guard with R.)",
+  ],
+};
+
+export const caveBossDefeatedDialog: Dialog = {
+  name: "Cave Machine",
+  lines: [
+    "It falls hard against the stone — and the cavern goes quiet.",
+    "The great red eye dims... but keeps ticking. Faintly. Patiently.",
+    "Moss's words come back: 'Don't leave the body.'",
+    "(Lift the chassis and haul it back to the Forge in Elderville.)",
+  ],
+};
+
+export const caveBodyLiftDialog: Dialog = {
+  name: "Cave Machine",
+  lines: [
+    "You sling the heavy chassis over your shoulder.",
+    "It hums against your back — warmer than the cave, softer than metal should be — all the way home.",
+    "(Carry the body out of the cave and across Elderville to the Forge.)",
+  ],
+};
+
+export const forgeDeliverDialog: Dialog = {
+  name: "The Forge",
+  lines: [
+    "(The village gathers at the Forge as you set the chassis on the anvil.)",
+    "Elder Sage lifts the eye from its socket — warm, ticking. He works through the night, tuning it to the blue beacon's frequency with the vault records.",
+    "At dawn he sets a brass disc in your palm. The red eye, now a compass needle, tugs east.",
+    "Elder Sage: 'We made this from what you brought us. It will point the way — and let us speak, even in the deep forest. If you fall, we'll see where.'",
+    "Elder Moss: (hand too firm on your shoulder) 'For your safety, Minslaire. So you never have to be alone.'",
+    "Tinslaire, at your elbow, touches the eye and whispers: 'It's watching.'",
+    "★ ACT I: THE CALLING — the trials are complete. The needle points east, to the forest.",
+    "(Rest now, Minslaire. The Eastern Forest awaits in the next expedition.)",
+  ],
+};
+
+export const lifeSuitRespawnDialog: Dialog = {
+  name: "Life Suit",
+  lines: [
+    "Darkness. Then — the hum.",
+    "Your life suit has carried you home to the Red House. You do not remember the road.",
+    "The suit returns fallen wanderers to the Safe Camp. No one in Elderville can explain the mercy. It is simply never spoken of.",
   ],
 };
 
@@ -299,6 +351,7 @@ export const eldersAtDoorPositions = [
 ];
 
 export type TrialState = "not_started" | "assigned" | "inspected" | "desk_read" | "puzzle_solved" | "grain_picked" | "delivered" | "overpaid" | "completed";
+export type CaveStage = "not_entered" | "entered" | "boss_awake" | "boss_defeated" | "delivered";
 
 type ElderState = {
   openingBlack: boolean;
@@ -318,6 +371,11 @@ type ElderState = {
   carryingGrain: boolean;
   hasSword: boolean;
   scholarPuzzleOpen: boolean;
+  // Act 1 finale — the Outskirts Cave
+  caveStage: CaveStage;
+  bossHp: number;
+  carryingBody: boolean;
+  hasCompass: boolean;
   currentArea: string;
   currentInterior: string | null;
   hp: number;
@@ -339,6 +397,9 @@ type ElderState = {
   setCombatTrialState: (v: TrialState) => void;
   setScholarPuzzleOpen: (v: boolean) => void;
   damageDummy: (index: number, dmg: number) => void;
+  setCaveStage: (v: CaveStage) => void;
+  damageBoss: (dmg: number) => void;
+  hurt: (dmg: number) => void;
 };
 
 export const useElder = create<ElderState>((set, get) => ({
@@ -358,6 +419,10 @@ export const useElder = create<ElderState>((set, get) => ({
   carryingGrain: false,
   hasSword: false,
   scholarPuzzleOpen: false,
+  caveStage: "not_entered",
+  bossHp: 40,
+  carryingBody: false,
+  hasCompass: false,
   currentArea: "home",
   currentInterior: "home",
   hp: 100,
@@ -381,6 +446,39 @@ export const useElder = create<ElderState>((set, get) => ({
     nextH[index] = Math.max(0, nextH[index] - dmg);
     const allDefeated = nextH.every((h) => h <= 0);
     set({ dummiesHealth: nextH, combatTrialState: allDefeated ? "completed" : s.combatTrialState });
+  },
+
+  setCaveStage: (v) => set({ caveStage: v }),
+
+  damageBoss: (dmg) => {
+    const s = get();
+    if (s.caveStage !== "boss_awake") return;
+    const hp = Math.max(0, s.bossHp - dmg);
+    if (hp <= 0) {
+      set({ bossHp: 0, caveStage: "boss_defeated" });
+      sfx.questComplete();
+      get().showDialog(caveBossDefeatedDialog, "bossDefeated");
+    } else {
+      set({ bossHp: hp });
+    }
+  },
+
+  hurt: (dmg) => {
+    const s = get();
+    if (rt.player.invuln > 0 || rt.player.dodgeIframes > 0) return;
+    const applied = rt.player.blocking ? Math.ceil(dmg * 0.5) : dmg;
+    rt.player.invuln = 1.0;
+    const hp = s.hp - applied;
+    if (hp <= 0) {
+      // the life suit's failsafe returns fallen wanderers to the Safe Camp;
+      // the machine keeps its wounds — defeated enemies remain defeated
+      set({ hp: 100, carryingBody: false, currentArea: "home", currentInterior: "home" });
+      rt.player.pos.set(72.5 + 4.5, 2, 75 + 5.5);
+      rt.player.yaw = Math.PI;
+      get().showDialog(lifeSuitRespawnDialog, "lifeSuitRespawn");
+    } else {
+      set({ hp });
+    }
   },
 
   advanceDialog: () => {
@@ -409,10 +507,23 @@ export const useElder = create<ElderState>((set, get) => ({
       const wasTraderReturn = src === "traderReturn";
       const wasCouncilCombat = src === "councilCombatTrial";
       const wasSwordTaken = src === "swordTaken";
+      const wasCaveEnter = src === "caveEnter";
+      const wasBodyLift = src === "bodyLift";
+      const wasForgeDeliver = src === "forgeDeliver";
 
       const next: Partial<ElderState> = { activeDialog: null, dialogSourceId: null };
       if (wasMemory) { next.memoryActive = false; next.memoryDone = true; next.openingBlack = false; }
       if (wasSwordTaken) { next.hasSword = true; }
+      if (wasCaveEnter) {
+        next.currentArea = "cave";
+        next.currentInterior = "cave";
+        if (s.caveStage === "not_entered") next.caveStage = "entered";
+        // step into the cavern, just north of the entrance mat
+        rt.player.pos.set(72.5 + 7 + 0.5, 2, 75 + 19 + 0.5);
+        rt.player.yaw = Math.PI;
+      }
+      if (wasBodyLift) { next.carryingBody = true; }
+      if (wasForgeDeliver) { next.carryingBody = false; next.hasCompass = true; next.caveStage = "delivered"; }
       if (wasTinslaireInside) { next.tinslaireInsideTalked = true; next.eldersAtDoorReady = true; }
       if (wasMossDoor) { next.eldersDoorDialogDone = true; }
       if (wasMossWellIntro) { next.wellTrialState = "assigned"; }

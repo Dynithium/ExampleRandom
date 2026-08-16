@@ -14,6 +14,7 @@ import { EldervilleProps } from "./EldervilleProps";
 import { fireflyMat, glowMat, starMat, windowMat } from "./mats";
 import { SIZE } from "./world";
 import { ObjectiveMarker } from "./ObjectiveMarker";
+import { CaveScene } from "./Cave";
 
 const DAY_SKY = new THREE.Color("#8fd6f2");
 const DUSK_SKY = new THREE.Color("#f09a5c");
@@ -205,13 +206,24 @@ import { MemoryScene } from "./MemoryCutscene3D";
 
 export function Scene() {
   // Elderville reskin: keep same engine, swap island for Elderville village
-  // Branching: memory flashback vs village terrain/props vs interior room
+  // Branching: memory flashback vs village terrain/props vs interior room vs the dark cave
   const memoryActive = useElder((s) => s.memoryActive);
   const memoryIndex = useElder((s) => s.memoryIndex);
-  const isInterior = useElder((s) => s.currentArea !== "village");
+  const currentArea = useElder((s) => s.currentArea);
+  const isInterior = currentArea !== "village";
 
   if (memoryActive) {
     return <MemoryScene index={memoryIndex} />;
+  }
+
+  if (currentArea === "cave") {
+    return (
+      <>
+        <CaveScene />
+        <ObjectiveMarker />
+        <EldervillePlayer />
+      </>
+    );
   }
 
   return (

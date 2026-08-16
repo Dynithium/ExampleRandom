@@ -82,13 +82,16 @@ export function EldervilleHUD() {
   const combatTrialState = useElder((s) => s.combatTrialState);
   const carryingGrain = useElder((s) => s.carryingGrain);
   const hasSword = useElder((s) => s.hasSword);
+  const caveStage = useElder((s) => s.caveStage);
+  const carryingBody = useElder((s) => s.carryingBody);
+  const hasCompass = useElder((s) => s.hasCompass);
   const scholarPuzzleOpen = useElder((s) => s.scholarPuzzleOpen);
   const currentArea = useElder((s) => s.currentArea);
   const currentInterior = useElder((s) => s.currentInterior);
   const hp = useElder((s) => s.hp);
   const st = useElder((s) => s.st);
   const advanceDialog = useElder((s) => s.advanceDialog);
-  const locationName = currentArea === "village" ? "Elderville Settlement" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead (Widow Oren)", homesteadB: "Weaver's Homestead" } as any)[currentInterior] || currentArea : currentArea;
+  const locationName = currentArea === "village" ? "Elderville Settlement" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead (Widow Oren)", homesteadB: "Weaver's Homestead", cave: "Outskirts Cave (Depths)" } as any)[currentInterior] || currentArea : currentArea;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -141,7 +144,13 @@ export function EldervilleHUD() {
   else if (marketTrialState === "completed" && combatTrialState === "not_started") objective = "All 4 Virtues Proven! Meet the Council behind Blue House for Blade Trial";
   else if (combatTrialState === "assigned") objective = "Blade Trial: Strike down 3 training dummies behind Blue House (SPACE · Guard R · Dodge SHIFT)";
   else if (combatTrialState === "completed" && !hasSword) objective = "★ Trials Complete! Retrieve Father's Blade from the sword case in the Red House";
-  else if (hasSword) objective = "⚔ Father's Blade at your side — Enter the Outskirts Cave (far north-east, where the gate road ends)";
+  else if (hasSword && caveStage === "not_entered") objective = "⚔ Father's Blade at your side — Enter the Outskirts Cave (far north-east, where the gate road ends)";
+  else if (caveStage === "entered") objective = "Delve deeper into the Outskirts Cave — follow the glow-moss";
+  else if (caveStage === "boss_awake") objective = "Slay the Cave Machine! (SPACE strike · K arrows · SHIFT dodge · R guard)";
+  else if (caveStage === "boss_defeated" && !carryingBody) objective = "Don't leave the body — lift the chassis (E)";
+  else if (carryingBody && currentArea === "cave") objective = "Haul the body out of the cave and back to Elderville";
+  else if (carryingBody) objective = "Carry the machine body to the Forge (east district, follow the needle)";
+  else if (caveStage === "delivered" || hasCompass) objective = "★ The compass needle tugs east... Rest now — the Eastern Forest awaits (next expedition)";
 
   // wake handler
   const handleWake = () => {

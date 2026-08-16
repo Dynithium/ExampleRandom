@@ -19,8 +19,9 @@ export function useKeyboard() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       const ui = useUI.getState();
-      if (!ui.started) ui.start();
       sfx.unlock();
+      if (!ui.started) return; // Do not intercept when on Title Screen
+
       if (
         [
           "KeyW",
@@ -32,14 +33,21 @@ export function useKeyboard() {
           "ArrowLeft",
           "ArrowRight",
           "Space",
+          "KeyR",
+          "KeyJ",
+          "KeyK",
         ].includes(e.code)
       )
         e.preventDefault();
 
       if (!e.repeat) {
-        if (e.code === "KeyQ") rt.cam.targetYaw += Math.PI / 2;
-        if (e.code === "KeyR") rt.cam.targetYaw -= Math.PI / 2;
+        if (e.code === "KeyQ" || e.code === "KeyZ") rt.cam.targetYaw += Math.PI / 2;
+        if (e.code === "KeyC") rt.cam.targetYaw -= Math.PI / 2;
         if (e.code === "KeyE") rt.input.interact = true;
+        if (e.code === "KeyP" || e.code === "Escape") {
+          ui.toggle("pauseMenu");
+          sfx.ui();
+        }
         if (e.code === "Equal" || e.code === "NumpadAdd")
           rt.cam.targetZoom = Math.min(90, rt.cam.targetZoom * 1.25);
         if (e.code === "Minus" || e.code === "NumpadSubtract")

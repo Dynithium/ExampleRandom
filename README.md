@@ -22,7 +22,12 @@ A whimsical pixel-art action RPG where you explore Elderville, fight scrap bots,
 - Walk onto a door tile to enter/exit buildings
 
 ## Run
-Open `index.html` in your browser.
+```bash
+cd top-down-3d-pixel-demo
+npm install
+npm run dev
+```
+Open `http://localhost:5173` in your browser.
 
 ## Full Vision
 This prototype is the first step toward the **Minslaire trilogy**—*Minslaire*, *Minslaire II: Ascendence*, *Minslaire III: Transcendence*—with a deep narrative, expanded locations, and elemental powers. See the design docs for details:

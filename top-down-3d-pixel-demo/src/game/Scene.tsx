@@ -191,19 +191,24 @@ function Stars() {
   );
 }
 
+import { MemoryScene } from "./MemoryCutscene3D";
+
 export function Scene() {
   // Elderville reskin: keep same engine, swap island for Elderville village
-  // Branching: village vs interior (interior far away at 50,50 so no overlap, no water under it)
+  // Branching: memory flashback vs village terrain/props vs interior room
+  const memoryActive = useElder((s) => s.memoryActive);
+  const memoryIndex = useElder((s) => s.memoryIndex);
   const isInterior = useElder((s) => s.currentArea !== "village");
+
+  if (memoryActive) {
+    return <MemoryScene index={memoryIndex} />;
+  }
+
   return (
     <>
       <Environment />
       {isInterior ? (
-        <>
-          <InteriorRoom />
-          <EldervilleNPCs />
-          <EldervillePlayer />
-        </>
+        <InteriorRoom />
       ) : (
         <>
           <Terrain />
@@ -213,12 +218,12 @@ export function Scene() {
           <Rocks />
           <Village />
           <EldervilleProps />
-          <EldervilleNPCs />
           <Boat />
           <Fireflies />
-          <EldervillePlayer />
         </>
       )}
+      <EldervilleNPCs />
+      <EldervillePlayer />
     </>
   );
 }

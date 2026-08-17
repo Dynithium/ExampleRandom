@@ -204,6 +204,8 @@ function Arrows() {
 export function EldervillePlayer() {
   const group = useRef<THREE.Group>(null!);
   const carryingBody = useElder((s) => s.carryingBody);
+  const hasSword = useElder((s) => s.hasSword);
+  const hasCompass = useElder((s) => s.hasCompass);
   const legL = useRef<THREE.Group>(null!);
   const legR = useRef<THREE.Group>(null!);
   const armL = useRef<THREE.Group>(null!);
@@ -314,6 +316,8 @@ export function EldervillePlayer() {
     if (prevArea.current !== elder.currentArea) {
       prevArea.current = elder.currentArea;
       init.current = false;
+      rt.agent.path = null;
+      rt.agent.pathIdx = 0;
     }
 
     if (attackTimer.current > 0) attackTimer.current -= dt;
@@ -336,8 +340,55 @@ export function EldervillePlayer() {
     right.set(Math.cos(yaw),0,-Math.sin(yaw));
     let mx = right.x * ix + fwd.x * iy;
     let mz = right.z * ix + fwd.z * iy;
+    const mlen0 = Math.hypot(mx, mz);
+    if (mlen0 > 1) { mx /= mlen0; mz /= mlen0; }
+
+    // Agent autopilot — same collision / speed as WASD, world-space path & dodge
+    if (!blockedByStory) {
+      const dodgeW = rt.agent.dodgeWorld;
+      const path = rt.agent.path;
+      if (dodgeW && (dodgeW.x !== 0 || dodgeW.z !== 0)) {
+        const dl = Math.hypot(dodgeW.x, dodgeW.z) || 1;
+        mx = dodgeW.x / dl;
+        mz = dodgeW.z / dl;
+      } else if (path && path.length > 0) {
+        let idx = rt.agent.pathIdx;
+        while (idx < path.length) {
+          const wp = path[idx];
+          const dx = wp.x - p.pos.x;
+          const dz = wp.z - p.pos.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist < 0.32) {
+            idx++;
+            rt.agent.pathIdx = idx;
+            continue;
+          }
+          mx = dx / dist;
+          mz = dz / dist;
+          break;
+        }
+        if (idx >= path.length) {
+          rt.agent.path = null;
+          rt.agent.pathIdx = 0;
+          mx = 0;
+          mz = 0;
+        }
+      } else if (rt.agent.faceTarget) {
+        mx = 0;
+        mz = 0;
+        const dx = rt.agent.faceTarget.x - p.pos.x;
+        const dz = rt.agent.faceTarget.z - p.pos.z;
+        if (Math.hypot(dx, dz) > 0.05) {
+          const targetYaw = Math.atan2(dx, dz);
+          let d = targetYaw - p.yaw;
+          while (d > Math.PI) d -= Math.PI * 2;
+          while (d < -Math.PI) d += Math.PI * 2;
+          p.yaw += d * (1 - Math.exp(-dt * 14));
+        }
+      }
+    }
+
     const mlen = Math.hypot(mx, mz);
-    if (mlen > 1) { mx/=mlen; mz/=mlen; }
     const wantsMove = !blockedByStory && mlen > 0.05;
 
     // ---- stamina economy: dodge roll (tap SHIFT), sprint (hold SHIFT), guard (hold R) ----
@@ -892,6 +943,9 @@ export function EldervillePlayer() {
           ) {
             sfx.talk();
             sfx.questComplete();
+          } else if (bestDialog.source === "traderIntro") {
+            sfx.talk();
+            sfx.coin();
           } else {
             sfx.talk();
           }
@@ -938,29 +992,39 @@ export function EldervillePlayer() {
         <meshBasicMaterial color="#50c8ff" />
       </mesh>
 
-      {/* Sheathed Sword on Back */}
-      <group ref={swordRef} position={[0.18, 0.65, -0.22]} rotation={[0, 0, -0.25]}>
-        {/* Scabbard / Sheath */}
-        <mesh position={[0, -0.15, 0]} castShadow>
-          <boxGeometry args={[0.08, 0.7, 0.05]} />
-          <meshLambertMaterial color="#684830" />
-        </mesh>
-        {/* Gold Trim */}
-        <mesh position={[0, 0.18, 0]}>
-          <boxGeometry args={[0.14, 0.06, 0.07]} />
-          <meshLambertMaterial color="#e8b040" />
-        </mesh>
-        {/* Hilt / Handle */}
-        <mesh position={[0, 0.32, 0]} castShadow>
-          <boxGeometry args={[0.06, 0.22, 0.05]} />
-          <meshLambertMaterial color="#302018" />
-        </mesh>
-        {/* Pommel */}
-        <mesh position={[0, 0.45, 0]}>
-          <boxGeometry args={[0.1, 0.06, 0.07]} />
-          <meshLambertMaterial color="#e8b040" />
-        </mesh>
-      </group>
+      {hasSword && (
+        <group ref={swordRef} position={[0.18, 0.65, -0.22]} rotation={[0, 0, -0.25]}>
+          <mesh position={[0, -0.15, 0]} castShadow>
+            <boxGeometry args={[0.08, 0.7, 0.05]} />
+            <meshLambertMaterial color="#684830" />
+          </mesh>
+          <mesh position={[0, 0.18, 0]}>
+            <boxGeometry args={[0.14, 0.06, 0.07]} />
+            <meshLambertMaterial color="#e8b040" />
+          </mesh>
+          <mesh position={[0, 0.32, 0]} castShadow>
+            <boxGeometry args={[0.06, 0.22, 0.05]} />
+            <meshLambertMaterial color="#302018" />
+          </mesh>
+          <mesh position={[0, 0.45, 0]}>
+            <boxGeometry args={[0.1, 0.06, 0.07]} />
+            <meshLambertMaterial color="#e8b040" />
+          </mesh>
+        </group>
+      )}
+
+      {hasCompass && (
+        <group position={[0.22, 0.5, 0.18]} rotation={[0.5, 0.15, 0.2]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.16, 0.04, 0.16]} />
+            <meshLambertMaterial color="#e8b040" />
+          </mesh>
+          <mesh position={[0, 0.03, 0]}>
+            <boxGeometry args={[0.05, 0.03, 0.05]} />
+            <meshBasicMaterial color="#ff2030" toneMapped={false} />
+          </mesh>
+        </group>
+      )}
 
       {/* Arms */}
       <group ref={armL} position={[0.32,0.76,0]}>

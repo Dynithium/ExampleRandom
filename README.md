@@ -24,9 +24,14 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **WASD / Arrows**: Move · **SHIFT (hold)**: Sprint · **SHIFT (tap)**: Dodge roll
 - **SPACE / J**: Sword attack · **K**: Bow · **R (hold)**: Guard
 - **E**: Talk / Inspect / Advance dialogue
-- **P / ESC**: Pause menu (save, load, settings)
+- **P / ESC**: Pause menu (save, load, settings, agent mode)
 - **Mouse wheel / +/-**: Zoom · **Q / C**: Rotate camera
 - Walk into doors to enter buildings; every prop has a hitbox
+
+## Agent Mode (benchmark)
+From the title screen or pause menu, open **Agent Benchmark**. Paste any OpenAI-compatible **endpoint**, **model**, and **API key**. The model plays Act I as a fair-play bench: it walks pathfound routes, talks, solves Sage's archive, fights, and hauls the Cave Machine to the Forge. No teleports. Score is 11 points across the four virtues, the blade trial, the sword, the cave, the machine, and the compass.
+
+The key stays in this browser only. The host must allow browser CORS (OpenRouter, Groq, and local servers with CORS on usually work).
 
 ## Run
 ```bash

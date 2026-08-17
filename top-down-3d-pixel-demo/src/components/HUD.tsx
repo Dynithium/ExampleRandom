@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useUI, rt } from "../game/state";
 import { pressInteract, setTouchAxis } from "../game/input";
 import { sfx } from "../game/audio";
-import { saveGame, loadGame, hasSave, getSaveSummary, startNewGame } from "../game/save";
+import { saveGame, loadGame, hasSave, getSaveSummary, startNewGame, deleteSave } from "../game/save";
+import { useAgent, clearAgent } from "../game/agent";
+import { AgentOverlay, AgentSetupModal } from "./AgentPanel";
 
 function Btn({
   children,
@@ -125,8 +127,10 @@ function PauseMenu() {
   const paused = useUI((s) => s.paused);
   const daySpeed = useUI((s) => s.daySpeed);
   const clock = useUI((s) => s.clock);
+  const agentRunning = useAgent((s) => s.running);
   const isNight = rt.env.night > 0.45;
   const [saveToast, setSaveToast] = useState<string | null>(null);
+  const [showAgent, setShowAgent] = useState(false);
 
   const handleSave = () => {
     const ok = saveGame();
@@ -146,12 +150,21 @@ function PauseMenu() {
 
   const handleTitleReturn = () => {
     sfx.ui();
+    clearAgent();
     useUI.setState({ started: false, pauseMenu: false });
   };
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-black/80 p-4 font-pixel backdrop-blur-xs">
-      <div className="panel flex w-full max-w-[440px] flex-col gap-4 border-[3px] border-[#203868] bg-[#0c142c] p-5 shadow-2xl">
+      {showAgent && (
+        <AgentSetupModal
+          onClose={() => {
+            setShowAgent(false);
+            useAgent.getState().setPanelOpen(false);
+          }}
+        />
+      )}
+      <div className="panel flex w-full max-w-[440px] max-h-[92dvh] flex-col gap-4 overflow-y-auto border-[3px] border-[#203868] bg-[#0c142c] p-5 shadow-2xl">
         {/* Title */}
         <div className="border-b border-[#284888] pb-2 text-center">
           <div className="text-[14px] font-bold tracking-[0.25em] text-[#ffd75e]">PAUSE MENU</div>
@@ -209,7 +222,8 @@ function PauseMenu() {
             <Btn
               on={!paused && daySpeed === 1}
               onClick={() => {
-                useUI.setState({ paused: false, daySpeed: 1 });
+                useUI.setState({ paused: false });
+                useUI.getState().setDaySpeed(1);
               }}
             >
               1x NORMAL
@@ -217,7 +231,8 @@ function PauseMenu() {
             <Btn
               on={!paused && daySpeed === 6}
               onClick={() => {
-                useUI.setState({ paused: false, daySpeed: 6 });
+                useUI.setState({ paused: false });
+                useUI.getState().setDaySpeed(6);
               }}
             >
               6x FAST
@@ -232,10 +247,30 @@ function PauseMenu() {
             <Btn on={scanlines} onClick={() => useUI.getState().toggle("scanlines")}>
               CRT SCANLINES: {scanlines ? "ON" : "OFF"}
             </Btn>
-            <Btn on={!muted} onClick={() => useUI.getState().toggle("muted")}>
+            <Btn
+              on={!muted}
+              onClick={() => {
+                useUI.getState().toggle("muted");
+                sfx.onMuteChange(useUI.getState().muted);
+              }}
+            >
               AUDIO: {muted ? "MUTED" : "ON"}
             </Btn>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <div className="text-[8px] font-bold tracking-wider text-[#7f92c4]">AGENT BENCHMARK</div>
+          <button
+            onClick={() => {
+              sfx.ui();
+              setShowAgent(true);
+              useAgent.getState().setPanelOpen(true);
+            }}
+            className="pbtn py-2 text-[9px] font-bold tracking-wider text-[#ffd75e]"
+          >
+            {agentRunning ? "⚙ AGENT RUNNING — SETTINGS" : "⚙ OPENAI-COMPATIBLE AGENT MODE"}
+          </button>
         </div>
 
         {/* Action Buttons */}
@@ -248,6 +283,20 @@ function PauseMenu() {
             className="pbtn w-full py-2.5 text-[10.5px] font-bold tracking-widest text-[#ffe9a8]"
           >
             ▶ RESUME GAME [P / ESC]
+          </button>
+          <button
+            onClick={() => {
+              if (!hasSave()) return;
+              if (!window.confirm("Delete the saved expedition from this browser?")) return;
+              sfx.ui();
+              deleteSave();
+              setSaveToast("✔ SAVE ERASED");
+              setTimeout(() => setSaveToast(null), 2500);
+            }}
+            disabled={!hasSave()}
+            className="pbtn w-full py-2 text-[8px] tracking-wider text-[#ff8f8f] disabled:opacity-40"
+          >
+            ✕ DELETE SAVE
           </button>
           <button
             onClick={handleTitleReturn}
@@ -263,22 +312,34 @@ function PauseMenu() {
 
 function TitleScreen() {
   const [showLore, setShowLore] = useState(false);
+  const [showAgent, setShowAgent] = useState(false);
   const saveInfo = getSaveSummary();
+  const panelOpen = useAgent((s) => s.panelOpen);
 
   const handleNewGame = () => {
     sfx.unlock();
     sfx.door();
+    clearAgent();
     startNewGame();
   };
 
   const handleContinue = () => {
     sfx.unlock();
+    clearAgent();
     loadGame();
   };
 
   return (
     <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-[#070a14]/90 p-4 font-pixel">
       {showLore && <LoreModal onClose={() => setShowLore(false)} />}
+      {(showAgent || panelOpen) && (
+        <AgentSetupModal
+          onClose={() => {
+            setShowAgent(false);
+            useAgent.getState().setPanelOpen(false);
+          }}
+        />
+      )}
 
       <div className="panel flex w-full max-w-[500px] flex-col items-center gap-5 border-[3px] border-[#203868] bg-[#0c142c] px-7 py-8 text-center shadow-2xl">
         {/* Title & Logo */}
@@ -287,7 +348,7 @@ function TitleScreen() {
             MINSLAIRE
           </div>
           <div className="mt-1 text-[9px] font-bold tracking-[0.25em] text-[#8fb7ff]">
-            ACT I: THE BETRAYAL · ELDERVILLE PROLOGUE
+            ACT I: THE CALLING · ELDERVILLE
           </div>
           <div className="mt-2 text-[7.5px] tracking-widest text-[#7f92c4]">
             A RETRO 3D PIXEL-ART ACTION RPG
@@ -334,11 +395,22 @@ function TitleScreen() {
           >
             📜 WORLD & STORY LORE
           </button>
+
+          <button
+            onClick={() => {
+              sfx.ui();
+              setShowAgent(true);
+              useAgent.getState().setPanelOpen(true);
+            }}
+            className="pbtn w-full py-2 text-[9px] tracking-wider text-[#ffd75e]"
+          >
+            ⚙ AGENT BENCHMARK
+          </button>
         </div>
 
         {/* Footer controls hint */}
         <div className="border-t border-[#1e2a52] pt-2 text-[7.5px] text-[#5f719e]">
-          WASD MOVE · E TALK/INTERACT · SPACE ATTACK · P PAUSE/SAVE
+          WASD MOVE · E TALK · SPACE STRIKE · K BOW · P PAUSE
         </div>
       </div>
     </div>
@@ -362,6 +434,8 @@ export function HUD() {
 
       {/* ------------------------------------------------------- Pause Menu */}
       {started && pauseMenu && <PauseMenu />}
+
+      <AgentOverlay />
 
       {/* -------------------------------------------------- interact prompt */}
       {started && prompt && !pauseMenu && (

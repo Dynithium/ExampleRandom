@@ -99,7 +99,12 @@ export const sfx = {
     blip(784, 0.1, "triangle", 0.06, 0.16);
     blip(1046, 0.28, "triangle", 0.07, 0.24);
   },
+  onMuteChange(muted: boolean) {
+    if (muted) this.stopSuitHum();
+    else this.startSuitHum();
+  },
   startSuitHum() {
+    if (useUI.getState().muted) return;
     const a = ac();
     if (!a || suitHumOsc) return;
     try {

@@ -302,7 +302,7 @@ export const lifeSuitRespawnDialog: Dialog = {
 
 export const villageNPCsData: { id: string; name: string; tx: number; ty: number; color: string }[] = [
   { id: "tinslaire", name: "Tinslaire", tx: 12, ty: 13, color: "#4a90d9" },
-  { id: "elderMoss", name: "Elder Moss", tx: 59, ty: 35, color: "#8b7355" },
+  { id: "elderMoss", name: "Elder Moss", tx: 59, ty: 35, color: "#4a6b38" },
   { id: "elderSage", name: "Elder Sage", tx: 32, ty: 12, color: "#73558b" },
   { id: "elderThorn", name: "Elder Thorn", tx: 16, ty: 26, color: "#6b6b8b" },
   { id: "bazaarTrader", name: "Bazaar Trader", tx: 15, ty: 40, color: "#c07840" },
@@ -315,7 +315,7 @@ export const swordCaseDialog: Dialog = {
 
 // Door elders positions (village tiles around Red House door at [12, 10])
 export const eldersAtDoorPositions = [
-  { id: "elderMossDoor", name: "Elder Moss", tx: 11, ty: 11, color: "#8b7355" },
+  { id: "elderMossDoor", name: "Elder Moss", tx: 11, ty: 11, color: "#4a6b38" },
   { id: "elderSageDoor", name: "Elder Sage", tx: 13, ty: 11, color: "#73558b" },
   { id: "elderThornDoor", name: "Elder Thorn", tx: 12, ty: 12, color: "#6b6b8b" },
 ];
@@ -369,6 +369,8 @@ type ElderState = {
   setCombatTrialState: (v: TrialState) => void;
   setScholarPuzzleOpen: (v: boolean) => void;
   setScholarDials: (d: number[]) => void;
+  cycleScholarDial: (index: number) => void;
+  pullScholarLever: () => boolean;
   damageDummy: (index: number, dmg: number) => void;
   setCaveStage: (v: CaveStage) => void;
   damageBoss: (dmg: number) => void;
@@ -413,6 +415,23 @@ export const useElder = create<ElderState>((set, get) => ({
   setMarketTrialState: (v) => set({ marketTrialState: v }),
   setCombatTrialState: (v) => set({ combatTrialState: v }),
   setScholarPuzzleOpen: (v) => set({ scholarPuzzleOpen: v }),
+  setScholarDials: (d) => set({ scholarDials: d.slice(0, 4) }),
+  cycleScholarDial: (index: number) => {
+    if (index < 0 || index > 3) return;
+    const d = get().scholarDials.slice();
+    d[index] = (d[index] + 1) % 4;
+    set({ scholarDials: d });
+  },
+  pullScholarLever: () => {
+    const d = get().scholarDials;
+    const ok = d[0] === 0 && d[1] === 1 && d[2] === 2 && d[3] === 3;
+    if (ok) {
+      const st = get().scholarTrialState;
+      if (st !== "completed") set({ scholarTrialState: "puzzle_solved" });
+      return true;
+    }
+    return false;
+  },
 
   damageDummy: (index: number, dmg: number) => {
     const s = get();

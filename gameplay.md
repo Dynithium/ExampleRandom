@@ -121,6 +121,10 @@ Four linked zones with an escalating boss. The **compass guides you through all 
 
 ---
 
+## Agent Mode (benchmark)
+
+From the title screen or the pause menu, open **Agent Benchmark**. Provide an OpenAI-compatible endpoint, a model name, and (if the host needs it) an API key. The model plays Act I as a scored bench: it receives a text observation (tile, objective, dialog, points of interest) and answers with one JSON action at a time. It walks real pathfound routes, talks with E, solves Sage's archive, and fights with the same sword / bow / dodge / guard the player uses. Score is 11 points (four virtues, blade trial, father's blade, cave, machine, compass). No teleports.
+
 ## Controls
 
 | Action | Key(s) |

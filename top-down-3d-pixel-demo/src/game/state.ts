@@ -29,6 +29,8 @@ export const rt = {
     pathIdx: 0,
     /** when set, the player turns in place toward this world point */
     faceTarget: null as { x: number; z: number } | null,
+    /** world-space dodge vector for one roll (agent combat) */
+    dodgeWorld: null as { x: number; z: number } | null,
   },
   cam: {
     yaw: Math.PI * 0.25,
@@ -71,20 +73,50 @@ export type UIState = {
   start: () => void;
 };
 
+const UI_KEY = "minslaire_ui";
+
+function loadUi(): Partial<Pick<UIState, "pixel" | "scanlines" | "muted" | "daySpeed">> {
+  try {
+    return JSON.parse(localStorage.getItem(UI_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function persistUi() {
+  try {
+    const { pixel, scanlines, muted, daySpeed } = useUI.getState();
+    localStorage.setItem(UI_KEY, JSON.stringify({ pixel, scanlines, muted, daySpeed }));
+  } catch {
+    /* private mode */
+  }
+}
+
+const savedUi = loadUi();
+
 export const useUI = create<UIState>((set) => ({
   prompt: null,
-  pixel: 4, // upscale factor: dpr = 1 / pixel
-  scanlines: true,
-  muted: false,
+  pixel: savedUi.pixel ?? 4, // upscale factor: dpr = 1 / pixel
+  scanlines: savedUi.scanlines ?? true,
+  muted: savedUi.muted ?? false,
   paused: false,
-  daySpeed: 1,
+  daySpeed: savedUi.daySpeed ?? 1,
   clock: "06:14",
   started: false,
   pauseMenu: false,
   setPrompt: (prompt) => set((s) => (s.prompt === prompt ? s : { prompt })),
-  setPixel: (pixel) => set({ pixel }),
-  toggle: (k) => set((s) => ({ [k]: !s[k] }) as never),
-  setDaySpeed: (daySpeed) => set({ daySpeed }),
+  setPixel: (pixel) => {
+    set({ pixel });
+    persistUi();
+  },
+  toggle: (k) => {
+    set((s) => ({ [k]: !s[k] }) as never);
+    if (k === "scanlines" || k === "muted") persistUi();
+  },
+  setDaySpeed: (daySpeed) => {
+    set({ daySpeed });
+    persistUi();
+  },
   setClock: (clock) => set((s) => (s.clock === clock ? s : { clock })),
   setPauseMenu: (pauseMenu) => set({ pauseMenu }),
   start: () => set({ started: true }),

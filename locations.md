@@ -4,14 +4,14 @@
 
 ## Current In-Game Layout (Village Prototype)
 
-The playable village is a **48x30 tile map**. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. The four buildings and their front doors:
+The playable village is a **72×50 tile map** on a 72×72 heightfield. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. The four buildings and their front doors:
 
 | Building | Exterior Footprint (x, y) | Door Tile (x, y) | Interior Size |
 |---|---|---|---|
-| Council of Elders (Blue House) | (6, 3) | (8, 7) | 15x10 (`council`) |
-| Minslaire & Tinslaire's House (Red House) | (28, 3) | (30, 7) | 15x10 (`home`) |
-| Farmer's Homestead | (6, 16) | (8, 20) | 15x10 (`homesteadA`) |
-| Weaver's Homestead | (28, 16) | (30, 20) | 15x10 (`homesteadB`) |
+| Council of Elders (Blue House) | (30, 6) | (32, 10) | 15x10 (`council`) |
+| Minslaire & Tinslaire's House (Red House) | (10, 6) | (12, 10) | 15x10 (`home`) |
+| Farmer's Homestead | (10, 24) | (12, 28) | 15x10 (`homesteadA`) |
+| Weaver's Homestead | (30, 24) | (32, 28) | 15x10 (`homesteadB`) |
 
 Walk into a door tile to enter; walk onto the door mat inside to exit back to the same spot outside.
 
@@ -19,11 +19,11 @@ District tiles currently placed on the map:
 
 - **Red House (home)** — interior has two beds and the heirloom sword in its glass case; Minslaire wakes up here.
 - **Blue House (council)** — interior has the council table, benches, and bookshelves.
-- **Grand Gardens** — crop terraces at (22, 18) using tile `10`.
-- **The Forge & Workshops** — at (22, 4), tile `12`. **After the Cave, this is where Sage forges the compass from the machine's remains.**
-- **Central Well** — at (24, 16), tile `11`.
-- **Southern Marketplace & Bazaar** — stalls at (22, 26), tile `13`.
-- **Watchtower & Eastern Gate** — watchtower at (44, 6), tile `14`; the gate gap in the eastern tree line is the path at rows 8–9.
+- **Grand Gardens** — crop terraces around (26–39, 34–41).
+- **The Forge & Workshops** — at (52, 7). **After the Cave, this is where Sage forges the compass from the machine's remains.**
+- **Central Well** — at (58, 36).
+- **Southern Marketplace & Bazaar** — stalls at (15, 40).
+- **Watchtower & Eastern Gate** — watchtower at (66, 12); the gate gap in the eastern tree line is around rows 16–18. The Outskirts Cave mouth is at (66, 8).
 - **Village Pond** — water at (40, 26), tile `5`.
 - **Roads** — dirt paths at row 13, row 25, and columns 2, 18, 21 connecting all districts.
 

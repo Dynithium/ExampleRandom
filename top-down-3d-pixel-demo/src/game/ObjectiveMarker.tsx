@@ -53,6 +53,7 @@ function targetFor(s: ReturnType<typeof useElder.getState>): { x: number; z: num
   if (s.combatTrialState === "not_started") return v(36, 6);
   if (s.combatTrialState === "assigned") return v(36, 4); // dummies
   if (s.combatTrialState === "completed" && !s.hasSword) return v(12, 10); // red house door
+  if (s.hasCompass) return null;
   if (s.hasSword) return v(66, 9); // outskirts cave
   return null;
 }

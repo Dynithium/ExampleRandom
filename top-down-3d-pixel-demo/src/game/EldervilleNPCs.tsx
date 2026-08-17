@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { eldervilleWorldPos, groundAtWorld } from "./world";
 import {
@@ -8,6 +8,37 @@ import {
   eldersAtDoorPositions,
 } from "./eldervilleStory";
 import { rt, useUI } from "./state";
+
+function NamePlate({ name }: { name: string }) {
+  const tex = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 48;
+    const ctx = c.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "#203868";
+    ctx.fillRect(0, 0, 256, 48);
+    ctx.fillStyle = "#f0e8c8";
+    ctx.fillRect(4, 4, 248, 40);
+    ctx.fillStyle = "#181818";
+    ctx.font = "bold 22px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(name.toUpperCase(), 128, 26);
+    const t = new THREE.CanvasTexture(c);
+    t.magFilter = THREE.NearestFilter;
+    t.minFilter = THREE.NearestFilter;
+    t.needsUpdate = true;
+    return t;
+  }, [name]);
+  useEffect(() => () => tex.dispose(), [tex]);
+  const w = Math.min(2.4, 0.12 * name.length + 0.5);
+  return (
+    <sprite position={[0, 1.48, 0]} scale={[w, 0.28, 1]}>
+      <spriteMaterial map={tex} depthTest={false} toneMapped={false} />
+    </sprite>
+  );
+}
 
 // Simple voxel NPC mesh
 function NpcMesh({ pos, color, name, isElder, yaw = 0 }: { pos: THREE.Vector3; color: string; name: string; isElder?: boolean; yaw?: number }) {
@@ -57,17 +88,7 @@ function NpcMesh({ pos, color, name, isElder, yaw = 0 }: { pos: THREE.Vector3; c
           <meshLambertMaterial color="#c0c0c0" />
         </mesh>
       )}
-      {/* name tag */}
-      <group position={[0, 1.45, 0]}>
-        <mesh>
-          <planeGeometry args={[name.length * 0.09 + 0.2, 0.18]} />
-          <meshBasicMaterial color="#203868" />
-        </mesh>
-        <mesh position={[0, 0, 0.01]}>
-          <planeGeometry args={[name.length * 0.09 + 0.16, 0.14]} />
-          <meshBasicMaterial color="#f0e8c8" />
-        </mesh>
-      </group>
+      <NamePlate name={name} />
     </group>
   );
 }
@@ -246,17 +267,7 @@ function TinslaireVillage() {
         <boxGeometry args={[0.05, 0.06, 0.02]} />
         <meshLambertMaterial color="#241a14" />
       </mesh>
-      {/* name tag */}
-      <group position={[0, 1.35, 0]}>
-        <mesh>
-          <planeGeometry args={[0.95, 0.18]} />
-          <meshBasicMaterial color="#203868" />
-        </mesh>
-        <mesh position={[0, 0, 0.01]}>
-          <planeGeometry args={[0.91, 0.14]} />
-          <meshBasicMaterial color="#f0e8c8" />
-        </mesh>
-      </group>
+      <NamePlate name="Tinslaire" />
     </group>
   );
 }
@@ -310,7 +321,7 @@ export function EldervilleNPCs() {
           return <NpcMesh key={e.id} pos={new THREE.Vector3(wp.x, wp.y, wp.z)} color={e.color} name={e.name} isElder />;
         })}
 
-      {/* Village Elders (Marcus, Sarah) */}
+      {/* Village elders and the bazaar trader — Moss at the well, Sage at the hall, Thorn on the homestead path */}
       {villageNPCsData
         .filter((npc) => npc.id !== "tinslaire")
         .map((npc) => {

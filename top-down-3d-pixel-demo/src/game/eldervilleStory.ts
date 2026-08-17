@@ -341,6 +341,8 @@ type ElderState = {
   carryingGrain: boolean;
   hasSword: boolean;
   scholarPuzzleOpen: boolean;
+  /** current archive-dial values (0 Earth · 1 Water · 2 Fire · 3 Light) */
+  scholarDials: number[];
   // Act 1 finale — the Outskirts Cave
   caveStage: CaveStage;
   bossHp: number;
@@ -366,6 +368,7 @@ type ElderState = {
   setMarketTrialState: (v: TrialState) => void;
   setCombatTrialState: (v: TrialState) => void;
   setScholarPuzzleOpen: (v: boolean) => void;
+  setScholarDials: (d: number[]) => void;
   damageDummy: (index: number, dmg: number) => void;
   setCaveStage: (v: CaveStage) => void;
   damageBoss: (dmg: number) => void;
@@ -389,6 +392,7 @@ export const useElder = create<ElderState>((set, get) => ({
   carryingGrain: false,
   hasSword: false,
   scholarPuzzleOpen: false,
+  scholarDials: [2, 0, 3, 1],
   caveStage: "not_entered",
   bossHp: 40,
   carryingBody: false,
@@ -442,6 +446,7 @@ export const useElder = create<ElderState>((set, get) => ({
     if (hp <= 0) {
       // the life suit's failsafe returns fallen wanderers to the Safe Camp;
       // the machine keeps its wounds — defeated enemies remain defeated
+      window.dispatchEvent(new CustomEvent("minslaire:death"));
       set({ hp: 100, carryingBody: false, currentArea: "home", currentInterior: "home" });
       rt.player.pos.set(72.5 + 4.5, 2, 75 + 5.5);
       rt.player.yaw = Math.PI;

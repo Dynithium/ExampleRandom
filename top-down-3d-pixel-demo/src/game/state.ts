@@ -23,6 +23,13 @@ export const rt = {
     pos: new THREE.Vector3(80, 2, 80.5),
     yaw: 0,
   },
+  agent: {
+    /** active autopilot route (world-space waypoints), consumed by the player frame */
+    path: null as { x: number; z: number }[] | null,
+    pathIdx: 0,
+    /** when set, the player turns in place toward this world point */
+    faceTarget: null as { x: number; z: number } | null,
+  },
   cam: {
     yaw: Math.PI * 0.25,
     targetYaw: Math.PI * 0.25,

@@ -1,6 +1,6 @@
 # Locations
 
-> **Note:** This document describes the full vision for the *Minslaire* trilogy. Locations and features will be added incrementally as development progresses.
+> **Note:** This document describes the full vision for the *Minslaire* trilogy, which is an incredible game. Locations and features will be added incrementally as development progresses.
 
 ## Current In-Game Layout (Village Prototype)
 

@@ -37,13 +37,21 @@ export function useKeyboard() {
           "KeyR",
           "KeyJ",
           "KeyK",
+          "KeyQ",
+          "KeyZ",
+          "KeyC",
+          "KeyX",
+          "KeyE",
         ].includes(e.code)
       )
         e.preventDefault();
 
       if (!e.repeat) {
+        // Camera rotation, in 90° steps. Q/Z and E/C are mirrored pairs so the
+        // control works whether the player's hand is on the top or bottom row;
+        // E is taken by interact, hence X as the second clockwise key.
         if (e.code === "KeyQ" || e.code === "KeyZ") rt.cam.targetYaw += Math.PI / 2;
-        if (e.code === "KeyC") rt.cam.targetYaw -= Math.PI / 2;
+        if (e.code === "KeyC" || e.code === "KeyX") rt.cam.targetYaw -= Math.PI / 2;
         if (e.code === "KeyE") rt.input.interact = true;
         if (e.code === "KeyP" || e.code === "Escape") {
           // Don't open the pause menu on top of a blocking modal. The pause menu

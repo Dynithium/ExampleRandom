@@ -128,7 +128,6 @@ function Environment() {
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, dayF);
     bg.lerp(DUSK_SKY, dusk * 0.55);
     fog.color.copy(bg);
-    rt.env.sky.copy(bg);
 
     hemi.current.intensity = 0.5 + dayF * 0.85;
     hemi.current.color.copy(bg).lerp(WHITE, 0.25);

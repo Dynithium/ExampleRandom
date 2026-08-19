@@ -352,7 +352,7 @@ function TitleScreen() {
 
         {/* Footer controls hint */}
         <div className="border-t border-[#1e2a52] pt-2 text-[7.5px] text-[#5f719e]">
-          WASD MOVE · E TALK/INTERACT · SPACE ATTACK · P PAUSE/SAVE
+          WASD MOVE · E TALK/INTERACT · SPACE ATTACK · Q/C TURN CAMERA · P PAUSE/SAVE
         </div>
       </div>
     </div>

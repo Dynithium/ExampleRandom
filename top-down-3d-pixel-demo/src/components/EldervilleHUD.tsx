@@ -195,7 +195,7 @@ export function EldervilleHUD() {
       {/* Bottom controls reminder */}
       {!activeDialog && !openingBlack && !scholarPuzzleOpen && (
         <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-10 -translate-x-1/2 rounded bg-black/60 px-3 py-1 text-center text-[10px] text-[#d0d8e8] shadow backdrop-blur-xs" style={{ fontFamily: "monospace" }}>
-          <span className="font-bold text-[#ffd75e]">WASD</span> Move · <span className="font-bold text-[#ffd75e]">E</span> Talk/Interact · <span className="font-bold text-[#ffd75e]">SPACE</span> Strike · <span className="font-bold text-[#ffd75e]">R</span> Guard · <span className="font-bold text-[#ffd75e]">SHIFT</span> Dodge · <span className="font-bold text-[#ffd75e]">P</span> Pause
+          <span className="font-bold text-[#ffd75e]">WASD</span> Move · <span className="font-bold text-[#ffd75e]">E</span> Talk/Interact · <span className="font-bold text-[#ffd75e]">SPACE</span> Strike · <span className="font-bold text-[#ffd75e]">R</span> Guard · <span className="font-bold text-[#ffd75e]">SHIFT</span> Dodge · <span className="font-bold text-[#ffd75e]">Q/C</span> Turn Camera · <span className="font-bold text-[#ffd75e]">P</span> Pause
         </div>
       )}
     </>

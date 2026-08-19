@@ -40,7 +40,6 @@ export const rt = {
     time: 0.26, // 0..1 -> one full day
     night: 0, // 0 day .. 1 night
     sun: new THREE.Vector3(),
-    sky: new THREE.Color("#8fd0e8"),
   },
   input: {
     x: 0,

@@ -4,30 +4,43 @@
 
 ## Current In-Game Layout (Village Prototype)
 
-The playable village is a **48x30 tile map**. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. The four buildings and their front doors:
-
-| Building | Exterior Footprint (x, y) | Door Tile (x, y) | Interior Size |
-|---|---|---|---|
-| Council of Elders (Blue House) | (6, 3) | (8, 7) | 15x10 (`council`) |
-| Minslaire & Tinslaire's House (Red House) | (28, 3) | (30, 7) | 15x10 (`home`) |
-| Farmer's Homestead | (6, 16) | (8, 20) | 15x10 (`homesteadA`) |
-| Weaver's Homestead | (28, 16) | (30, 20) | 15x10 (`homesteadB`) |
+The playable village is a **96x96 tile map**. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. Seven buildings are enterable; their doors are listed in the table further down.
 
 Walk into a door tile to enter; walk onto the door mat inside to exit back to the same spot outside.
 
-District tiles currently placed on the map:
+District tiles currently placed on the map (village is 96x96 tiles):
 
-- **Red House (home)** — interior has two beds and the heirloom sword in its glass case; Minslaire wakes up here.
-- **Blue House (council)** — interior has the council table, benches, and bookshelves.
-- **Grand Gardens** — crop terraces at (22, 18) using tile `10`.
-- **The Forge & Workshops** — at (22, 4), tile `12`. **After the Cave, this is where Sage forges the compass from the machine's remains.**
-- **Central Well** — at (24, 16), tile `11`.
-- **Southern Marketplace & Bazaar** — stalls at (22, 26), tile `13`.
-- **Watchtower & Eastern Gate** — watchtower at (44, 6), tile `14`; the gate gap in the eastern tree line is the path at rows 8–9.
-- **Village Pond** — water at (40, 26), tile `5`.
-- **Roads** — dirt paths at row 13, row 25, and columns 2, 18, 21 connecting all districts.
+- **Red House (home)** — door (12, 10). Two beds and the heirloom sword in its glass case; Minslaire wakes up here.
+- **Blue House (council)** — door (32, 10). Council table, benches, and the four-dial archive bookcase (Trial 2).
+- **Farmer's Homestead** — door (12, 28). Widow Oren (Trial 3).
+- **Weaver's Homestead** — door (32, 28).
+- **Grand Gardens** — crop terraces at (26, 34); the grain sack for Trial 3 sits at (30, 36).
+- **The Forge & Workshops** — anvil at (52, 7). **After the Cave, this is where Sage forges the compass from the machine's remains.**
+- **Central Well** — (58, 36). Trial 1.
+- **Southern Marketplace & Bazaar** — stall at (15, 40). Trial 4.
+- **Founders' Plaza** — paved square at (40–50, 8–16); the **Plaza Watchhouse** door is at (44, 14) and the muster ground (Trial 9) is (44, 12).
+- **The North Watch** — rampart along row 2 with a tower at (36, 4). The three signal braziers for Trial 5 stand at (32, 4), (36, 4) and (40, 4).
+- **The Aqueduct** — raised stone channel along row 46 with sluice gates at (42, 46), (48, 46) and (54, 46); the cistern head is (44, 48). Trial 6.
+- **The Orchard** — western terraces at (6–20, 36–44); the Keeper's hut door is (10, 42) and the three suspect rows are (9, 38), (13, 40), (17, 38). Trial 7.
+- **The Granary** — silos at (22–34, 56–62), door (26, 60). Tally board and four sacks inside. Trial 8.
+- **The Quarry** — worked pit at (56–72, 56–68) with a ramp in at column 64; the smelter is (64, 62) and the three scrap constructs spawn at (61, 60), (67, 61) and (63, 65). Trial 10.
+- **Watchtower & Eastern Gate** — tower at (90, 12); the gate gap in the eastern tree line is rows 22–24. The **Outskirts Cave** mouth is (90, 8). Trial 12.
+- **Village Pond** — water at (46–52, 38–44).
+- **Roads** — east-west avenues at rows 16, 32 and 52; north-south arteries at columns 6, 20, 36, 52 and 72, plus district connectors to the orchard, granary, aqueduct and quarry.
 
-NPCs currently stand at: **Tinslaire** (30, 9), **Elder Marcus** (8, 9), **Elder Sarah** (23, 14). NPCs are solid and block player movement.
+Interior doors:
+
+| Interior | Door tile | Id |
+|---|---|---|
+| Your Home | (12, 10) | `home` |
+| Council Hall | (32, 10) | `council` |
+| Farmer's Homestead | (12, 28) | `homesteadA` |
+| Weaver's Homestead | (32, 28) | `homesteadB` |
+| The Granary | (26, 60) | `granary` |
+| Orchard Keeper's Hut | (10, 42) | `orchardHut` |
+| Plaza Watchhouse | (44, 14) | `watchhouse` |
+
+NPCs currently stand at: **Elder Moss** (59, 35), **Elder Sage** (32, 12), **Elder Thorn** (16, 26) — Thorn relocates to Founders' Plaza (44, 12) while the muster is the active trial — and the **Bazaar Trader** (15, 40). **Widow Oren** is inside `homesteadA` and the **Orchard Keeper** inside `orchardHut`. **Tinslaire** wanders the village by day and follows you during Trial 4. NPCs are solid and block player movement.
 
 ---
 

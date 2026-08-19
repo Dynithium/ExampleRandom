@@ -37,15 +37,41 @@ The player is guided by the **yellow arrow** and the **mission bar** (top right)
   2. *Talk* — interact with Tinslaire (E). He tells you the elders are at the door.
   3. *Open the door* — meet the elders. They ask you to investigate the **cave on the outskirts**.
 
-### The Elders' Trials (character tests — before combat)
-Before they hand you a sword, the elders test *who you are*, not what you can swing. Four small tasks, each quietly judging a virtue:
+### The Elders' Trials (the twelve)
 
-| Trial | Giver | Objective | Tests | Theme Seed |
-|---|---|---|---|---|
-| **The Well's Echo** | Elder Moss | Check the rope at the Central Well; find the rumble beneath | Observation; obedience (do you drop it?) | The elders are hiding something |
-| **The Scholar's Request** | Elder Sage | Retrieve rare herbs / a stuck scroll from his study | Wits; patience | Knowledge is a trust, not a trophy |
-| **The Widow's Task** | Elder Thorn | Carry grain / fetch water for Widow Oren | The heart; grace in service | Your strength is a debt; service without reward |
-| **The Honest Change** | The Council | A trader overpays you 50 silver at the Bazaar — keep it or return it? **Tinslaire follows you for this one and argues to keep it.** | Honesty | Integrity; being seen by something higher — and the memory Tinslaire betrays in Act II |
+Before they hand you a sword, the elders test *who you are*. Twelve tasks, in a
+fixed order — each one is gated on the last, so Act I is played through rather
+than skipped around. Each trial has a verb you actually perform, not just a
+conversation to sit through.
+
+| # | Trial | Giver | Type | Objective | Tests |
+|---|---|---|---|---|---|
+| 1 | **The Well's Echo** | Elder Moss | observation | Check the rope at the Central Well; find the rumble beneath | Observation; obedience (do you drop it?) |
+| 2 | **The Scholar's Request** | Elder Sage | puzzle | Read the study desk, then solve the four-dial elemental archive lock | Wits; patience |
+| 3 | **The Widow's Task** | Elder Thorn | service | Carry grain to Widow Oren, and refuse her silver | The heart; grace in service |
+| 4 | **The Honest Change** | The Council | integrity | A trader overpays you 50 silver. **Tinslaire follows you and argues to keep it.** | Honesty |
+| 5 | **The Night Watch** | Elder Thorn | observation | Read the watch roster, then light three rampart braziers **in the ledger's order** — wrong order snuffs the line | Attention under boredom |
+| 6 | **The Dry Cistern** | Elder Sage | puzzle | Three sluice gates, three settings each. Translate the engineers' rule into positions | Reading an instruction exactly |
+| 7 | **The Blighted Rows** | Orchard Keeper | service | Put your hand in the soil of three orchard rows. One is warm, and smells of the forge | Diligence; noticing |
+| 8 | **The Short Tally** | Elder Moss | puzzle | Read the granary board, weigh all four sacks, report the difference. It is exactly fifty | Arithmetic; nerve |
+| 9 | **The Muster** | Elder Thorn | combat | Thorn's drill: answer GUARD, DODGE and STRIKE on his call | Discipline under a real blade |
+| 10 | **The Scrap in the Quarry** | Elder Sage | combat | Three scrap constructs crawled out of the quarry face. Clear them; bring back a fragment | Steel, for the first time, against machines |
+| 11 | **The Trial of Steel** | The Council | combat | Fell the three training dummies, then take your father's blade | Everything at once |
+| 12 | **The Outskirts Cave** | Elder Moss | finale | Enter the cave, destroy the Cave Machine, and **do not leave the body** | The whole of Act I |
+
+**Trials 5–10 are where the betrayal gets planted.** Read in order they are the
+elders steadily converting Minslaire from a boy being tested into an asset being
+surveyed, provisioned and aimed east. The watch line is *"to warn us — about
+whatever is coming back down that road."* The granary is fifty sacks short and
+Moss authorised it himself. The orchard is warm from below and the Keeper tells
+you to say nothing. By trial 10 Sage calls you *ready* the way a man says it
+about a tool.
+
+**Ordering is enforced in one place.** `src/game/quests.ts` holds the spine as a
+single ordered list; every interaction gate, the HUD tracker and the objective
+marker all read it. A trial is available only when every earlier trial is done,
+so there is no sequence break to find — a locked giver tells you what they are
+waiting on instead of handing out their task.
 
 ### The Elders' Test (combat tutorial)
 Now they test your skills in the training clearing behind the Blue House:

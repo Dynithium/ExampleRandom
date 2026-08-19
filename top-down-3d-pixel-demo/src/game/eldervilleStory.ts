@@ -258,6 +258,236 @@ export const traderCompletedRepeat: Dialog = {
   lines: ["May honor guide your blade, Minslaire! The Council gathers behind the Blue House to test your combat."],
 };
 
+// ===========================================================================
+// Trials 5-10 — the expanded spine.
+//
+// These sit between the four virtue trials and the Trial of Steel. They exist
+// to make Act I a game rather than a corridor of conversations: each one has a
+// verb the player performs (light, set, inspect, weigh, parry, fight) and each
+// one quietly moves the betrayal plot forward. Read in order, trials 5-10 are
+// the elders steadily converting Minslaire from a boy who is being tested into
+// an asset who is being surveyed, provisioned, and aimed east.
+// ===========================================================================
+
+// ---- Trial 5: The Night Watch (observation) -------------------------------
+export const watchIntroDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: [
+    "You've proven you're honest. Now prove you can pay attention when it's cold and nothing is happening.",
+    "Three signal braziers on the north rampart. If the forest ever moves on us, that line is how the village knows.",
+    "The lighting order is in the watch roster, in the Plaza Watchhouse. Read it. Do not guess it.",
+    "(The order matters. Light them wrong and the whole line gutters out and you start again.)",
+  ],
+};
+export const watchLedgerDialog: Dialog = {
+  name: "Watch Roster",
+  lines: [
+    "A tallow-stained board nailed above the bench. The current watch order is chalked across the top:",
+    "'WEST FIRST — then EAST — then CENTRE LAST, so the centre man sees both wings already burning before he lights.'",
+    "Beneath, in a different hand: 'Any fool lights left to right. That is how we lost the Karrow watch.'",
+    "(West, then East, then Centre. The braziers stand along the north rampart.)",
+  ],
+};
+export const watchWrongDialog: Dialog = {
+  name: "Signal Braziers",
+  lines: [
+    "The flame catches, gutters — and the whole line snuffs itself out in a chain, west to east.",
+    "Wrong order. The roster was specific for a reason.",
+    "(Start the sequence again: West, then East, then Centre.)",
+  ],
+};
+export const watchLitDialog: Dialog = {
+  name: "Signal Braziers",
+  lines: [
+    "The last brazier catches and holds. Three points of fire along the rampart, steady in the wind.",
+    "From up here you can see a long way east. The forest is very dark, and very still.",
+    "(Report the completed watch to Elder Thorn.)",
+  ],
+};
+export const watchCompleteDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: [
+    "Lit in the right order, on the first full run. Good.",
+    "(He looks north along the burning line, and something in his face closes.)",
+    "You know what that line is actually for, boy? It isn't to warn you. It's to warn us — about whatever is coming back down that road.",
+    "★ Trial 5 passed: The Night Watch.",
+  ],
+};
+
+// ---- Trial 6: The Dry Cistern (puzzle) ------------------------------------
+export const sluiceIntroDialog: Dialog = {
+  name: "Elder Sage",
+  lines: [
+    "The aqueduct is running full and the cistern is bone dry. That is not possible, which means I am wrong about something.",
+    "Three sluice gates along the channel. Each sits shut, half, or open.",
+    "Here is what the old engineers wrote: 'The head gate feeds the run. The middle gate must hold, or the water is lost to the pond. The last is throttled, never thrown, or the channel overtops.'",
+    "Translate that into gate positions and the cistern fills. Get it wrong and you will simply watch water go somewhere useless.",
+  ],
+};
+export const sluiceNoteDialog: Dialog = {
+  name: "Sluice Gate",
+  lines: [
+    "A stone gate in the aqueduct wall, worn smooth by hands older than the village.",
+    "It moves through three settings: SHUT, HALF, OPEN.",
+    "(Head gate open. Middle gate shut. Last gate half.)",
+  ],
+};
+export const sluiceSolvedDialog: Dialog = {
+  name: "The Aqueduct",
+  lines: [
+    "The channel shudders. Water shoulders past the head gate, is turned by the middle, and slides throttled through the last.",
+    "Below, the cistern begins to fill — loud, then quieter, then just a deep steady note under your boots.",
+    "(Report to the cistern head.)",
+  ],
+};
+export const sluiceCompleteDialog: Dialog = {
+  name: "Elder Sage",
+  lines: [
+    "(He watches the cistern fill with an expression that is not quite pleasure)",
+    "You read the instruction and you did not improvise. Do you know how rare that is?",
+    "That matters more than you think, Minslaire. Where you are going, improvising will kill you.",
+    "★ Trial 6 passed: The Dry Cistern.",
+  ],
+};
+
+// ---- Trial 7: The Blighted Rows (service) ---------------------------------
+export const blightIntroDialog: Dialog = {
+  name: "Orchard Keeper",
+  lines: [
+    "Widow Oren said you were the one to ask. She said you carry things for people without being paid.",
+    "Three rows on the western terrace are dying from underneath. Leaves fine, fruit fine, roots black.",
+    "I am too old to kneel in all three. Walk them. Put your hand in the soil at each. You will know the bad one when you touch it.",
+    "(Inspect all three rows on the orchard terrace.)",
+  ],
+};
+export const blightRowCleanDialog: Dialog = {
+  name: "Orchard Row",
+  lines: [
+    "You dig two fingers into the loam. Cool, damp, alive. Worms move away from your hand.",
+    "This row is fine.",
+  ],
+};
+export const blightRowRotDialog: Dialog = {
+  name: "Orchard Row",
+  lines: [
+    "The soil here is warm. Not sun-warm — warm from below, like something under it is working.",
+    "You pull your hand back and the dirt on your fingers smells of hot metal and oil.",
+    "Not a blight. Something is buried in this row, and it is running.",
+  ],
+};
+export const blightCompleteDialog: Dialog = {
+  name: "Orchard Keeper",
+  lines: [
+    "The middle row. Warm soil, and it smelled of the forge.",
+    "(The old man goes very quiet, then makes a sign over his chest you have not seen anyone make before)",
+    "I will tell the Council. You will not tell anyone. Do you understand me, boy? Not the Council — I will tell the Council. You say nothing.",
+    "★ Trial 7 passed: The Blighted Rows.",
+  ],
+};
+
+// ---- Trial 8: The Short Tally (puzzle) ------------------------------------
+export const tallyIntroDialog: Dialog = {
+  name: "Elder Moss",
+  lines: [
+    "The granary is short. Not spoiled, not rat-eaten — short, and the ledger balances perfectly.",
+    "A ledger that balances while the room is empty is a ledger someone is maintaining.",
+    "Read the tally board. Weigh all four sacks against it. Then come and tell me the number.",
+    "(Read the ledger in the Granary, then weigh each of the four sacks.)",
+  ],
+};
+export const tallyLedgerDialog: Dialog = {
+  name: "Tally Board",
+  lines: [
+    "Four columns, chalked and re-chalked: NORTH 40 · EAST 40 · SOUTH 40 · WEST 40. Total 160.",
+    "Signed at the base in a careful, elderly hand — the same hand as the Council Archive labels.",
+    "(Weigh each of the four sacks and compare.)",
+  ],
+};
+export const tallySackDialog: Dialog = {
+  name: "Grain Sack",
+  lines: ["You heft the sack onto the scale and read the beam.", "(Weighed. Three more to check against the board.)"],
+};
+export const tallyCompleteDialog: Dialog = {
+  name: "Elder Moss",
+  lines: [
+    "Well?",
+    "(You tell him: the board says one hundred and sixty. The sacks weigh one hundred and ten. Fifty short.)",
+    "(A pause exactly one beat too long.)",
+    "Fifty. How precise of you. Yes — that will be the winter reserve, moved for safekeeping. I authorised it myself.",
+    "Do not trouble yourself with the granary again, Minslaire. Some numbers are not yours to carry.",
+    "★ Trial 8 passed: The Short Tally.",
+  ],
+};
+
+// ---- Trial 9: The Muster (combat drill) -----------------------------------
+export const musterIntroDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: [
+    "Enough errands. If they are sending you anywhere, you are going to know how to not die on the way.",
+    "This is a drill, not a duel. I call, you answer. Three calls.",
+    "GUARD when I swing — hold R. DODGE when I lunge — tap SHIFT. STRIKE when I open — SPACE.",
+    "(Answer Thorn's three calls correctly.)",
+  ],
+};
+export const musterCallGuardDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: ["GUARD!", "(Hold R as the blow comes in.)"],
+};
+export const musterCallDodgeDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: ["Good. DODGE — now!", "(Tap SHIFT to roll clear of the lunge.)"],
+};
+export const musterCallStrikeDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: ["I'm open. STRIKE!", "(Hit him with SPACE.)"],
+};
+export const musterCompleteDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: [
+    "(He lowers his guard, breathing hard, and looks at you a long moment)",
+    "Your father drilled exactly like that. Same hitch before the riposte. He never fixed it either.",
+    "Listen to me. Everything after today, you do slower than they tell you to. Slower, and looking around.",
+    "★ Trial 9 passed: The Muster.",
+  ],
+};
+
+// ---- Trial 10: The Scrap in the Quarry (combat) ---------------------------
+export const scrapIntroDialog: Dialog = {
+  name: "Elder Sage",
+  lines: [
+    "The quarry face collapsed in the night and something came out of it. Three somethings.",
+    "They are small, they are fast, and they are made of the same metal as whatever is humming under the well.",
+    "Clear them out and bring me a fragment. Do not bring me all of one. Bring me a piece.",
+    "(Descend the quarry ramp and destroy the three scrap constructs.)",
+  ],
+};
+export const scrapEngageDialog: Dialog = {
+  name: "???",
+  lines: [
+    "(Three low shapes uncoil out of the spoil heaps, plates grinding as they rise)",
+    "They have no faces. They orient on you anyway.",
+    "(Strike with SPACE. Loose arrows with K. SHIFT to dodge. Guard with R.)",
+  ],
+};
+export const scrapClearedDialog: Dialog = {
+  name: "The Quarry",
+  lines: [
+    "The last construct folds up and stops.",
+    "In the quarry face behind them there is a shaft that nobody in Elderville dug — smooth-walled, perfectly round, going down.",
+    "(Take a fragment to Elder Sage.)",
+  ],
+};
+export const scrapCompleteDialog: Dialog = {
+  name: "Elder Sage",
+  lines: [
+    "(He turns the fragment over twice and does not ask a single question about the shaft)",
+    "Good. This is enough to work from.",
+    "You have done ten things for us, Minslaire. There are two left. After that you will be ready.",
+    "(He says 'ready' the way a man says it about a tool, not a boy.)",
+    "★ Trial 10 passed: The Scrap in the Quarry.",
+  ],
+};
+
 // Combat Trial Dialogue (Behind Blue House)
 export const councilCombatTrialDialog: Dialog = {
   name: "The Council of Elders",
@@ -360,7 +590,7 @@ export const eldersAtDoorPositions = [
 export type TrialState = "not_started" | "assigned" | "inspected" | "desk_read" | "puzzle_solved" | "grain_picked" | "delivered" | "overpaid" | "completed";
 export type CaveStage = "not_entered" | "entered" | "boss_awake" | "boss_defeated" | "delivered";
 
-type ElderState = {
+export type ElderState = {
   openingBlack: boolean;
   memoryActive: boolean;
   memoryIndex: number;
@@ -375,6 +605,28 @@ type ElderState = {
   marketTrialState: TrialState;
   combatTrialState: TrialState;
   dummiesHealth: number[];
+  // --- Trials 5-10 (the expanded spine; see quests.ts) ---
+  watchTrialState: TrialState;
+  /** north-rampart signal braziers, lit in ledger order */
+  braziersLit: boolean[];
+  /** the order the watchhouse ledger demands (indices into the brazier array) */
+  watchOrder: number[];
+  sluiceTrialState: TrialState;
+  /** the three aqueduct sluice gates: 0 shut, 1 half, 2 open */
+  sluiceGates: number[];
+  blightTrialState: TrialState;
+  rowsInspected: boolean[];
+  /** which orchard row actually carries the rot */
+  blightRow: number;
+  tallyTrialState: TrialState;
+  /** the four granary sacks the player has weighed */
+  sacksWeighed: boolean[];
+  musterTrialState: TrialState;
+  /** Thorn's drill: the called moves the player has answered correctly */
+  musterStep: number;
+  scrapTrialState: TrialState;
+  /** hp of the three quarry constructs */
+  scrapHealth: number[];
   carryingGrain: boolean;
   hasSword: boolean;
   scholarPuzzleOpen: boolean;
@@ -404,6 +656,18 @@ type ElderState = {
   setWidowTrialState: (v: TrialState) => void;
   setMarketTrialState: (v: TrialState) => void;
   setCombatTrialState: (v: TrialState) => void;
+  setWatchTrialState: (v: TrialState) => void;
+  lightBrazier: (i: number) => "ok" | "wrong" | "ignored";
+  setSluiceTrialState: (v: TrialState) => void;
+  cycleSluice: (i: number) => void;
+  setBlightTrialState: (v: TrialState) => void;
+  inspectRow: (i: number) => void;
+  setTallyTrialState: (v: TrialState) => void;
+  weighSack: (i: number) => void;
+  setMusterTrialState: (v: TrialState) => void;
+  advanceMuster: () => void;
+  setScrapTrialState: (v: TrialState) => void;
+  damageScrap: (i: number, dmg: number) => void;
   setScholarPuzzleOpen: (v: boolean) => void;
   setScholarDials: (d: number[]) => void;
   damageDummy: (index: number, dmg: number) => void;
@@ -426,6 +690,21 @@ export const useElder = create<ElderState>((set, get) => ({
   marketTrialState: "not_started",
   combatTrialState: "not_started",
   dummiesHealth: [60, 60, 60],
+  watchTrialState: "not_started",
+  braziersLit: [false, false, false],
+  // West, East, Centre — deliberately not left-to-right, so the ledger must be read
+  watchOrder: [0, 2, 1],
+  sluiceTrialState: "not_started",
+  sluiceGates: [0, 0, 0],
+  blightTrialState: "not_started",
+  rowsInspected: [false, false, false],
+  blightRow: 1,
+  tallyTrialState: "not_started",
+  sacksWeighed: [false, false, false, false],
+  musterTrialState: "not_started",
+  musterStep: 0,
+  scrapTrialState: "not_started",
+  scrapHealth: [40, 40, 40],
   carryingGrain: false,
   hasSword: false,
   scholarPuzzleOpen: false,
@@ -452,12 +731,100 @@ export const useElder = create<ElderState>((set, get) => ({
   setScholarPuzzleOpen: (v) => set({ scholarPuzzleOpen: v }),
   setScholarDials: (scholarDials) => set({ scholarDials }),
 
+  // ---- Trial 5: The Night Watch -------------------------------------------
+  setWatchTrialState: (v) => set({ watchTrialState: v }),
+  /**
+   * Light a signal brazier. The ledger in the watchhouse gives an order that is
+   * deliberately not left-to-right; lighting out of turn snuffs the whole line
+   * and you start the sequence again.
+   */
+  lightBrazier: (i) => {
+    const s = get();
+    if (s.watchTrialState !== "assigned") return "ignored";
+    if (s.braziersLit[i]) return "ignored";
+    const litCount = s.braziersLit.filter(Boolean).length;
+    const expected = s.watchOrder[litCount];
+    if (i !== expected) {
+      set({ braziersLit: [false, false, false] });
+      return "wrong";
+    }
+    const next = [...s.braziersLit];
+    next[i] = true;
+    const all = next.every(Boolean);
+    set({ braziersLit: next, watchTrialState: all ? "inspected" : s.watchTrialState });
+    return "ok";
+  },
+
+  // ---- Trial 6: The Dry Cistern -------------------------------------------
+  setSluiceTrialState: (v) => set({ sluiceTrialState: v }),
+  /**
+   * Cycle one sluice gate shut -> half -> open -> shut.
+   * The cistern only fills on [open, shut, half]: the head gate feeds the run,
+   * the middle gate must be shut or the water spills to the pond, and the last
+   * is throttled to half or the channel overtops. Sage's note states the rule;
+   * the player has to translate it into gate positions.
+   */
+  cycleSluice: (i) => {
+    const s = get();
+    if (s.sluiceTrialState !== "assigned") return;
+    const gates = [...s.sluiceGates];
+    gates[i] = (gates[i] + 1) % 3;
+    const solved = gates[0] === 2 && gates[1] === 0 && gates[2] === 1;
+    set({ sluiceGates: gates, sluiceTrialState: solved ? "inspected" : s.sluiceTrialState });
+  },
+
+  // ---- Trial 7: The Blighted Rows -----------------------------------------
+  setBlightTrialState: (v) => set({ blightTrialState: v }),
+  inspectRow: (i) => {
+    const s = get();
+    if (s.blightTrialState !== "assigned") return;
+    if (s.rowsInspected[i]) return;
+    const next = [...s.rowsInspected];
+    next[i] = true;
+    set({ rowsInspected: next, blightTrialState: next.every(Boolean) ? "inspected" : s.blightTrialState });
+  },
+
+  // ---- Trial 8: The Short Tally -------------------------------------------
+  setTallyTrialState: (v) => set({ tallyTrialState: v }),
+  weighSack: (i) => {
+    const s = get();
+    if (s.tallyTrialState !== "assigned") return;
+    if (s.sacksWeighed[i]) return;
+    const next = [...s.sacksWeighed];
+    next[i] = true;
+    set({ sacksWeighed: next, tallyTrialState: next.every(Boolean) ? "inspected" : s.tallyTrialState });
+  },
+
+  // ---- Trial 9: The Muster ------------------------------------------------
+  setMusterTrialState: (v) => set({ musterTrialState: v }),
+  /** Thorn calls three moves; each correct answer advances the drill. */
+  advanceMuster: () => {
+    const s = get();
+    if (s.musterTrialState !== "assigned") return;
+    const step = s.musterStep + 1;
+    set({ musterStep: step, musterTrialState: step >= 3 ? "inspected" : s.musterTrialState });
+  },
+
+  // ---- Trial 10: The Scrap in the Quarry ----------------------------------
+  setScrapTrialState: (v) => set({ scrapTrialState: v }),
+  damageScrap: (i, dmg) => {
+    const s = get();
+    if (s.scrapTrialState !== "assigned") return;
+    const hp = [...s.scrapHealth];
+    hp[i] = Math.max(0, hp[i] - dmg);
+    const cleared = hp.every((h) => h <= 0);
+    set({ scrapHealth: hp, scrapTrialState: cleared ? "inspected" : s.scrapTrialState });
+  },
+
   damageDummy: (index: number, dmg: number) => {
     const s = get();
     // The dummies only count once the Council has actually set the blade trial.
     // Without this guard a player could wander behind the Blue House at minute one,
     // fell all three, flip combatTrialState to "completed", collect their father's
-    // blade and walk into the cave — skipping all four virtue trials.
+    // blade and walk into the cave — skipping every trial before it.
+    //
+    // This is now one instance of a general rule rather than a special case: the
+    // quest spine in quests.ts decides what is reachable, and every gate asks it.
     if (s.combatTrialState !== "assigned") return;
     const nextH = [...s.dummiesHealth];
     nextH[index] = Math.max(0, nextH[index] - dmg);
@@ -561,6 +928,24 @@ export const useElder = create<ElderState>((set, get) => ({
       if (wasTraderIntro) { next.marketTrialState = "overpaid"; }
       if (wasTraderReturn) { next.marketTrialState = "completed"; }
       if (wasCouncilCombat) { next.combatTrialState = "assigned"; }
+
+      // --- Trials 5-10 -------------------------------------------------------
+      // Each trial assigns on its intro dialog and completes on its report-back
+      // dialog. The middle ("inspected") state is set by the interaction itself
+      // (lighting braziers, cycling sluices, weighing sacks, felling constructs),
+      // not here, so the player has to actually perform the verb.
+      if (src === "watchIntro") { next.watchTrialState = "assigned"; }
+      if (src === "watchComplete") { next.watchTrialState = "completed"; }
+      if (src === "sluiceIntro") { next.sluiceTrialState = "assigned"; }
+      if (src === "sluiceComplete") { next.sluiceTrialState = "completed"; }
+      if (src === "blightIntro") { next.blightTrialState = "assigned"; }
+      if (src === "blightComplete") { next.blightTrialState = "completed"; }
+      if (src === "tallyIntro") { next.tallyTrialState = "assigned"; }
+      if (src === "tallyComplete") { next.tallyTrialState = "completed"; }
+      if (src === "musterIntro") { next.musterTrialState = "assigned"; }
+      if (src === "musterComplete") { next.musterTrialState = "completed"; }
+      if (src === "scrapIntro") { next.scrapTrialState = "assigned"; }
+      if (src === "scrapComplete") { next.scrapTrialState = "completed"; }
 
       if (src) {
         const ns = new Set(s.spoken); ns.add(src);

@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { rt, useUI } from "./state";
 import { useElder } from "./eldervilleStory";
-import { eldervilleWorldPos, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } from "./world";
+import { eldervilleWorldPos, eldervilleTileAt, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } from "./world";
 import { startNewGame } from "./save";
 import { captureFrame, hasCanvas } from "./agentVision";
 import { findPath } from "./pathfinding";
+import { TRIALS, TRIAL_COUNT, activeTrial, completedCount } from "./quests";
 
 /**
  * Agent Mode — an OpenAI-compatible LLM plays Minslaire Act I as a benchmark.
@@ -165,7 +166,7 @@ const INT_OFF_Z = 75;
 function playerTile(): { tx: number; ty: number } {
   const p = rt.player.pos;
   if (useElder.getState().currentArea === "village") {
-    return { tx: Math.round(p.x + 35.5), ty: Math.round(p.z + 35.5 - 11) };
+    return eldervilleTileAt(p.x, p.z);
   }
   return { tx: Math.floor(p.x - INT_OFF_X), ty: Math.floor(p.z - INT_OFF_Z) };
 }
@@ -196,19 +197,59 @@ function poisFor(s: Elder): { name: string; tx: number; ty: number }[] {
     add("Elder Thorn", 16, 26);
     add("Bazaar Trader", 15, 40);
     add("Forge", FORGE_TILE.tx, FORGE_TILE.ty);
-    add("Training dummies", 36, 4);
+    add("Training dummies", 36, 6);
     add("Outskirts Cave mouth", CAVE_TILE.tx, CAVE_TILE.ty);
+    // districts added with the twelve-trial spine
+    add("Plaza Watchhouse door", 44, 14);
+    add("Founders' Plaza (muster ground)", 44, 12);
+    add("Granary door", 26, 60);
+    add("Orchard Keeper's hut door", 10, 42);
+    add("Quarry", 64, 62);
+    add("Aqueduct cistern", 44, 48);
     if (s.widowTrialState === "assigned" && !s.carryingGrain) add("Grain sack", 30, 36);
+    if (s.watchTrialState === "assigned") {
+      ([[32, 4], [36, 4], [40, 4]] as [number, number][]).forEach(([bx, by], i) => {
+        if (!s.braziersLit[i]) add(`Signal brazier ${["west", "east", "centre"][i]}`, bx, by);
+      });
+    }
+    if (s.sluiceTrialState === "assigned") {
+      ([[42, 46], [48, 46], [54, 46]] as [number, number][]).forEach(([sx, sy], i) => {
+        add(`Sluice gate ${["head", "middle", "last"][i]}`, sx, sy);
+      });
+    }
+    if (s.blightTrialState === "assigned") {
+      ([[9, 38], [13, 40], [17, 38]] as [number, number][]).forEach(([rx, ry], i) => {
+        if (!s.rowsInspected[i]) add(`Orchard row ${i + 1}`, rx, ry);
+      });
+    }
+    if (s.scrapTrialState === "assigned") {
+      ([[61, 60], [67, 61], [63, 65]] as [number, number][]).forEach(([qx, qy], i) => {
+        if (s.scrapHealth[i] > 0) add(`Scrap construct ${i + 1}`, qx, qy);
+      });
+    }
     if (s.marketTrialState === "completed" && s.combatTrialState === "not_started")
-      add("Council blade-trial spot", 36, 6);
+      add("Council blade-trial spot", 36, 8);
     if (s.eldersDoorDialogDone && rt.env.night < 0.45) {
       const tp = rt.tinslaire.pos;
-      add("Tinslaire (wandering)", Math.round(tp.x + 35.5), Math.round(tp.z + 35.5 - 11));
+      const tt = eldervilleTileAt(tp.x, tp.z);
+      add("Tinslaire (wandering)", tt.tx, tt.ty);
     }
   } else if (s.currentArea === "home") {
     add("exit mat (leave house)", 7, 9);
     add("Tinslaire", 6, 5);
     add("Sword case (father's blade)", 9, 4);
+  } else if (s.currentArea === "watchhouse") {
+    add("exit mat (leave building)", 7, 9);
+    add("watch roster board", 7, 4);
+  } else if (s.currentArea === "granary") {
+    add("exit mat (leave building)", 7, 9);
+    add("tally board", 3, 5);
+    ([[2, 2], [11, 2], [2, 6], [10, 6]] as [number, number][]).forEach(([sx, sy], i) => {
+      if (!s.sacksWeighed[i]) add(`grain sack ${i + 1}`, sx, sy);
+    });
+  } else if (s.currentArea === "orchardHut") {
+    add("exit mat (leave building)", 7, 9);
+    add("Orchard Keeper", 6, 6);
   } else if (s.currentArea === "council") {
     add("study desk (Sage's journal)", 6, 4);
     add("archive bookcase (dial puzzle)", 7, 2);
@@ -231,24 +272,19 @@ function poisFor(s: Elder): { name: string; tx: number; ty: number }[] {
   return out;
 }
 
+/**
+ * What the agent should be doing right now, read from the quest spine so the
+ * benchmark prompt can never describe a different Act I than the game runs.
+ */
 function objectiveText(s: Elder): string {
   if (s.openingBlack) return "You are waking up. Use interact to rise.";
   if (s.memoryActive) return "A memory is playing. Advance the dialog with interact.";
   if (!s.tinslaireInsideTalked) return "Talk to Tinslaire, here at home.";
   if (!s.eldersDoorDialogDone) return "Leave the house (exit mat) and meet the elders at your door.";
-  if (s.wellTrialState !== "completed") return "Trial 1: Elder Moss at the Central Well.";
-  if (s.scholarTrialState !== "completed")
-    return "Trial 2: Elder Sage — read the study desk, then solve the archive dials in the Council Hall.";
-  if (s.widowTrialState !== "completed") return "Trial 3: Elder Thorn — carry the grain sack to Widow Oren.";
-  if (s.marketTrialState !== "completed") return "Trial 4: Bazaar Trader — return the extra coins.";
-  if (s.combatTrialState !== "completed") return "Blade trial: defeat the 3 training dummies behind the Blue House.";
-  if (!s.hasSword) return "Take your father's blade from the sword case at home.";
-  if (s.caveStage === "not_entered") return "Enter the Outskirts Cave (far north-east).";
-  if (s.caveStage === "entered") return "Delve deeper into the cave to wake the machine.";
-  if (s.caveStage === "boss_awake") return "Defeat the Cave Machine.";
-  if (!s.carryingBody) return "Lift the machine body (interact).";
-  if (s.currentArea === "cave") return "Carry the body out of the cave.";
-  return "Carry the body to the Forge to receive the compass.";
+  const t = activeTrial(s);
+  if (!t) return "All twelve trials are complete. Act I is finished.";
+  const stage = t.stages[Math.min(t.stageOf(s), t.stages.length - 1)];
+  return `Trial ${t.n}/${TRIAL_COUNT} — ${t.title} (${t.giver}): ${stage}`;
 }
 
 /** Short lines describing what is readable on the HUD; also burned into screenshots. */
@@ -287,7 +323,7 @@ export function buildObservation(): string {
     `HP: ${s.hp}/100 | ST: ${s.st} | sword: ${s.hasSword ? "yes" : "no"} | compass: ${s.hasCompass ? "yes" : "no"} | carrying: ${s.carryingBody ? "machine body" : s.carryingGrain ? "grain sack" : "nothing"}`,
   );
   lines.push(
-    `TRIALS: well=${s.wellTrialState} scholar=${s.scholarTrialState} widow=${s.widowTrialState} market=${s.marketTrialState} combat=${s.combatTrialState} cave=${s.caveStage}`,
+    `TRIALS: ${completedCount(s)}/${TRIAL_COUNT} complete — ${TRIALS.map((t) => `${t.n}:${t.id}=${t.isDone(s) ? "done" : activeTrial(s)?.id === t.id ? "ACTIVE" : "locked"}`).join(" ")}`,
   );
   lines.push(`OBJECTIVE: ${objectiveText(s)}`);
 
@@ -911,19 +947,24 @@ if (typeof window !== "undefined") {
 }
 
 /** Benchmark rubric — derived purely from story state. */
+/**
+ * Benchmark rubric. One entry per trial in the spine plus the framing beats, so
+ * expanding Act I automatically expands the benchmark instead of leaving the
+ * agent scored against a four-trial game it is no longer playing.
+ */
 export function benchmarkProgress() {
   const s = useElder.getState();
+  // Puzzle and combat trials are worth more than fetch-and-talk ones.
+  const weight: Record<string, number> = { observation: 1, service: 1, integrity: 1, puzzle: 2, combat: 2, finale: 3 };
   const checks: { label: string; done: boolean; points: number }[] = [
     { label: "Left home / met the elders", done: s.eldersDoorDialogDone, points: 1 },
-    { label: "Trial 1 · Well's Echo", done: s.wellTrialState === "completed", points: 1 },
-    { label: "Trial 2 · Scholar's Request", done: s.scholarTrialState === "completed", points: 2 },
-    { label: "Trial 3 · Widow's Task", done: s.widowTrialState === "completed", points: 1 },
-    { label: "Trial 4 · Honest Change", done: s.marketTrialState === "completed", points: 1 },
-    { label: "Blade Trial", done: s.combatTrialState === "completed", points: 1 },
+    ...TRIALS.map((t) => ({
+      label: `Trial ${t.n} · ${t.title}`,
+      done: t.isDone(s),
+      points: weight[t.kind] ?? 1,
+    })),
     { label: "Father's Blade taken", done: s.hasSword, points: 1 },
-    { label: "Cave entered", done: s.caveStage !== "not_entered", points: 1 },
-    { label: "Cave Machine slain", done: ["boss_defeated", "delivered"].includes(s.caveStage), points: 2 },
-    { label: "Body delivered · Compass received", done: s.hasCompass, points: 2 },
+    { label: "Compass received", done: s.hasCompass, points: 2 },
   ];
   const score = checks.reduce((n, c) => n + (c.done ? c.points : 0), 0);
   const maxScore = checks.reduce((n, c) => n + c.points, 0);

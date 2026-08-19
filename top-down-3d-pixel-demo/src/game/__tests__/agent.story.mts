@@ -49,6 +49,45 @@ step("Trial 3 complete", () => s().setWidowTrialState("completed"), () => s().wi
 
 step("Trial 4 complete", () => s().setMarketTrialState("completed"), () => s().marketTrialState==="completed");
 
+// --- Trials 5-10: the expanded spine. Driven through the same store actions a
+// --- player's interactions call, so the benchmark proves they are all winnable.
+step("Trial 5 the watch", () => {
+  s().setWatchTrialState("assigned");
+  for (const i of s().watchOrder) s().lightBrazier(i);
+  s().setWatchTrialState("completed");
+}, () => s().watchTrialState==="completed" && s().braziersLit.every(Boolean));
+
+step("Trial 6 the cistern", () => {
+  s().setSluiceTrialState("assigned");
+  const target=[2,0,1];
+  for(let i=0;i<3;i++) while(s().sluiceGates[i]!==target[i]) s().cycleSluice(i);
+  s().setSluiceTrialState("completed");
+}, () => s().sluiceTrialState==="completed");
+
+step("Trial 7 the blight", () => {
+  s().setBlightTrialState("assigned");
+  [0,1,2].forEach(i=>s().inspectRow(i));
+  s().setBlightTrialState("completed");
+}, () => s().blightTrialState==="completed");
+
+step("Trial 8 the tally", () => {
+  s().setTallyTrialState("assigned");
+  [0,1,2,3].forEach(i=>s().weighSack(i));
+  s().setTallyTrialState("completed");
+}, () => s().tallyTrialState==="completed");
+
+step("Trial 9 the muster", () => {
+  s().setMusterTrialState("assigned");
+  for(let i=0;i<3;i++) s().advanceMuster();
+  s().setMusterTrialState("completed");
+}, () => s().musterTrialState==="completed");
+
+step("Trial 10 the quarry (3x40hp @20)", () => {
+  s().setScrapTrialState("assigned");
+  for(let i=0;i<3;i++) for(let h=0;h<2;h++) s().damageScrap(i,20);
+  s().setScrapTrialState("completed");
+}, () => s().scrapTrialState==="completed" && s().scrapHealth.every(h=>h===0));
+
 step("blade trial assigned", () => s().setCombatTrialState("assigned"), () => s().combatTrialState==="assigned");
 step("dummies felled (3x60hp @20)", () => {
   for (let i=0;i<3;i++) for(let h=0;h<3;h++) s().damageDummy(i,20);

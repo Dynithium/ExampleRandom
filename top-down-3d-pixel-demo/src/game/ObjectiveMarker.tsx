@@ -3,59 +3,41 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useElder } from "./eldervilleStory";
 import { rt, useUI } from "./state";
-import { eldervilleWorldPos } from "./world";
+import { eldervilleWorldPos, villageDoors } from "./world";
+import { activeTrial } from "./quests";
 
 const INT_OFF_X = 72.5, INT_OFF_Z = 75;
 const intPos = (tx: number, ty: number) => ({ x: INT_OFF_X + tx + 0.5, z: INT_OFF_Z + ty + 0.5 });
 
-/** Where the current objective lives, in world coordinates (null = no marker). */
+/**
+ * Where the current objective lives, in world coordinates (null = no marker).
+ *
+ * This used to re-derive the whole story order in a second long if-chain that
+ * had to be kept in sync with EldervillePlayer's gates and the HUD's objective
+ * text. It now just asks the quest spine which trial is active and where that
+ * trial's current stage points, so the arrow can never disagree with the gates.
+ */
 function targetFor(s: ReturnType<typeof useElder.getState>): { x: number; z: number } | null {
-  const v = (tx: number, ty: number) => eldervilleWorldPos(tx, ty);
-  const i = (tx: number, ty: number) => intPos(tx, ty);
-
+  // Pre-trial opening beats still live here: they happen before the spine starts.
   if (s.currentArea === "home") {
-    if (!s.tinslaireInsideTalked) return i(6, 5);
-    if (!s.eldersDoorDialogDone) return i(7, 8.6); // exit mat
-    if (s.combatTrialState === "completed" && !s.hasSword) return i(9, 3.5); // sword case
-    return null;
+    if (!s.tinslaireInsideTalked) return intPos(6, 5);
+    if (!s.eldersDoorDialogDone) return intPos(7, 8.6); // exit mat
   }
-  if (s.currentArea === "council") {
-    if (s.scholarTrialState === "desk_read") return i(7, 1);
-    if (s.scholarTrialState === "assigned") return i(6, 4);
-    return null;
+  if (!s.eldersDoorDialogDone) {
+    return s.currentArea === "village" ? eldervilleWorldPos(12, 11.5) : null;
   }
-  if (s.currentArea === "homesteadA") {
-    if (s.carryingGrain) return i(6, 6);
-    return null;
-  }
-  if (s.currentArea === "cave") {
-    // (7,7) is solid rock — the corridor runs down columns 5..10 at row 6.
-    if (s.caveStage === "entered") return i(7, 6); // deeper into the dark
-    if (s.caveStage === "boss_awake") return i(7.5, 3.5); // the machine
-    if (s.caveStage === "boss_defeated" && !s.carryingBody) return null; // lift where it fell (nearby)
-    if (s.carryingBody) return i(7, 21); // the exit mat itself
-    return null;
-  }
-  if (s.currentArea !== "village") return null;
 
-  if (s.carryingBody) return v(52, 7); // the Forge
-  if (!s.eldersDoorDialogDone) return v(12, 11.5);
-  if (s.wellTrialState === "not_started" || s.wellTrialState === "assigned" || s.wellTrialState === "inspected") {
-    return s.wellTrialState === "assigned" ? v(58, 36) : v(59, 35);
-  }
-  if (s.scholarTrialState === "not_started") return v(32, 12);
-  if (s.scholarTrialState === "assigned" || s.scholarTrialState === "desk_read") return v(32, 10); // council door
-  if (s.scholarTrialState === "puzzle_solved") return v(32, 12);
-  if (s.widowTrialState === "not_started") return v(16, 26);
-  if (s.widowTrialState === "assigned" && !s.carryingGrain) return v(30, 36); // grain sack
-  if (s.carryingGrain) return v(12, 28); // homestead A door
-  if (s.widowTrialState === "delivered") return v(16, 26);
-  if (s.marketTrialState === "not_started" || s.marketTrialState === "overpaid") return v(15, 40);
-  if (s.combatTrialState === "not_started") return v(36, 6);
-  if (s.combatTrialState === "assigned") return v(36, 4); // dummies
-  if (s.combatTrialState === "completed" && !s.hasSword) return v(12, 10); // red house door
-  if (s.hasSword) return v(66, 9); // outskirts cave
-  return null;
+  const t = activeTrial(s);
+  if (!t) return null;
+  const w = t.where(s);
+  if (!w) return null;
+
+  // An interior objective is only meaningful while you are standing in it; from
+  // outside, the marker should point at that building's door instead.
+  if (w.area === "village") return eldervilleWorldPos(w.tx, w.ty);
+  if (w.area === s.currentArea) return intPos(w.tx, w.ty);
+  const door = villageDoors.find((d) => d.interior === w.area);
+  return door ? eldervilleWorldPos(door.tx, door.ty) : null;
 }
 
 /**

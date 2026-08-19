@@ -153,9 +153,9 @@ export function EldervilleGardens() {
 export function TrainingDummies() {
   const dummiesHealth = useElder((s) => s.dummiesHealth);
   const coords = [
-    eldervilleWorldPos(34, 3),
-    eldervilleWorldPos(36, 3),
-    eldervilleWorldPos(38, 3),
+    eldervilleWorldPos(34, 6),
+    eldervilleWorldPos(36, 6),
+    eldervilleWorldPos(38, 6),
   ];
   const rig = useRef<(THREE.Group | null)[]>([]);
   const overlayRefs = useRef<(THREE.Mesh | null)[]>([]);
@@ -342,6 +342,171 @@ export function GrainSackProp() {
   );
 }
 
+/**
+ * Trial 5 — the three signal braziers on the north rampart.
+ * Unlit they are cold iron baskets; lit they carry a flame and a point light.
+ */
+export function SignalBraziers() {
+  const braziersLit = useElder((s) => s.braziersLit);
+  const flames = useRef<(THREE.Mesh | null)[]>([]);
+  const t = useRef(0);
+  useFrame((_, delta) => {
+    t.current += delta;
+    flames.current.forEach((m, i) => {
+      if (!m) return;
+      const lit = braziersLit[i];
+      m.visible = lit;
+      if (lit) {
+        const f = 1 + Math.sin(t.current * 9 + i * 2.1) * 0.16;
+        m.scale.set(f, 1 + Math.sin(t.current * 12 + i) * 0.22, f);
+      }
+    });
+  });
+  const spots: [number, number][] = [[32, 4], [36, 4], [40, 4]];
+  return (
+    <>
+      {spots.map(([tx, ty], i) => {
+        const p = eldervilleWorldPos(tx, ty);
+        const lit = braziersLit[i];
+        return (
+          <group key={i} position={[p.x, p.y, p.z]}>
+            <mesh position={[0, 0.35, 0]} castShadow>
+              <cylinderGeometry args={[0.1, 0.16, 0.7, 6]} />
+              <meshLambertMaterial color="#4a4a52" />
+            </mesh>
+            <mesh position={[0, 0.78, 0]} castShadow>
+              <cylinderGeometry args={[0.34, 0.22, 0.32, 8]} />
+              <meshLambertMaterial color={lit ? "#6b5a3a" : "#3e3e46"} />
+            </mesh>
+            <mesh ref={(el) => { flames.current[i] = el; }} position={[0, 1.08, 0]} visible={false}>
+              <coneGeometry args={[0.22, 0.55, 6]} />
+              <meshBasicMaterial color="#ffb032" toneMapped={false} />
+            </mesh>
+            {lit && <pointLight position={[0, 1.2, 0]} color="#ffa93a" intensity={7} distance={9} />}
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
+/**
+ * Trial 6 — the three aqueduct sluice gates. The stone slab rides up as the
+ * gate opens, so the puzzle state is readable from the world, not just the HUD.
+ */
+export function SluiceGates() {
+  const gates = useElder((s) => s.sluiceGates);
+  const spots: [number, number][] = [[42, 46], [48, 46], [54, 46]];
+  return (
+    <>
+      {spots.map(([tx, ty], i) => {
+        const p = eldervilleWorldPos(tx, ty);
+        const open = gates[i]; // 0 shut, 1 half, 2 open
+        return (
+          <group key={i} position={[p.x, p.y, p.z]}>
+            {/* frame */}
+            <mesh position={[-0.5, 0.7, 0]} castShadow>
+              <boxGeometry args={[0.16, 1.4, 0.5]} />
+              <meshLambertMaterial color="#8a8a94" />
+            </mesh>
+            <mesh position={[0.5, 0.7, 0]} castShadow>
+              <boxGeometry args={[0.16, 1.4, 0.5]} />
+              <meshLambertMaterial color="#8a8a94" />
+            </mesh>
+            <mesh position={[0, 1.45, 0]} castShadow>
+              <boxGeometry args={[1.2, 0.16, 0.5]} />
+              <meshLambertMaterial color="#75757f" />
+            </mesh>
+            {/* the slab: rides up with the setting */}
+            <mesh position={[0, 0.45 + open * 0.42, 0]} castShadow>
+              <boxGeometry args={[0.84, 0.86, 0.24]} />
+              <meshLambertMaterial color={open === 2 ? "#6f9fb8" : open === 1 ? "#7f8f98" : "#5e6870"} />
+            </mesh>
+            {/* setting pips so the state reads at a glance */}
+            {[0, 1, 2].map((k) => (
+              <mesh key={k} position={[-0.3 + k * 0.3, 1.68, 0]}>
+                <boxGeometry args={[0.14, 0.14, 0.14]} />
+                <meshBasicMaterial color={k <= open ? "#7fd8ff" : "#404850"} toneMapped={false} />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
+/**
+ * Trial 10 — the three scrap constructs in the quarry. Low, plated things that
+ * only exist while the trial is live; they flash and collapse as they take hits.
+ */
+export function ScrapConstructs() {
+  const scrapTrialState = useElder((s) => s.scrapTrialState);
+  const scrapHealth = useElder((s) => s.scrapHealth);
+  const rigs = useRef<(THREE.Group | null)[]>([]);
+  const t = useRef(0);
+  const flash = useRef([0, 0, 0]);
+  const prevHp = useRef([...scrapHealth]);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+    t.current += dt;
+    scrapHealth.forEach((hp, i) => {
+      if (hp < prevHp.current[i]) flash.current[i] = 1;
+      prevHp.current[i] = hp;
+    });
+    rigs.current.forEach((g, i) => {
+      if (!g) return;
+      const alive = scrapHealth[i] > 0;
+      g.visible = alive && scrapTrialState === "assigned";
+      if (!alive) return;
+      flash.current[i] = Math.max(0, flash.current[i] - dt * 2.6);
+      g.position.y = Math.sin(t.current * 3 + i * 1.7) * 0.06;
+      g.rotation.y = t.current * (0.5 + i * 0.2);
+    });
+  });
+
+  const spots: [number, number][] = [[61, 60], [67, 61], [63, 65]];
+  return (
+    <>
+      {spots.map(([tx, ty], i) => {
+        const p = eldervilleWorldPos(tx, ty);
+        return (
+          <group key={i} position={[p.x, p.y, p.z]}>
+            <group ref={(el) => { rigs.current[i] = el; }}>
+              <mesh position={[0, 0.34, 0]} castShadow>
+                <boxGeometry args={[0.66, 0.4, 0.86]} />
+                <meshLambertMaterial color="#6a6258" />
+              </mesh>
+              <mesh position={[0, 0.62, 0.22]} castShadow>
+                <boxGeometry args={[0.4, 0.24, 0.34]} />
+                <meshLambertMaterial color="#57505a" />
+              </mesh>
+              {/* red eye */}
+              <mesh position={[0, 0.64, 0.42]}>
+                <boxGeometry args={[0.16, 0.08, 0.05]} />
+                <meshBasicMaterial color="#ff3a2a" toneMapped={false} />
+              </mesh>
+              {/* legs */}
+              {[[-0.26, 0.3], [0.26, 0.3], [-0.26, -0.3], [0.26, -0.3]].map(([lx, lz], k) => (
+                <mesh key={k} position={[lx, 0.12, lz]} castShadow>
+                  <boxGeometry args={[0.1, 0.24, 0.1]} />
+                  <meshLambertMaterial color="#3f3a42" />
+                </mesh>
+              ))}
+              {/* hp bar */}
+              <mesh position={[0, 1.0, 0]}>
+                <boxGeometry args={[0.7 * Math.max(0, scrapHealth[i] / 40), 0.09, 0.04]} />
+                <meshBasicMaterial color="#e05038" toneMapped={false} />
+              </mesh>
+            </group>
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
 export function EldervilleProps() {
   return (
     <>
@@ -353,6 +518,9 @@ export function EldervilleProps() {
       <TrainingDummies />
       <ArcheryBoards />
       <GrainSackProp />
+      <SignalBraziers />
+      <SluiceGates />
+      <ScrapConstructs />
       <OutskirtsCave />
     </>
   );

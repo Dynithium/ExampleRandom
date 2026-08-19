@@ -4,6 +4,14 @@ import { sfx } from "./audio";
 
 const SAVE_KEY = "minslaire_save_slot_1";
 
+/**
+ * Bumped to 2 when Act I went from four trials to twelve: the elderState shape
+ * gained the trial-5..10 fields, and a v1 save spread into the new store would
+ * leave those undefined — the quest spine would then read `undefined` trial
+ * states and strand the player. loadGame refuses anything that isn't this.
+ */
+const SAVE_VERSION = 2;
+
 export type SaveData = {
   version: number;
   timestamp: number;
@@ -27,6 +35,20 @@ export type SaveData = {
     marketTrialState: string;
     combatTrialState: string;
     dummiesHealth: number[];
+    watchTrialState: string;
+    braziersLit: boolean[];
+    watchOrder: number[];
+    sluiceTrialState: string;
+    sluiceGates: number[];
+    blightTrialState: string;
+    rowsInspected: boolean[];
+    blightRow: number;
+    tallyTrialState: string;
+    sacksWeighed: boolean[];
+    musterTrialState: string;
+    musterStep: number;
+    scrapTrialState: string;
+    scrapHealth: number[];
     carryingGrain: boolean;
     hasSword: boolean;
     scholarDials: number[];
@@ -56,7 +78,7 @@ export function saveGame(key = SAVE_KEY): boolean {
     const elder = useElder.getState();
     const ui = useUI.getState();
     const data: SaveData = {
-      version: 1,
+      version: SAVE_VERSION,
       timestamp: Date.now(),
       player: {
         x: rt.player.pos.x,
@@ -78,6 +100,20 @@ export function saveGame(key = SAVE_KEY): boolean {
         marketTrialState: elder.marketTrialState,
         combatTrialState: elder.combatTrialState,
         dummiesHealth: elder.dummiesHealth,
+        watchTrialState: elder.watchTrialState,
+        braziersLit: elder.braziersLit,
+        watchOrder: elder.watchOrder,
+        sluiceTrialState: elder.sluiceTrialState,
+        sluiceGates: elder.sluiceGates,
+        blightTrialState: elder.blightTrialState,
+        rowsInspected: elder.rowsInspected,
+        blightRow: elder.blightRow,
+        tallyTrialState: elder.tallyTrialState,
+        sacksWeighed: elder.sacksWeighed,
+        musterTrialState: elder.musterTrialState,
+        musterStep: elder.musterStep,
+        scrapTrialState: elder.scrapTrialState,
+        scrapHealth: elder.scrapHealth,
         carryingGrain: elder.carryingGrain,
         hasSword: elder.hasSword,
         scholarDials: elder.scholarDials,
@@ -118,7 +154,7 @@ export function loadGame(key = SAVE_KEY): boolean {
     // version was written on every save but never checked, so a save from an
     // older/incompatible build would be spread into the store and fail in
     // half-applied pieces. Refuse it instead.
-    if (data?.version !== 1 || !data.player || !data.elderState || !data.env) {
+    if (data?.version !== SAVE_VERSION || !data.player || !data.elderState || !data.env) {
       console.warn("Save ignored: unsupported format", data?.version);
       return false;
     }
@@ -265,6 +301,20 @@ export function startNewGame(): void {
     marketTrialState: "not_started",
     combatTrialState: "not_started",
     dummiesHealth: [60, 60, 60],
+    watchTrialState: "not_started",
+    braziersLit: [false, false, false],
+    watchOrder: [0, 2, 1],
+    sluiceTrialState: "not_started",
+    sluiceGates: [0, 0, 0],
+    blightTrialState: "not_started",
+    rowsInspected: [false, false, false],
+    blightRow: 1,
+    tallyTrialState: "not_started",
+    sacksWeighed: [false, false, false, false],
+    musterTrialState: "not_started",
+    musterStep: 0,
+    scrapTrialState: "not_started",
+    scrapHealth: [40, 40, 40],
     carryingGrain: false,
     hasSword: false,
     scholarDials: [2, 0, 3, 1],

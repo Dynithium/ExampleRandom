@@ -13,6 +13,8 @@ import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const suites = [
+  ["quest spine", "quests.spine.mts"],
+  ["quest reachability", "quests.reachable.mts"],
   ["pathfinding", "agent.pathfinding.mts"],
   ["story completability", "agent.story.mts"],
   ["reply parser", "agent.parser.mts"],

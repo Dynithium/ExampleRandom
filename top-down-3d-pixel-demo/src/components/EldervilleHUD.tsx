@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useElder } from "../game/eldervilleStory";
+import { activeTrial, completedCount, TRIAL_COUNT } from "../game/quests";
 import { rt, useUI } from "../game/state";
 import { MemoryCutsceneOverlay } from "../game/MemoryCutscene3D";
 import { ScholarPuzzleModal } from "./ScholarPuzzleModal";
@@ -75,23 +76,14 @@ export function EldervilleHUD() {
   const activeDialog = useElder((s) => s.activeDialog);
   const tinslaireInsideTalked = useElder((s) => s.tinslaireInsideTalked);
   const eldersDoorDialogDone = useElder((s) => s.eldersDoorDialogDone);
-  const wellTrialState = useElder((s) => s.wellTrialState);
-  const scholarTrialState = useElder((s) => s.scholarTrialState);
-  const widowTrialState = useElder((s) => s.widowTrialState);
-  const marketTrialState = useElder((s) => s.marketTrialState);
-  const combatTrialState = useElder((s) => s.combatTrialState);
-  const carryingGrain = useElder((s) => s.carryingGrain);
-  const hasSword = useElder((s) => s.hasSword);
-  const caveStage = useElder((s) => s.caveStage);
-  const carryingBody = useElder((s) => s.carryingBody);
-  const hasCompass = useElder((s) => s.hasCompass);
   const scholarPuzzleOpen = useElder((s) => s.scholarPuzzleOpen);
   const currentArea = useElder((s) => s.currentArea);
   const currentInterior = useElder((s) => s.currentInterior);
   const hp = useElder((s) => s.hp);
   const st = useElder((s) => s.st);
   const advanceDialog = useElder((s) => s.advanceDialog);
-  const locationName = currentArea === "village" ? "Elderville Settlement" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead (Widow Oren)", homesteadB: "Weaver's Homestead", cave: "Outskirts Cave (Depths)" } as any)[currentInterior] || currentArea : currentArea;
+  const elder = useElder((s) => s);
+  const locationName = currentArea === "village" ? "Elderville Settlement" : currentInterior ? ({ home: "Your Home", council: "Council Hall", homesteadA: "Farmer's Homestead (Widow Oren)", homesteadB: "Weaver's Homestead", granary: "The Granary", orchardHut: "Orchard Keeper's Hut", watchhouse: "Plaza Watchhouse", cave: "Outskirts Cave (Depths)" } as any)[currentInterior] || currentArea : currentArea;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -117,40 +109,29 @@ export function EldervilleHUD() {
   // If on Title Screen, do not render HUD or opening black
   if (!started) return null;
 
-  // Dynamic Objective Determination
+  // ---- Objective, derived from the single quest spine ---------------------
+  // This used to be a 25-branch if/else that re-encoded the trial order a third
+  // time (after the interaction gates and the objective marker). It now reads
+  // quests.ts, so the tracker and the gates cannot drift apart.
+  // Subscribe to the store (not getState()) so the tracker re-renders whenever
+  // any trial field moves — the spine reads ~20 of them and listing each as its
+  // own selector is how the old objective chain drifted out of sync.
+  const trial = activeTrial(elder);
+  const done = completedCount(elder);
+
   let objective = "Explore Elderville";
+  let trialLabel: string | null = null;
   if (openingBlack) objective = "Wake up and listen to the life suit hum";
   else if (memoryActive) objective = "Remember your father's blade lesson";
   else if (!tinslaireInsideTalked) objective = "Speak with Tinslaire in your home";
   else if (!eldersDoorDialogDone) objective = "Meet the Council of Elders at your doorstep";
-  // Trial 1: The Well's Echo
-  else if (wellTrialState === "not_started") objective = "Trial 1: Speak with Elder Moss at Central Well (Far South-East)";
-  else if (wellTrialState === "assigned") objective = "Trial 1: Inspect the rope mechanism at Central Well";
-  else if (wellTrialState === "inspected") objective = "Trial 1: Report the underground grinding to Elder Moss";
-  // Trial 2: The Scholar's Request
-  else if (wellTrialState === "completed" && scholarTrialState === "not_started") objective = "Trial 1 Passed (1/4) · Speak with Elder Sage outside Council Hall";
-  else if (scholarTrialState === "assigned") objective = "Trial 2: Enter Council Hall & investigate Sage's study desk";
-  else if (scholarTrialState === "desk_read") objective = "Trial 2: Solve the 4-dial elemental archive bookcase in Council Hall";
-  else if (scholarTrialState === "puzzle_solved") objective = "Trial 2: Deliver the ancient scroll to Elder Sage outside";
-  // Trial 3: The Widow's Task
-  else if (scholarTrialState === "completed" && widowTrialState === "not_started") objective = "Trial 2 Passed (2/4) · Speak with Elder Thorn near Western Homestead";
-  else if (widowTrialState === "assigned" && !carryingGrain) objective = "Trial 3: Lift the heavy grain sack in Grand Gardens crop terrace";
-  else if (carryingGrain) objective = "Trial 3: Deliver harvest grain to Widow Oren inside Farmer's Homestead";
-  else if (widowTrialState === "delivered") objective = "Trial 3: Speak with Elder Thorn outside the Homestead";
-  // Trial 4: The Honest Change
-  else if (widowTrialState === "completed" && marketTrialState === "not_started") objective = "Trial 3 Passed (3/4) · Visit Bazaar Trader at Southern Marketplace";
-  else if (marketTrialState === "overpaid") objective = "Trial 4: Return the 50 extra silver coins with honor to Trader";
-  // Combat Trial: Blade Training
-  else if (marketTrialState === "completed" && combatTrialState === "not_started") objective = "All 4 Virtues Proven! Meet the Council behind Blue House for Blade Trial";
-  else if (combatTrialState === "assigned") objective = "Blade Trial: Strike down 3 training dummies behind Blue House (SPACE · Guard R · Dodge SHIFT)";
-  else if (combatTrialState === "completed" && !hasSword) objective = "★ Trials Complete! Retrieve Father's Blade from the sword case in the Red House";
-  else if (hasSword && caveStage === "not_entered") objective = "⚔ Father's Blade at your side — Enter the Outskirts Cave (far north-east, where the gate road ends)";
-  else if (caveStage === "entered") objective = "Delve deeper into the Outskirts Cave — follow the glow-moss";
-  else if (caveStage === "boss_awake") objective = "Slay the Cave Machine! (SPACE strike · K arrows · SHIFT dodge · R guard)";
-  else if (caveStage === "boss_defeated" && !carryingBody) objective = "Don't leave the body — lift the chassis (E)";
-  else if (carryingBody && currentArea === "cave") objective = "Haul the body out of the cave and back to Elderville";
-  else if (carryingBody) objective = "Carry the machine body to the Forge (east district, follow the needle)";
-  else if (caveStage === "delivered" || hasCompass) objective = "★ The compass needle tugs east... Rest now — the Eastern Forest awaits (next expedition)";
+  else if (trial) {
+    trialLabel = `TRIAL ${trial.n}/${TRIAL_COUNT} · ${trial.title}`;
+    objective = trial.stages[Math.min(trial.stageOf(elder), trial.stages.length - 1)];
+  } else {
+    trialLabel = `ALL ${TRIAL_COUNT} TRIALS PASSED`;
+    objective = "The compass needle tugs east... Rest now — the Eastern Forest awaits.";
+  }
 
   // wake handler
   const handleWake = () => {
@@ -177,6 +158,20 @@ export function EldervilleHUD() {
           </div>
         </div>
         <div className="border-t border-[#b09058] pt-1 text-[10.5px] text-[#704820]">
+          {trialLabel && (
+            <div className="mb-0.5 flex items-center gap-2">
+              <span className="font-bold text-[#2868c0]">{trialLabel}</span>
+              <span className="flex gap-[2px]">
+                {Array.from({ length: TRIAL_COUNT }, (_, i) => (
+                  <span
+                    key={i}
+                    className="inline-block h-[6px] w-[6px] border border-[#b09058]"
+                    style={{ background: i < done ? "#e0a020" : "transparent" }}
+                  />
+                ))}
+              </span>
+            </div>
+          )}
           <span className="font-bold text-[#e06810]">◆ QUEST:</span> <span className="font-bold text-[#181818]">{objective}</span>
         </div>
       </div>

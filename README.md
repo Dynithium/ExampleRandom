@@ -4,7 +4,19 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 
 ## Act I — what's playable
 - **The opening**: wake to the suit's hum in the Red House, live the father's blade-lesson memory (fully voiced 3D cutscene), and meet the Council of Elders at your door
-- **The four virtue trials**: observation at the Central Well (Elder Moss), wits in the Council Hall archive puzzle (Elder Sage), service carrying grain for Widow Oren (Elder Thorn), and honesty at the Bazaar (the trader's overpayment)
+- **Twelve trials, in a fixed order** — Act I is gated so it must be played through, not skipped around:
+  1. observation at the Central Well (Elder Moss)
+  2. the four-dial archive puzzle in the Council Hall (Elder Sage)
+  3. carrying grain for Widow Oren, and refusing her silver (Elder Thorn)
+  4. the trader's fifty-silver overpayment — with Tinslaire arguing to keep it (the Council)
+  5. **The Night Watch** — read the roster, light three rampart braziers in its order (Elder Thorn)
+  6. **The Dry Cistern** — three sluice gates, one correct configuration (Elder Sage)
+  7. **The Blighted Rows** — find which orchard row is warm from below (the Orchard Keeper)
+  8. **The Short Tally** — weigh the granary against its own ledger (Elder Moss)
+  9. **The Muster** — Thorn's live drill: guard, dodge, riposte on his call (Elder Thorn)
+  10. **The Scrap in the Quarry** — three machine constructs, your first real fight (Elder Sage)
+  11. **The Trial of Steel** — the dummies, then your father's blade (the Council)
+  12. **The Outskirts Cave** — the Cave Machine, and hauling the body home (Elder Moss)
 - **The Trial of Steel**: sword, bow, guard, and dodge against training dummies behind the Blue House
 - **The Outskirts Cave**: a torch-lit dark delve, glow-moss wayfinding, and the Cave Machine boss — first machine anyone in Elderville has ever seen
 - **The body and the compass**: haul the chassis back to the Forge and receive the elders' compass, its salvaged red eye already watching
@@ -53,7 +65,7 @@ speed. No teleports, no direct story-state writes. `move_to` targets a POI tile 
 beside it when the tile itself is solid (a well, a forge, an NPC), and aborts cleanly when a
 door changes area or a dialog interrupts the walk.
 
-**Scoring.** 13 points: leaving home (1), the four virtue trials (1/2/1/1), the blade trial
+**Scoring.** 24 points: leaving home (1), the twelve trials (weighted 1-3 by type — puzzles and combat count double, the finale triple), the blade trial
 (1), father's blade (1), entering the cave (1), slaying the Cave Machine (2), and delivering
 the body for the compass (2). The panel tracks steps, deaths, failed and invalid actions, and
 token usage, and `COPY JSON REPORT` exports the whole run — rubric and action log included —

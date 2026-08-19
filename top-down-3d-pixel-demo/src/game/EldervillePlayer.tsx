@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS } from "./world";
 import { rt, useUI } from "./state";
+import { isUnlocked, lockedHint, type TrialId } from "./quests";
 import {
   useElder,
   eldersAtDoorPositions,
@@ -14,6 +15,33 @@ import {
   tinslaireNightRepeat,
   tinslaireTemptationDialog,
   tinslaireHonestyWitnessDialog,
+  watchIntroDialog,
+  watchLedgerDialog,
+  watchWrongDialog,
+  watchLitDialog,
+  watchCompleteDialog,
+  sluiceIntroDialog,
+  sluiceNoteDialog,
+  sluiceSolvedDialog,
+  sluiceCompleteDialog,
+  blightIntroDialog,
+  blightRowCleanDialog,
+  blightRowRotDialog,
+  blightCompleteDialog,
+  tallyIntroDialog,
+  tallyLedgerDialog,
+  tallySackDialog,
+  tallyCompleteDialog,
+  musterIntroDialog,
+  musterCallGuardDialog,
+  musterCallDodgeDialog,
+  musterCallStrikeDialog,
+  musterCompleteDialog,
+  scrapIntroDialog,
+  scrapEngageDialog,
+  scrapClearedDialog,
+  scrapCompleteDialog,
+  type Dialog,
   elderMossDoorDialog,
   elderMossDoorRepeat,
   elderMossWellIntroDialog,
@@ -152,9 +180,13 @@ function spawnArrow() {
   arrows.push({ x: p.pos.x + dx * 0.5, y: p.pos.y + 0.78, z: p.pos.z + dz * 0.5, dx, dz, life: 1.3 });
 }
 
+/** Trial 10's three quarry constructs, in village tiles. */
+export const SCRAP_TILES: [number, number][] = [[61, 60], [67, 61], [63, 65]];
+
 function stepArrows(dt: number) {
   const elder = useElder.getState();
-  const dummyCoords = [eldervilleWorldPos(34, 3), eldervilleWorldPos(36, 3), eldervilleWorldPos(38, 3)];
+  const dummyCoords = [eldervilleWorldPos(34, 6), eldervilleWorldPos(36, 6), eldervilleWorldPos(38, 6)];
+  const scrapCoords = SCRAP_TILES.map(([tx, ty]) => eldervilleWorldPos(tx, ty));
   for (let i = arrows.length - 1; i >= 0; i--) {
     const a = arrows[i];
     a.x += a.dx * ARROW_SPEED * dt;
@@ -195,6 +227,18 @@ function stepArrows(dt: number) {
           dead = true;
         }
       });
+      // Trial 10 — the quarry constructs take arrows too
+      if (!dead && elder.scrapTrialState === "assigned") {
+        scrapCoords.forEach((c, si) => {
+          if (!dead && elder.scrapHealth[si] > 0 && Math.hypot(c.x - a.x, c.z - a.z) < 0.8) {
+            const before = useElder.getState().scrapTrialState;
+            useElder.getState().damageScrap(si, ARROW_DMG);
+            sfx.hit();
+            if (before === "assigned" && useElder.getState().scrapTrialState === "inspected") sfx.questComplete();
+            dead = true;
+          }
+        });
+      }
       if (!dead) {
         for (const t of archeryTargets) {
           if (Math.hypot(t.x - a.x, t.z - a.z) < 0.6) { sfx.block(); dead = true; break; }
@@ -296,10 +340,28 @@ export function EldervillePlayer() {
           }
 
           // Training dummies behind Blue House
+          // Trial 10 — quarry constructs are melee targets as well
+          if (elder.scrapTrialState === "assigned") {
+            SCRAP_TILES.forEach(([stx, sty], si) => {
+              if (elder.scrapHealth[si] <= 0) return;
+              const sp = eldervilleWorldPos(stx, sty);
+              const sd = Math.hypot(sp.x - p.pos.x, sp.z - p.pos.z);
+              if (sd < 1.9) {
+                const dot = ((sp.x - p.pos.x) * facingX + (sp.z - p.pos.z) * facingZ) / (sd || 1);
+                if (dot > 0.3) {
+                  const before = useElder.getState().scrapTrialState;
+                  useElder.getState().damageScrap(si, 20);
+                  sfx.hit();
+                  if (before === "assigned" && useElder.getState().scrapTrialState === "inspected") sfx.questComplete();
+                }
+              }
+            });
+          }
+
           const dummyCoords = [
-            eldervilleWorldPos(34, 3),
-            eldervilleWorldPos(36, 3),
-            eldervilleWorldPos(38, 3),
+            eldervilleWorldPos(34, 6),
+            eldervilleWorldPos(36, 6),
+            eldervilleWorldPos(38, 6),
           ];
           dummyCoords.forEach((dPos, idx) => {
             const dist = Math.hypot(dPos.x - p.pos.x, dPos.z - p.pos.z);
@@ -715,6 +777,54 @@ export function EldervillePlayer() {
           bestDialog = { dlg: null, source: "openScholarPuzzle" };
         }
       }
+    } else if (elder.currentArea === "watchhouse") {
+      // Trial 5: the watch roster board
+      const offX = INT_OFF_X, offZ = INT_OFF_Z;
+      const d = Math.hypot(offX + 7 + 0.5 - p.pos.x, offZ + 4 + 0.5 - p.pos.z);
+      if (d < 1.8 && d < bestDist) {
+        bestDist = d;
+        prompt = "E · Read the Watch Roster";
+        bestDialog = { dlg: watchLedgerDialog, source: "watchLedger" };
+      }
+    } else if (elder.currentArea === "granary") {
+      // Trial 8: the tally board and the four sacks
+      const offX = INT_OFF_X, offZ = INT_OFF_Z;
+      const boardD = Math.hypot(offX + 3 + 0.5 - p.pos.x, offZ + 5 + 0.5 - p.pos.z);
+      if (boardD < 1.8 && boardD < bestDist) {
+        bestDist = boardD;
+        prompt = "E · Read the Tally Board";
+        bestDialog = { dlg: tallyLedgerDialog, source: "tallyLedger" };
+      }
+      if (elder.tallyTrialState === "assigned") {
+        ([[2, 2], [11, 2], [2, 6], [10, 6]] as [number, number][]).forEach(([sx, sy], i) => {
+          if (elder.sacksWeighed[i]) return;
+          const sd = Math.hypot(offX + sx + 0.5 - p.pos.x, offZ + sy + 0.5 - p.pos.z);
+          if (sd < 1.7 && sd < bestDist) {
+            bestDist = sd;
+            prompt = `E · Weigh sack ${i + 1}/4`;
+            bestDialog = { dlg: tallySackDialog, source: `tallySack:${i}` };
+          }
+        });
+      }
+    } else if (elder.currentArea === "orchardHut") {
+      // Trial 7: the Orchard Keeper
+      const offX = INT_OFF_X, offZ = INT_OFF_Z;
+      const d = Math.hypot(offX + 6 + 0.5 - p.pos.x, offZ + 6 + 0.5 - p.pos.z);
+      if (d < 1.8 && d < bestDist) {
+        bestDist = d;
+        prompt = "E · Talk to the Orchard Keeper";
+        if (!isUnlocked(elder, "blight")) {
+          bestDialog = { dlg: { name: "Orchard Keeper", lines: [lockedHint(elder, "blight")] }, source: "locked:blight" };
+        } else if (elder.blightTrialState === "not_started") {
+          bestDialog = { dlg: blightIntroDialog, source: "blightIntro" };
+        } else if (elder.blightTrialState === "assigned") {
+          bestDialog = { dlg: { name: "Orchard Keeper", lines: ["All three rows, boy. Hand in the soil. Then come back."] }, source: "blightWait" };
+        } else if (elder.blightTrialState === "inspected") {
+          bestDialog = { dlg: blightCompleteDialog, source: "blightComplete" };
+        } else {
+          bestDialog = { dlg: { name: "Orchard Keeper", lines: ["Say nothing about the middle row. To anyone."] }, source: "blightDone" };
+        }
+      }
     } else if (elder.currentArea === "homesteadA") {
       // Widow Oren inside her home
       const offX = INT_OFF_X, offZ = INT_OFF_Z;
@@ -757,88 +867,107 @@ export function EldervillePlayer() {
           }
         }
       } else if (elder.eldersDoorDialogDone) {
-        // Elder Moss @ Central Well [59, 35]
-        const mossPos = eldervilleWorldPos(59, 35);
-        const mossDist = Math.hypot(mossPos.x - p.pos.x, mossPos.z - p.pos.z);
-        if (mossDist < bestDist) {
-          bestDist = mossDist;
-          prompt = "E · Talk to Elder Moss";
-          if (elder.wellTrialState === "not_started") {
-            bestDialog = { dlg: elderMossWellIntroDialog, source: "elderMossWellIntro" };
-          } else if (elder.wellTrialState === "assigned") {
-            bestDialog = { dlg: elderMossWellAssignedRepeat, source: "elderMossWellAssigned" };
-          } else if (elder.wellTrialState === "inspected") {
-            bestDialog = { dlg: elderMossWellReportDialog, source: "elderMossWellReport" };
-          } else {
-            bestDialog = { dlg: elderMossWellCompletedRepeat, source: "elderMossWellCompleted" };
-          }
-        }
-
-        // Central Well @ [58, 36]
-        const wellPos = eldervilleWorldPos(58, 36);
-        const wellDist = Math.hypot(wellPos.x - p.pos.x, wellPos.z - p.pos.z);
-        if (wellDist < bestDist && wellDist < 1.6) {
-          bestDist = wellDist;
-          if (elder.wellTrialState === "assigned") {
-            prompt = "E · Inspect Well";
-            bestDialog = { dlg: wellInspectDialog, source: "wellInspect" };
-          } else if (elder.wellTrialState === "inspected") {
-            prompt = "E · Listen to Well";
-            bestDialog = { dlg: { name: "Central Well", lines: ["The rhythmic mechanical clanking continues to echo from below...", "Report what you heard back to Elder Moss."] }, source: "wellInspected" };
-          } else if (elder.wellTrialState === "completed") {
-            prompt = "E · Inspect Well";
-            bestDialog = { dlg: { name: "Central Well", lines: ["The Central Well. The distant underground hum remains, faint but steady.", "Elder Moss insisted there is nothing down there..."] }, source: "wellDone" };
-          } else {
-            prompt = "E · Inspect Well";
-            bestDialog = { dlg: { name: "Central Well", lines: ["The Central Well of Elderville. Cold, clear water reflects the sky.", "Speak with Elder Moss beside the well to begin your trial."] }, source: "wellNormal" };
-          }
-        }
-
-        // Elder Sage @ Council Hall [32, 12]
-        const sagePos = eldervilleWorldPos(32, 12);
-        const sageDist = Math.hypot(sagePos.x - p.pos.x, sagePos.z - p.pos.z);
-        if (sageDist < bestDist) {
-          bestDist = sageDist;
-          prompt = "E · Talk to Elder Sage";
-          if (elder.wellTrialState !== "completed") {
+        /**
+         * Village interactions.
+         *
+         * Every task-giver below is wrapped in `gate(...)`, which consults the
+         * quest spine in quests.ts. A giver whose trial is not yet unlocked
+         * still talks to you — they just say what they are waiting on instead
+         * of handing out a task. That single rule is what stops the player from
+         * walking to trial 11 during trial 2; there is no longer a per-trial
+         * conditional that can be forgotten.
+         */
+        const gate = (
+          id: TrialId,
+          near: { x: number; z: number },
+          label: string,
+          build: () => { dlg: Dialog; source: string } | null,
+        ) => {
+          const d = Math.hypot(near.x - p.pos.x, near.z - p.pos.z);
+          if (d >= bestDist) return;
+          if (!isUnlocked(elder, id)) {
+            bestDist = d;
+            prompt = label;
             bestDialog = {
-              dlg: { name: "Elder Sage", lines: ["First, you must complete Elder Moss's trial at the Central Well on the southern outskirts."] },
-              source: "sageWait",
+              dlg: { name: "Elderville", lines: [lockedHint(elder, id)] },
+              source: `locked:${id}`,
             };
-          } else if (elder.scholarTrialState === "not_started") {
-            bestDialog = { dlg: elderSageStudyIntroDialog, source: "elderSageStudyIntro" };
-          } else if (elder.scholarTrialState === "assigned" || elder.scholarTrialState === "desk_read") {
-            bestDialog = { dlg: elderSageStudyAssignedRepeat, source: "elderSageStudyAssigned" };
-          } else if (elder.scholarTrialState === "puzzle_solved") {
-            bestDialog = { dlg: elderSageStudyDeliverDialog, source: "elderSageStudyDeliver" };
-          } else {
-            bestDialog = { dlg: elderSageStudyCompletedRepeat, source: "elderSageStudyCompleted" };
+            return;
+          }
+          const built = build();
+          if (!built) return;
+          bestDist = d;
+          prompt = label;
+          bestDialog = built;
+        };
+
+        // ---- Trial 1: Elder Moss @ Central Well ---------------------------
+        gate("well", eldervilleWorldPos(59, 35), "E · Talk to Elder Moss", () => {
+          if (elder.wellTrialState === "not_started") return { dlg: elderMossWellIntroDialog, source: "elderMossWellIntro" };
+          if (elder.wellTrialState === "assigned") return { dlg: elderMossWellAssignedRepeat, source: "elderMossWellAssigned" };
+          if (elder.wellTrialState === "inspected") return { dlg: elderMossWellReportDialog, source: "elderMossWellReport" };
+          // Moss also runs Trial 8; once the well is done he switches to the tally.
+          if (isUnlocked(elder, "tally") && !elder.spoken.has("tallyComplete")) {
+            if (elder.tallyTrialState === "not_started") return { dlg: tallyIntroDialog, source: "tallyIntro" };
+            if (elder.tallyTrialState === "inspected") return { dlg: tallyCompleteDialog, source: "tallyComplete" };
+            if (elder.tallyTrialState === "assigned")
+              return { dlg: { name: "Elder Moss", lines: ["Read the board, weigh all four sacks, then bring me the number."] }, source: "tallyWait" };
+          }
+          return { dlg: elderMossWellCompletedRepeat, source: "elderMossWellCompleted" };
+        });
+
+        // Central Well itself
+        {
+          const wellPos = eldervilleWorldPos(58, 36);
+          const wellDist = Math.hypot(wellPos.x - p.pos.x, wellPos.z - p.pos.z);
+          if (wellDist < bestDist && wellDist < 1.6) {
+            bestDist = wellDist;
+            if (elder.wellTrialState === "assigned") {
+              prompt = "E · Inspect Well";
+              bestDialog = { dlg: wellInspectDialog, source: "wellInspect" };
+            } else if (elder.wellTrialState === "inspected") {
+              prompt = "E · Listen to Well";
+              bestDialog = { dlg: { name: "Central Well", lines: ["The rhythmic mechanical clanking continues to echo from below...", "Report what you heard back to Elder Moss."] }, source: "wellInspected" };
+            } else if (elder.wellTrialState === "completed") {
+              prompt = "E · Inspect Well";
+              bestDialog = { dlg: { name: "Central Well", lines: ["The Central Well. The distant underground hum remains, faint but steady.", "Elder Moss insisted there is nothing down there..."] }, source: "wellDone" };
+            } else {
+              prompt = "E · Inspect Well";
+              bestDialog = { dlg: { name: "Central Well", lines: ["The Central Well of Elderville. Cold, clear water reflects the sky.", "Speak with Elder Moss beside the well to begin your trial."] }, source: "wellNormal" };
+            }
           }
         }
 
-        // Elder Thorn @ Western Homestead Path [16, 26]
-        const thornPos = eldervilleWorldPos(16, 26);
-        const thornDist = Math.hypot(thornPos.x - p.pos.x, thornPos.z - p.pos.z);
-        if (thornDist < bestDist) {
-          bestDist = thornDist;
-          prompt = "E · Talk to Elder Thorn";
-          if (elder.scholarTrialState !== "completed") {
-            bestDialog = {
-              dlg: { name: "Elder Thorn", lines: ["Complete Elder Sage's trial at the Council Hall before testing the heart."] },
-              source: "thornWait",
-            };
-          } else if (elder.widowTrialState === "not_started") {
-            bestDialog = { dlg: elderThornIntroDialog, source: "elderThornIntro" };
-          } else if (elder.widowTrialState === "assigned" || elder.widowTrialState === "grain_picked") {
-            bestDialog = { dlg: elderThornAssignedRepeat, source: "elderThornAssigned" };
-          } else if (elder.widowTrialState === "delivered") {
-            bestDialog = { dlg: elderThornCompleteDialog, source: "elderThornComplete" };
-          } else {
-            bestDialog = { dlg: elderThornCompletedRepeat, source: "elderThornCompleted" };
-          }
-        }
+        // ---- Trial 2 / 6 / 10: Elder Sage @ Council Hall ------------------
+        gate("scholar", eldervilleWorldPos(32, 12), "E · Talk to Elder Sage", () => {
+          if (elder.scholarTrialState === "not_started") return { dlg: elderSageStudyIntroDialog, source: "elderSageStudyIntro" };
+          if (elder.scholarTrialState === "assigned" || elder.scholarTrialState === "desk_read") return { dlg: elderSageStudyAssignedRepeat, source: "elderSageStudyAssigned" };
+          if (elder.scholarTrialState === "puzzle_solved") return { dlg: elderSageStudyDeliverDialog, source: "elderSageStudyDeliver" };
+          // Sage also runs Trial 6 (cistern) and Trial 10 (quarry scrap).
+          if (isUnlocked(elder, "sluice") && elder.sluiceTrialState === "not_started") return { dlg: sluiceIntroDialog, source: "sluiceIntro" };
+          if (isUnlocked(elder, "sluice") && elder.sluiceTrialState === "assigned")
+            return { dlg: { name: "Elder Sage", lines: ["Head gate feeds. Middle gate holds. Last gate throttled. Go and set them."] }, source: "sluiceWait" };
+          if (isUnlocked(elder, "scrap") && elder.scrapTrialState === "not_started") return { dlg: scrapIntroDialog, source: "scrapIntro" };
+          if (isUnlocked(elder, "scrap") && elder.scrapTrialState === "assigned")
+            return { dlg: { name: "Elder Sage", lines: ["Three of them, in the quarry. Bring me a fragment when it is done."] }, source: "scrapWait" };
+          if (isUnlocked(elder, "scrap") && elder.scrapTrialState === "inspected") return { dlg: scrapCompleteDialog, source: "scrapComplete" };
+          return { dlg: elderSageStudyCompletedRepeat, source: "elderSageStudyCompleted" };
+        });
 
-        // Grain Sack in Grand Gardens @ [30, 36]
+        // ---- Trial 3 / 5 / 9: Elder Thorn @ homestead path ----------------
+        gate("widow", eldervilleWorldPos(16, 26), "E · Talk to Elder Thorn", () => {
+          if (elder.widowTrialState === "not_started") return { dlg: elderThornIntroDialog, source: "elderThornIntro" };
+          if (elder.widowTrialState === "assigned" || elder.widowTrialState === "grain_picked") return { dlg: elderThornAssignedRepeat, source: "elderThornAssigned" };
+          if (elder.widowTrialState === "delivered") return { dlg: elderThornCompleteDialog, source: "elderThornComplete" };
+          // Thorn also runs Trial 5 (the watch) and Trial 9 (the muster).
+          if (isUnlocked(elder, "watch") && elder.watchTrialState === "not_started") return { dlg: watchIntroDialog, source: "watchIntro" };
+          if (isUnlocked(elder, "watch") && elder.watchTrialState === "assigned")
+            return { dlg: { name: "Elder Thorn", lines: ["The roster is in the Watchhouse. Read it, then light the rampart."] }, source: "watchWait" };
+          if (isUnlocked(elder, "watch") && elder.watchTrialState === "inspected") return { dlg: watchCompleteDialog, source: "watchComplete" };
+          return { dlg: elderThornCompletedRepeat, source: "elderThornCompleted" };
+        });
+
+        // Grain Sack in Grand Gardens
         if (elder.widowTrialState === "assigned" && !elder.carryingGrain) {
           const grainPos = eldervilleWorldPos(30, 36);
           const grainDist = Math.hypot(grainPos.x - p.pos.x, grainPos.z - p.pos.z);
@@ -849,38 +978,109 @@ export function EldervillePlayer() {
           }
         }
 
-        // Bazaar Trader @ Marketplace [15, 40]
-        const traderPos = eldervilleWorldPos(15, 40);
-        const traderDist = Math.hypot(traderPos.x - p.pos.x, traderPos.z - p.pos.z);
-        if (traderDist < bestDist) {
-          bestDist = traderDist;
-          prompt = "E · Trade Provisions";
-          if (elder.widowTrialState !== "completed") {
-            bestDialog = {
-              dlg: { name: "Bazaar Trader", lines: ["Welcome to the Bazaar! Complete your character trials before we pack your expedition kit."] },
-              source: "traderWait",
-            };
-          } else if (elder.marketTrialState === "not_started") {
-            bestDialog = { dlg: traderIntroDialog, source: "traderIntro" };
-          } else if (elder.marketTrialState === "overpaid") {
+        // ---- Trial 4: Bazaar Trader ---------------------------------------
+        gate("market", eldervilleWorldPos(15, 40), "E · Trade Provisions", () => {
+          if (elder.marketTrialState === "not_started") return { dlg: traderIntroDialog, source: "traderIntro" };
+          if (elder.marketTrialState === "overpaid") {
             prompt = "E · Return 50 Extra Silver";
-            bestDialog = { dlg: traderHonestyReturnDialog, source: "traderReturn" };
-          } else {
-            prompt = "E · Talk to Trader";
-            bestDialog = { dlg: traderCompletedRepeat, source: "traderDone" };
+            return { dlg: traderHonestyReturnDialog, source: "traderReturn" };
+          }
+          return { dlg: traderCompletedRepeat, source: "traderDone" };
+        });
+
+        // ---- Trial 5: the three signal braziers on the north rampart ------
+        if (elder.watchTrialState === "assigned") {
+          const spots: [number, number][] = [[32, 4], [36, 4], [40, 4]];
+          const names = ["West Brazier", "East Brazier", "Centre Brazier"];
+          spots.forEach(([bx, by], i) => {
+            const bp = eldervilleWorldPos(bx, by);
+            const bd = Math.hypot(bp.x - p.pos.x, bp.z - p.pos.z);
+            if (bd < bestDist && bd < 1.7 && !elder.braziersLit[i]) {
+              bestDist = bd;
+              prompt = `E · Light the ${names[i]}`;
+              bestDialog = { dlg: { name: names[i], lines: ["You touch the torch to the oil-soaked kindling."] }, source: `brazier:${i}` };
+            }
+          });
+        }
+
+        // ---- Trial 6: the three aqueduct sluice gates ---------------------
+        if (elder.sluiceTrialState === "assigned") {
+          const labels = ["SHUT", "HALF", "OPEN"];
+          ([[42, 46], [48, 46], [54, 46]] as [number, number][]).forEach(([sx, sy], i) => {
+            const sp = eldervilleWorldPos(sx, sy);
+            const sd = Math.hypot(sp.x - p.pos.x, sp.z - p.pos.z);
+            if (sd < bestDist && sd < 1.8) {
+              bestDist = sd;
+              const which = ["Head", "Middle", "Last"][i];
+              prompt = `E · ${which} Gate — now ${labels[elder.sluiceGates[i]]}`;
+              bestDialog = { dlg: sluiceNoteDialog, source: `sluice:${i}` };
+            }
+          });
+        }
+        // the cistern head, once the gates are right
+        if (elder.sluiceTrialState === "inspected") {
+          const cp = eldervilleWorldPos(44, 48);
+          const cd = Math.hypot(cp.x - p.pos.x, cp.z - p.pos.z);
+          if (cd < bestDist && cd < 2.0) {
+            bestDist = cd;
+            prompt = "E · Check the Cistern";
+            bestDialog = { dlg: sluiceSolvedDialog, source: "sluiceCistern" };
           }
         }
 
-        // Council Combat Initiation @ Blue House Courtyard [36, 6]
-        if (elder.marketTrialState === "completed" && elder.combatTrialState === "not_started") {
-          const councilPos = eldervilleWorldPos(36, 6);
-          const cDist = Math.hypot(councilPos.x - p.pos.x, councilPos.z - p.pos.z);
-          if (cDist < bestDist && cDist < 2.2) {
-            bestDist = cDist;
-            prompt = "E · Council Blade Trial";
-            bestDialog = { dlg: councilCombatTrialDialog, source: "councilCombatTrial" };
+        // ---- Trial 7: the three orchard rows ------------------------------
+        if (elder.blightTrialState === "assigned") {
+          ([[9, 38], [13, 40], [17, 38]] as [number, number][]).forEach(([rx, ry], i) => {
+            const rp = eldervilleWorldPos(rx, ry);
+            const rd = Math.hypot(rp.x - p.pos.x, rp.z - p.pos.z);
+            if (rd < bestDist && rd < 1.8 && !elder.rowsInspected[i]) {
+              bestDist = rd;
+              prompt = `E · Put your hand in the soil (row ${i + 1}/3)`;
+              bestDialog = {
+                dlg: i === elder.blightRow ? blightRowRotDialog : blightRowCleanDialog,
+                source: `blightRow:${i}`,
+              };
+            }
+          });
+        }
+
+        // ---- Trial 9: the muster with Thorn in Founders' Plaza ------------
+        gate("muster", eldervilleWorldPos(44, 12), "E · Report to the Muster", () => {
+          if (elder.musterTrialState === "not_started") return { dlg: musterIntroDialog, source: "musterIntro" };
+          if (elder.musterTrialState === "assigned") {
+            const call = [musterCallGuardDialog, musterCallDodgeDialog, musterCallStrikeDialog][Math.min(elder.musterStep, 2)];
+            prompt = `E · Thorn's call (${elder.musterStep}/3)`;
+            return { dlg: call, source: `musterCall:${elder.musterStep}` };
+          }
+          if (elder.musterTrialState === "inspected") return { dlg: musterCompleteDialog, source: "musterComplete" };
+          return null;
+        });
+
+        // ---- Trial 10: the quarry constructs ------------------------------
+        if (elder.scrapTrialState === "assigned") {
+          const qp = eldervilleWorldPos(64, 62);
+          const qd = Math.hypot(qp.x - p.pos.x, qp.z - p.pos.z);
+          if (qd < bestDist && qd < 2.4 && !elder.spoken.has("scrapEngage")) {
+            bestDist = qd;
+            prompt = "E · Approach the wreckage";
+            bestDialog = { dlg: scrapEngageDialog, source: "scrapEngage" };
           }
         }
+        if (elder.scrapTrialState === "inspected" && !elder.spoken.has("scrapCleared")) {
+          const qp = eldervilleWorldPos(64, 62);
+          const qd = Math.hypot(qp.x - p.pos.x, qp.z - p.pos.z);
+          if (qd < bestDist && qd < 2.6) {
+            bestDist = qd;
+            prompt = "E · Take a fragment";
+            bestDialog = { dlg: scrapClearedDialog, source: "scrapCleared" };
+          }
+        }
+
+        // ---- Trial 11: the Council blade trial ----------------------------
+        gate("blade", eldervilleWorldPos(36, 8), "E · Council Blade Trial", () => {
+          if (elder.combatTrialState === "not_started") return { dlg: councilCombatTrialDialog, source: "councilCombatTrial" };
+          return null;
+        });
 
         // Forge delivery — haul the machine body to Elder Sage's anvil
         if (elder.carryingBody) {
@@ -893,41 +1093,32 @@ export function EldervillePlayer() {
           }
         }
 
-        // Outskirts Cave @ north end of the eastern gate road
-        const cavePos = eldervilleWorldPos(CAVE_TILE.tx, CAVE_TILE.ty);
-        const caveDist = Math.hypot(cavePos.x - p.pos.x, cavePos.z - p.pos.z);
-        if (caveDist < bestDist && caveDist < 2.2) {
-          bestDist = caveDist;
-          if (elder.hasSword) {
-            prompt = "E · Enter the Outskirts Cave";
-            bestDialog = { dlg: outskirtsCaveEnterDialog, source: "caveEnter" };
-          } else if (elder.combatTrialState === "completed") {
-            prompt = "E · Peer Into the Dark";
-            bestDialog = {
-              dlg: {
-                name: "Outskirts Cave",
-                lines: [
-                  "The cave mouth exhales cold, machine-tinged air.",
-                  "Without your father's blade at your side, you are not ready. Retrieve it from the Red House sword case.",
-                ],
-              },
-              source: "caveLocked",
-            };
-          } else {
-            prompt = "E · Peer Into the Dark";
-            bestDialog = {
-              dlg: {
-                name: "Outskirts Cave",
-                lines: [
-                  "A dark maw in the hillside where the forest begins. Something stirs inside.",
-                  "The Council's trials come first — prove your virtue, then your steel.",
-                ],
-              },
-              source: "caveNormal",
-            };
+        // ---- Trial 12: the Outskirts Cave ---------------------------------
+        {
+          const cavePos = eldervilleWorldPos(CAVE_TILE.tx, CAVE_TILE.ty);
+          const caveDist = Math.hypot(cavePos.x - p.pos.x, cavePos.z - p.pos.z);
+          if (caveDist < bestDist && caveDist < 2.2) {
+            bestDist = caveDist;
+            if (elder.hasSword) {
+              prompt = "E · Enter the Outskirts Cave";
+              bestDialog = { dlg: outskirtsCaveEnterDialog, source: "caveEnter" };
+            } else if (elder.combatTrialState === "completed") {
+              prompt = "E · Peer Into the Dark";
+              bestDialog = {
+                dlg: { name: "Outskirts Cave", lines: ["The cave mouth exhales cold, machine-tinged air.", "Without your father's blade at your side, you are not ready. Retrieve it from the Red House sword case."] },
+                source: "caveLocked",
+              };
+            } else {
+              prompt = "E · Peer Into the Dark";
+              bestDialog = {
+                dlg: { name: "Outskirts Cave", lines: ["A dark maw in the hillside where the forest begins. Something stirs inside.", `The Council's trials come first — ${lockedHint(elder, "cave") || "prove your virtue, then your steel."}`] },
+                source: "caveNormal",
+              };
+            }
           }
         }
       }
+
 
       // Tinslaire in Village during daytime
       if (elder.eldersDoorDialogDone && !isNight) {
@@ -970,6 +1161,51 @@ export function EldervillePlayer() {
         if (bestDialog.source === "openScholarPuzzle") {
           useElder.getState().setScholarPuzzleOpen(true);
           sfx.ui();
+        } else if (bestDialog.source.startsWith("brazier:")) {
+          // Trial 5 — lighting is order-sensitive; a wrong light snuffs the line.
+          const i = Number(bestDialog.source.split(":")[1]);
+          const res = useElder.getState().lightBrazier(i);
+          const st = useElder.getState();
+          if (res === "wrong") {
+            sfx.puzzleError();
+            st.showDialog(watchWrongDialog, "watchWrong");
+          } else if (st.watchTrialState === "inspected") {
+            sfx.puzzleUnlock();
+            st.showDialog(watchLitDialog, "watchLit");
+          } else {
+            sfx.puzzleClick();
+            st.showDialog(bestDialog.dlg!, bestDialog.source);
+          }
+        } else if (bestDialog.source.startsWith("sluice:")) {
+          // Trial 6 — cycle a gate; the store detects the solved combination.
+          const i = Number(bestDialog.source.split(":")[1]);
+          useElder.getState().cycleSluice(i);
+          const st = useElder.getState();
+          if (st.sluiceTrialState === "inspected") {
+            sfx.puzzleUnlock();
+            st.showDialog(sluiceSolvedDialog, "sluiceSolved");
+          } else {
+            sfx.puzzleClick();
+          }
+        } else if (bestDialog.source === "sluiceCistern") {
+          sfx.questComplete();
+          useElder.getState().showDialog(sluiceCompleteDialog, "sluiceComplete");
+        } else if (bestDialog.source.startsWith("blightRow:")) {
+          const i = Number(bestDialog.source.split(":")[1]);
+          useElder.getState().inspectRow(i);
+          sfx.talk();
+          useElder.getState().showDialog(bestDialog.dlg!, bestDialog.source);
+        } else if (bestDialog.source.startsWith("tallySack:")) {
+          const i = Number(bestDialog.source.split(":")[1]);
+          useElder.getState().weighSack(i);
+          sfx.puzzleClick();
+          useElder.getState().showDialog(bestDialog.dlg!, bestDialog.source);
+        } else if (bestDialog.source.startsWith("musterCall:")) {
+          // Trial 9 — Thorn's drill. Each call is answered by performing the
+          // move; talking to him advances to the next call.
+          useElder.getState().advanceMuster();
+          sfx.talk();
+          useElder.getState().showDialog(bestDialog.dlg!, bestDialog.source);
         } else {
           useElder.getState().showDialog(bestDialog.dlg, bestDialog.source);
           if (bestDialog.source === "wellInspect") {

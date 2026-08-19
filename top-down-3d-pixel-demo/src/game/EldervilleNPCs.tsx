@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { eldervilleWorldPos, groundAtWorld } from "./world";
+import { eldervilleWorldPos, eldervilleTileAt, groundAtWorld } from "./world";
 import { findPath } from "./pathfinding";
 import {
   useElder,
@@ -9,6 +9,7 @@ import {
   eldersAtDoorPositions,
 } from "./eldervilleStory";
 import { rt, useUI } from "./state";
+import { isActive } from "./quests";
 
 // Simple voxel NPC mesh
 function NpcMesh({ pos, color, name, isElder, yaw = 0 }: { pos: THREE.Vector3; color: string; name: string; isElder?: boolean; yaw?: number }) {
@@ -145,8 +146,7 @@ function TinslaireVillage() {
         // moved a tile away from what we last pathed to. BFS on a 72x48 grid is
         // cheap, but not something to run every frame for a background NPC.
         repathTimer.current -= dt;
-        const goalTx = Math.round(px + 35.5);
-        const goalTy = Math.round(pz + 35.5 - 11);
+        const { tx: goalTx, ty: goalTy } = eldervilleTileAt(px, pz);
         const stale =
           !followPath.current ||
           goalTx !== lastGoal.current.tx ||
@@ -154,8 +154,7 @@ function TinslaireVillage() {
         if (repathTimer.current <= 0 || stale) {
           repathTimer.current = 0.35;
           lastGoal.current = { tx: goalTx, ty: goalTy };
-          const fromTx = Math.round(pos.current.x + 35.5);
-          const fromTy = Math.round(pos.current.z + 35.5 - 11);
+          const { tx: fromTx, ty: fromTy } = eldervilleTileAt(pos.current.x, pos.current.z);
           const path = findPath("village", { tx: fromTx, ty: fromTy }, { tx: goalTx, ty: goalTy });
           // Drop the first node: it's the tile he is already standing on.
           followPath.current = path && path.length > 1 ? path.slice(1) : null;
@@ -326,6 +325,12 @@ function TinslaireVillage() {
 
 export function EldervilleNPCs() {
   const currentArea = useElder((s) => s.currentArea);
+  // Thorn relocates for the muster ONLY once trial 9 is actually the live one.
+  // Keying off musterTrialState alone would be wrong: it reads "not_started"
+  // from the first frame of the game, which would have parked him in the plaza
+  // during trials 3 and 5 where he is also the giver.
+  const elderAll = useElder((s) => s);
+  const musterActive = isActive(elderAll, "muster");
   const eldersAtDoorReady = useElder((s) => s.eldersAtDoorReady);
   const eldersDoorDialogDone = useElder((s) => s.eldersDoorDialogDone);
   // the clock ticks every few seconds of play, keeping the render-time night check fresh
@@ -357,6 +362,13 @@ export function EldervilleNPCs() {
     return <NpcMesh pos={pos} color="#a87860" name="Widow Oren" yaw={Math.PI} />;
   }
 
+  // Inside the Orchard Keeper's hut — the giver of Trial 7.
+  if (currentArea === "orchardHut") {
+    const offX = 72.5, offZ = 75;
+    const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 6 + 0.5);
+    return <NpcMesh pos={pos} color="#7a8a50" name="Orchard Keeper" yaw={Math.PI} />;
+  }
+
   // Other interiors: no Tinslaire
   if (currentArea !== "village") {
     return null;
@@ -374,11 +386,15 @@ export function EldervilleNPCs() {
           return <NpcMesh key={e.id} pos={new THREE.Vector3(wp.x, wp.y, wp.z)} color={e.color} name={e.name} isElder />;
         })}
 
-      {/* Village Elders (Marcus, Sarah) */}
+      {/* Village elders. Thorn walks to Founders' Plaza to run the muster
+          (Trial 9) and stays there for it — the drill is staged in the plaza,
+          so leaving him on the homestead path would make the objective marker
+          point at an empty square. */}
       {villageNPCsData
         .filter((npc) => npc.id !== "tinslaire")
         .map((npc) => {
-          const wp = eldervilleWorldPos(npc.tx, npc.ty);
+          const atMuster = npc.id === "elderThorn" && musterActive;
+          const wp = atMuster ? eldervilleWorldPos(44, 12) : eldervilleWorldPos(npc.tx, npc.ty);
           const isElder = npc.id.includes("elder");
           return <NpcMesh key={npc.id} pos={new THREE.Vector3(wp.x, wp.y, wp.z)} color={npc.color} name={npc.name} isElder={isElder} />;
         })}

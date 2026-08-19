@@ -3,7 +3,7 @@
  * No browser: we stub the DOM/WebGL bits the modules touch, then run the
  * observation builder + pathfinder over genuine world data.
  */
-const { eldervilleWorldPos, isBlocked, groundAtWorld, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } =
+const { eldervilleWorldPos, eldervilleTileAt, isBlocked, groundAtWorld, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } =
   await import("../world.ts");
 
 // Import the REAL pathfinder rather than reimplementing it. This file used to
@@ -24,9 +24,16 @@ const targets: [string,number,number][] = [
   ["Farmer's Homestead door",12,28], ["Weaver's Homestead door",32,28],
   ["Elder Moss",59,35], ["Central Well",58,36], ["Elder Sage",32,12],
   ["Elder Thorn",16,26], ["Bazaar Trader",15,40], ["Forge",FORGE_TILE.tx,FORGE_TILE.ty],
-  ["Training dummies",36,4], ["Cave mouth",CAVE_TILE.tx,CAVE_TILE.ty],
+  ["Training dummies",36,6], ["Cave mouth",CAVE_TILE.tx,CAVE_TILE.ty],
   ["Grain sack",30,36], ["Blade-trial spot",36,6],
-  ["Dummy 1",34,3],["Dummy 2",36,3],["Dummy 3",38,3],
+  ["Dummy 1",34,6],["Dummy 2",36,6],["Dummy 3",38,6],
+  // districts added with the twelve-trial spine
+  ["Plaza Watchhouse door",44,14],["Founders' Plaza",44,12],["Granary door",26,60],
+  ["Orchard hut door",10,42],["Quarry floor",64,62],["Aqueduct cistern",44,48],
+  ["Sluice head",42,46],["Sluice middle",48,46],["Sluice last",54,46],
+  ["Brazier west",32,4],["Brazier east",36,4],["Brazier centre",40,4],
+  ["Orchard row 1",9,38],["Orchard row 2",13,40],["Orchard row 3",17,38],
+  ["Scrap 1",61,60],["Scrap 2",67,61],["Scrap 3",63,65],
 ];
 for (const [name,tx,ty] of targets) {
   const p = findPath("village", spawn, {tx,ty});
@@ -41,6 +48,11 @@ for (const [area, from, to, label] of [
   ["council",{tx:7,ty:8},{tx:6,ty:4},"council -> study desk"],
   ["council",{tx:7,ty:8},{tx:7,ty:2},"council -> archive bookcase"],
   ["homesteadA",{tx:7,ty:8},{tx:6,ty:6},"homesteadA -> Widow Oren"],
+  ["watchhouse",{tx:7,ty:8},{tx:7,ty:4},"watchhouse -> watch roster"],
+  ["granary",{tx:7,ty:8},{tx:3,ty:5},"granary -> tally board"],
+  ["granary",{tx:7,ty:8},{tx:2,ty:2},"granary -> sack 1"],
+  ["granary",{tx:7,ty:8},{tx:10,ty:6},"granary -> sack 4"],
+  ["orchardHut",{tx:7,ty:8},{tx:6,ty:6},"orchardHut -> Orchard Keeper"],
   ["cave",{tx:7,ty:19},{tx:CAVE_LANDMARKS.boss.tx,ty:CAVE_LANDMARKS.boss.ty},"cave spawn -> boss"],
   ["cave",{tx:7,ty:5},{tx:CAVE_LANDMARKS.exitMat.tx,ty:CAVE_LANDMARKS.exitMat.ty},"cave boss -> exit mat"],
 ] as any[]) {
@@ -49,7 +61,7 @@ for (const [area, from, to, label] of [
 }
 
 console.log("\n=== adjacency fallback (targets that are solid props) ===");
-for (const [name,tx,ty] of [["Central Well",58,36],["Forge",FORGE_TILE.tx,FORGE_TILE.ty],["Dummy 2",36,3]] as any[]) {
+for (const [name,tx,ty] of [["Central Well",58,36],["Forge",FORGE_TILE.tx,FORGE_TILE.ty],["Dummy 2",36,6]] as any[]) {
   const w = eldervilleWorldPos(tx,ty);
   const solid = isBlocked(w.x,w.z);
   const p = findPath("village", spawn, {tx,ty});
@@ -68,8 +80,7 @@ console.log("\n=== the village grid must cover the whole world, not a slice of i
     const w = eldervilleWorldPos(tx, ty);
     return !isBlocked(w.x, w.z) && groundAtWorld(w.x, w.z) > 1.5;
   };
-  const stx = Math.round(SPAWN.x + 35.5);
-  const sty = Math.round(SPAWN.z + 35.5 - 11);
+  const { tx: stx, ty: sty } = eldervilleTileAt(SPAWN.x, SPAWN.z);
   const seen = new Set<number>([sty * SIZE + stx]);
   const queue = [[stx, sty]];
   let maxTy = 0;

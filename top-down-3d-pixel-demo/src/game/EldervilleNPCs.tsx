@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { eldervilleWorldPos, eldervilleTileAt, groundAtWorld } from "./world";
+import { eldervilleWorldPos, eldervilleTileAt, groundAtWorld, INT_OFF_X, INT_OFF_Z } from "./world";
 import { findPath } from "./pathfinding";
 import {
   useElder,
@@ -329,8 +329,10 @@ export function EldervilleNPCs() {
   // Keying off musterTrialState alone would be wrong: it reads "not_started"
   // from the first frame of the game, which would have parked him in the plaza
   // during trials 3 and 5 where he is also the giver.
-  const elderAll = useElder((s) => s);
-  const musterActive = isActive(elderAll, "muster");
+  // Select the derived boolean, not the whole store: subscribing to `s` itself
+  // re-rendered every NPC in the village on any store write at all (dialog
+  // open/close, each brazier, every point of scrap damage).
+  const musterActive = useElder((s) => isActive(s, "muster"));
   const eldersAtDoorReady = useElder((s) => s.eldersAtDoorReady);
   const eldersDoorDialogDone = useElder((s) => s.eldersDoorDialogDone);
   // the clock ticks every few seconds of play, keeping the render-time night check fresh
@@ -339,7 +341,7 @@ export function EldervilleNPCs() {
 
   // Inside home interior:
   if (currentArea === "home") {
-    const offX = 72.5, offZ = 75;
+    const offX = INT_OFF_X, offZ = INT_OFF_Z;
     // 1. Before talking to door elders: Tinslaire is at (6, 5) waiting
     if (!eldersDoorDialogDone) {
       const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 5 + 0.5);
@@ -357,14 +359,14 @@ export function EldervilleNPCs() {
   // Inside Farmer's Homestead (homesteadA) — Widow Oren.
   // She stands at (6,6), the open floor in front of her table; (6,5) is the table itself.
   if (currentArea === "homesteadA") {
-    const offX = 72.5, offZ = 75;
+    const offX = INT_OFF_X, offZ = INT_OFF_Z;
     const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 6 + 0.5);
     return <NpcMesh pos={pos} color="#a87860" name="Widow Oren" yaw={Math.PI} />;
   }
 
   // Inside the Orchard Keeper's hut — the giver of Trial 7.
   if (currentArea === "orchardHut") {
-    const offX = 72.5, offZ = 75;
+    const offX = INT_OFF_X, offZ = INT_OFF_Z;
     const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 6 + 0.5);
     return <NpcMesh pos={pos} color="#7a8a50" name="Orchard Keeper" yaw={Math.PI} />;
   }

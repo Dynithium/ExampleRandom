@@ -545,6 +545,23 @@ export const archeryTargets = [eldervilleWorldPos(33, 4), eldervilleWorldPos(39,
 /** The Outskirts Cave mouth at the north end of the eastern gate road */
 export const CAVE_TILE = { tx: 90, ty: 8 };
 
+/**
+ * Interiors all render at one shared virtual offset, far from the village mesh,
+ * because only a single area is ever on screen at a time. Every file that
+ * converts an interior tile to a world position must use these — they were
+ * duplicated as bare literals across seven modules, which is exactly the kind
+ * of thing that drifts.
+ */
+export const INT_OFF_X = 72.5;
+export const INT_OFF_Z = 75;
+/** Floor height inside every interior. */
+export const INT_Y = 2;
+
+/** World-space centre of an interior tile. */
+export function interiorWorldPos(tx: number, ty: number) {
+  return { x: INT_OFF_X + tx + 0.5, y: INT_Y, z: INT_OFF_Z + ty + 0.5 };
+}
+
 /** The Forge anvil in the Artisan District — where the machine body must be delivered */
 export const FORGE_TILE = { tx: 52, ty: 7 };
 

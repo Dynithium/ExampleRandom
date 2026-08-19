@@ -3,10 +3,10 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { rt } from "./state";
 import { useElder, caveBossAwakeDialog } from "./eldervilleStory";
-import { caveMap, caveSolidAt, CAVE_LANDMARKS } from "./world";
+import { caveMap, caveSolidAt, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 import { sfx } from "./audio";
 
-const OFF_X = 72.5, OFF_Z = 75, INT_Y = 2;
+const OFF_X = INT_OFF_X, OFF_Z = INT_OFF_Z;
 const CAVE_BG = new THREE.Color("#04050a");
 
 const tileW = (tx: number, ty: number) => ({ x: OFF_X + tx + 0.5, z: OFF_Z + ty + 0.5 });

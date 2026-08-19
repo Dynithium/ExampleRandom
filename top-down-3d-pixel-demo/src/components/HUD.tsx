@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUI, rt } from "../game/state";
 import { useElder } from "../game/eldervilleStory";
 import { pressInteract, setTouchAxis } from "../game/input";
@@ -274,7 +274,10 @@ function PauseMenu() {
 
 function TitleScreen() {
   const [showLore, setShowLore] = useState(false);
-  const saveInfo = getSaveSummary();
+  // Reads and JSON-parses localStorage, so keep it off the render path: the
+  // title screen only unmounts once the game starts, and nothing can write a
+  // save while it is up.
+  const saveInfo = useMemo(() => getSaveSummary(), []);
 
   const handleNewGame = () => {
     sfx.unlock();

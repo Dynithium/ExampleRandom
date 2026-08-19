@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS } from "./world";
+import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 import { rt, useUI } from "./state";
 import { isUnlocked, lockedHint, type TrialId } from "./quests";
 import {
@@ -103,7 +103,7 @@ const caveSolidAtWorld = (x: number, z: number) => {
   return caveSolidAt(caveMap[ty][tx]);
 };
 
-const INT_OFF_X = 72.5, INT_OFF_Z = 75, INT_Y = 2;
+
 function npcBlockedWorld(x: number, z: number) {
   const s = useElder.getState();
   const isNight = rt.env.night > 0.45;

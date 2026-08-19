@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { rt } from "./state";
 import { sfx } from "./audio";
+import { INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 
 export const fatherMemoryLines = [
   "Everything and everyone has a purpose, which reflects their maker.",
@@ -878,7 +879,7 @@ export const useElder = create<ElderState>((set, get) => ({
       // the machine keeps its wounds — defeated enemies remain defeated
       window.dispatchEvent(new CustomEvent("minslaire:death"));
       set({ hp: 100, carryingBody: false, currentArea: "home", currentInterior: "home" });
-      rt.player.pos.set(72.5 + 4.5, 2, 75 + 5.5);
+      rt.player.pos.set(INT_OFF_X + 4.5, INT_Y, INT_OFF_Z + 5.5);
       rt.player.yaw = Math.PI;
       get().showDialog(lifeSuitRespawnDialog, "lifeSuitRespawn");
     } else {
@@ -926,7 +927,7 @@ export const useElder = create<ElderState>((set, get) => ({
         next.currentInterior = "cave";
         if (s.caveStage === "not_entered") next.caveStage = "entered";
         // step into the cavern, just north of the entrance mat
-        rt.player.pos.set(72.5 + 7 + 0.5, 2, 75 + 19 + 0.5);
+        rt.player.pos.set(INT_OFF_X + 7.5, INT_Y, INT_OFF_Z + 19.5);
         rt.player.yaw = Math.PI;
       }
       if (wasBodyLift) { next.carryingBody = true; }

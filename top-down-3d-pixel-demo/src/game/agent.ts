@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { rt, useUI } from "./state";
 import { useElder } from "./eldervilleStory";
-import { eldervilleWorldPos, eldervilleTileAt, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } from "./world";
+import { eldervilleWorldPos, eldervilleTileAt, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE, INT_OFF_X, INT_OFF_Z } from "./world";
 import { startNewGame } from "./save";
 import { captureFrame, hasCanvas } from "./agentVision";
 import { findPath } from "./pathfinding";
@@ -160,8 +160,7 @@ function compassDir(dx: number, dz: number) {
   return DIRS[oct];
 }
 
-const INT_OFF_X = 72.5;
-const INT_OFF_Z = 75;
+
 
 function playerTile(): { tx: number; ty: number } {
   const p = rt.player.pos;

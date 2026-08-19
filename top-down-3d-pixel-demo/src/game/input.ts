@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { rt, useUI } from "./state";
+import { useElder } from "./eldervilleStory";
 import { sfx } from "./audio";
 
 const held = new Set<string>();
@@ -45,8 +46,20 @@ export function useKeyboard() {
         if (e.code === "KeyC") rt.cam.targetYaw -= Math.PI / 2;
         if (e.code === "KeyE") rt.input.interact = true;
         if (e.code === "KeyP" || e.code === "Escape") {
-          ui.toggle("pauseMenu");
-          sfx.ui();
+          // Don't open the pause menu on top of a blocking modal. The pause menu
+          // renders at z-50 — the same layer as the scholar puzzle and above the
+          // dialog box — so it covered them while they still owned the input.
+          // Worst case was a hard save-corrupting soft-lock: pause during the
+          // opening memory, SAVE, and the save records openingBlack/memoryActive
+          // with activeDialog dropped on load, leaving a permanently black screen
+          // that only "E" (handled solely by the memory path) could ever clear.
+          const s = useElder.getState();
+          const blocked =
+            s.openingBlack || s.memoryActive || !!s.activeDialog || s.scholarPuzzleOpen;
+          if (!blocked) {
+            ui.toggle("pauseMenu");
+            sfx.ui();
+          }
         }
         if (e.code === "Equal" || e.code === "NumpadAdd")
           rt.cam.targetZoom = Math.min(96, rt.cam.targetZoom * 1.25);

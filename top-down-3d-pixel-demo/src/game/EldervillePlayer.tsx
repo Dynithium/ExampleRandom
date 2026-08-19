@@ -112,6 +112,21 @@ function npcBlockedWorld(x: number, z: number) {
     const offX=INT_OFF_X, offZ=INT_OFF_Z;
     const nx = offX + 6 + 0.5, nz = offZ + 6 + 0.5;
     if(Math.hypot(nx - x, nz - z) < 0.7) return true;
+  } else if (s.currentArea === "cave") {
+    // The Cave Machine had no body at all: you could stand inside the boss (and
+    // walk straight through the wreck afterwards), which also made its melee
+    // trivially avoidable by simply occupying the same tile. Kept smaller than
+    // the 2.0 "Lift the Machine Body" interact radius so the pickup stays usable.
+    if (s.caveStage === "boss_awake" || s.caveStage === "boss_defeated") {
+      const b = rt.boss.pos;
+      const R = 0.85;
+      // Only block movement *into* the machine. The boss chases and can end up
+      // overlapping the player (or the wreck can settle on top of them); if we
+      // blocked unconditionally, every direction would fail and the player would
+      // be stuck inside it forever. If already inside, let them walk out.
+      const insideNow = Math.hypot(b.x - rt.player.pos.x, b.z - rt.player.pos.z) < R;
+      if (!insideNow && Math.hypot(b.x - x, b.z - z) < R) return true;
+    }
   }
   return false;
 }
@@ -144,6 +159,21 @@ function stepArrows(dt: number) {
     a.z += a.dz * ARROW_SPEED * dt;
     a.life -= dt;
     let dead = a.life <= 0;
+    // Arrows used to test only the boss/dummies/archery targets, so they flew
+    // straight through cave walls, houses and hillsides — you could stand outside
+    // the cave and shoot the machine, or kill the training dummies from across a
+    // building. Stop them on solid geometry.
+    if (!dead) {
+      if (elder.currentArea === "cave") {
+        if (caveSolidAtWorld(a.x, a.z)) dead = true;
+      } else if (elder.currentArea === "village") {
+        if (isBlocked(a.x, a.z)) dead = true;
+      } else {
+        const interior = elder.currentInterior ? interiors[elder.currentInterior] : null;
+        if (interior && isInteriorSolidAt(interior.map, a.x, a.z, INT_OFF_X, INT_OFF_Z)) dead = true;
+      }
+      if (dead) sfx.block();
+    }
     if (elder.currentArea === "cave") {
       const b = rt.boss.pos;
       if (elder.caveStage === "boss_awake" && Math.hypot(b.x - a.x, b.z - a.z) < 0.85) {

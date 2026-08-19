@@ -190,8 +190,15 @@ houseDefs.forEach((h) => {
     heights[idx(ii, jj)] = 4;
     kinds[idx(ii, jj)] = KIND.DIRT;
   }
+  // The 2x2 reserved block above spans the tile *boundary* (tiles i..i+1, i.e.
+  // world gx(i)-0.5 .. gx(i)+1.5) while the house mesh is centred on the tile
+  // *centre* gx(i) with walls at +/-1.0. That half-tile mismatch left the north
+  // and west faces of every house walkable — you could walk through the wall and
+  // stand inside the building, and the roof visibly overhung the blocked area on
+  // the other two sides. Centre the mesh on the reserved block so the 2x2 wall
+  // box and the 2x2 of solid tiles coincide exactly.
   houses.push({
-    x: gx(i), z: gx(j), y: topOf(4), rot: 0, wall: h.wall, roof: h.roof, id: h.id,
+    x: gx(i) + 0.5, z: gx(j) + 0.5, y: topOf(4), rot: 0, wall: h.wall, roof: h.roof, id: h.id,
   });
 });
 

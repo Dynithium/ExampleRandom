@@ -1,5 +1,32 @@
+import { useEffect, useMemo } from "react";
+import * as THREE from "three";
+import { useThree } from "@react-three/fiber";
 import { interiors } from "./world";
 import { useElder } from "./eldervilleStory";
+
+const INTERIOR_BG = new THREE.Color("#140f0a");
+
+/**
+ * Interiors no longer mount <Environment/>, so nothing else sets the scene
+ * background/fog while indoors. Without this the room renders against whatever
+ * the previous area left behind (or transparent black), and the gaps past the
+ * wall tops show through.
+ */
+function InteriorBackdrop() {
+  const { scene } = useThree();
+  const fog = useMemo(() => new THREE.Fog(INTERIOR_BG, 22, 48), []);
+  useEffect(() => {
+    const prevBg = scene.background;
+    const prevFog = scene.fog;
+    scene.background = INTERIOR_BG;
+    scene.fog = fog;
+    return () => {
+      scene.background = prevBg;
+      scene.fog = prevFog;
+    };
+  }, [scene, fog]);
+  return null;
+}
 
 const floorColor = "#c89858";
 const wallColor = "#a07048";
@@ -168,6 +195,7 @@ export function InteriorRoom() {
         })
       )}
       {/* ceiling ambient light for interior */}
+      <InteriorBackdrop />
       <ambientLight intensity={0.9} />
       <hemisphereLight args={["#fff8e0", "#a07048", 0.6]} />
     </group>

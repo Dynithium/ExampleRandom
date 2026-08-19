@@ -115,6 +115,13 @@ export function loadGame(key = SAVE_KEY): boolean {
     const raw = localStorage.getItem(key);
     if (!raw) return false;
     const data: SaveData = JSON.parse(raw);
+    // version was written on every save but never checked, so a save from an
+    // older/incompatible build would be spread into the store and fail in
+    // half-applied pieces. Refuse it instead.
+    if (data?.version !== 1 || !data.player || !data.elderState || !data.env) {
+      console.warn("Save ignored: unsupported format", data?.version);
+      return false;
+    }
 
     // restore player
     rt.player.pos.set(data.player.x, data.player.y, data.player.z);
@@ -154,6 +161,20 @@ export function loadGame(key = SAVE_KEY): boolean {
       dialogSourceId: null,
       scholarPuzzleOpen: false,
     });
+
+    // The opening flashback is driven entirely by activeDialog, which we clear
+    // above (a saved dialog cursor can't be meaningfully resumed). Restoring
+    // memoryActive/openingBlack without it left the player staring at a black
+    // screen with no dialog to advance and no way out. If a save was taken mid
+    // cutscene, treat the cutscene as finished.
+    const restored = useElder.getState();
+    if (restored.memoryActive || restored.openingBlack) {
+      useElder.setState({
+        memoryActive: false,
+        openingBlack: false,
+        memoryDone: true,
+      });
+    }
 
     // restore ui settings
     useUI.setState({

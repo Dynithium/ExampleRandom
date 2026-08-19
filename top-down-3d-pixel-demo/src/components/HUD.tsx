@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useUI, rt } from "../game/state";
+import { useElder } from "../game/eldervilleStory";
 import { pressInteract, setTouchAxis } from "../game/input";
 import { sfx } from "../game/audio";
 import { saveGame, loadGame, hasSave, getSaveSummary, startNewGame } from "../game/save";
@@ -146,7 +147,17 @@ function PauseMenu() {
 
   const handleTitleReturn = () => {
     sfx.ui();
-    useUI.setState({ started: false, pauseMenu: false });
+    // Leaving to the title mid-run used to keep the live story state, so the
+    // title screen sat on top of a still-running world and "CONTINUE" resumed
+    // in-memory progress rather than the file on disk. Close any open modal
+    // state as well, otherwise a dialog/puzzle would still be waiting when a
+    // new game started.
+    useElder.setState({
+      activeDialog: null,
+      dialogSourceId: null,
+      scholarPuzzleOpen: false,
+    });
+    useUI.setState({ started: false, pauseMenu: false, paused: false });
   };
 
   return (

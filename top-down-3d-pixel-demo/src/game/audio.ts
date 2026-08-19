@@ -129,9 +129,24 @@ export const sfx = {
   },
   stopSuitHum() {
     if (suitHumOsc) {
+      const osc = suitHumOsc;
+      const gain = suitHumGain;
       try {
-        suitHumOsc.stop();
-        suitHumOsc.disconnect();
+        // Cutting a running oscillator dead produces an audible click (the
+        // waveform is truncated mid-cycle). Ramp the gain to silence first and
+        // stop just after.
+        const c = ac();
+        if (gain && c) {
+          const now = c.currentTime;
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setValueAtTime(gain.gain.value, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+          osc.stop(now + 0.14);
+          osc.onended = () => { try { osc.disconnect(); gain.disconnect(); } catch {} };
+        } else {
+          osc.stop();
+          osc.disconnect();
+        }
       } catch {}
       suitHumOsc = null;
       suitHumGain = null;

@@ -31,32 +31,22 @@ const smoothstep = (a: number, b: number, x: number) => {
 const dummy = new THREE.Object3D();
 const tmp = new THREE.Color();
 
-function Environment() {
-  const { scene } = useThree();
-  const sun = useRef<THREE.DirectionalLight>(null!);
-  const hemi = useRef<THREE.HemisphereLight>(null!);
-  const sunDisc = useRef<THREE.Mesh>(null!);
-  const moonDisc = useRef<THREE.Mesh>(null!);
-  const target = useMemo(() => new THREE.Object3D(), []);
-  const bg = useMemo(() => new THREE.Color("#8fd6f2"), []);
-  const fog = useMemo(() => new THREE.Fog(bg, 58, 155), [bg]);
+/**
+ * Advances the day/night clock and the derived sun vector. This is deliberately
+ * separate from <Environment/>: the cave renders its own lighting and does NOT
+ * mount <Environment/>, and when the clock lived there time froze the whole time
+ * you were underground (the HUD clock stopped, and stepping out of the cave
+ * resumed the exact minute you entered). Mounted in every area instead.
+ */
+function WorldClock() {
   const clockAcc = useRef(0);
-
-  useEffect(() => {
-    scene.background = bg;
-    scene.fog = fog;
-    return () => {
-      scene.fog = null;
-      scene.background = null;
-    };
-  }, [scene, bg, fog]);
-
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     const ui = useUI.getState();
     const elder = useElder.getState();
     // ~5 real minutes per full day at 1x; freeze while menus/dialogs/story hold the game
     const frozen =
+      !ui.started ||
       ui.paused ||
       ui.pauseMenu ||
       !!elder.activeDialog ||
@@ -68,12 +58,48 @@ function Environment() {
     const t = rt.env.time;
     const ang = (t - 0.25) * Math.PI * 2;
     const elev = Math.sin(ang);
+    rt.env.night = 1 - smoothstep(-0.06, 0.26, elev);
+    rt.env.sun.set(Math.cos(ang), elev, 0.42).normalize();
+
+    // HUD clock (rounded so React doesn't rerender every frame)
+    clockAcc.current += dt;
+    if (clockAcc.current > 0.25) {
+      clockAcc.current = 0;
+      const mins = Math.floor(t * 24 * 60);
+      const hh = Math.floor(mins / 60);
+      const mm = Math.floor((mins % 60) / 10) * 10;
+      ui.setClock(`${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`);
+    }
+  }, -3);
+  return null;
+}
+
+function Environment() {
+  const { scene } = useThree();
+  const sun = useRef<THREE.DirectionalLight>(null!);
+  const hemi = useRef<THREE.HemisphereLight>(null!);
+  const sunDisc = useRef<THREE.Mesh>(null!);
+  const moonDisc = useRef<THREE.Mesh>(null!);
+  const target = useMemo(() => new THREE.Object3D(), []);
+  const bg = useMemo(() => new THREE.Color("#8fd6f2"), []);
+  const fog = useMemo(() => new THREE.Fog(bg, 58, 155), [bg]);
+
+  useEffect(() => {
+    scene.background = bg;
+    scene.fog = fog;
+    return () => {
+      scene.fog = null;
+      scene.background = null;
+    };
+  }, [scene, bg, fog]);
+
+  useFrame(() => {
+    const t = rt.env.time;
+    const ang = (t - 0.25) * Math.PI * 2;
+    const elev = Math.sin(ang);
     const dayF = smoothstep(-0.06, 0.26, elev);
     const dusk = THREE.MathUtils.clamp(1 - Math.abs(elev) / 0.3, 0, 1);
-    rt.env.night = 1 - dayF;
 
-    // sun / moon direction
-    rt.env.sun.set(Math.cos(ang), elev, 0.42).normalize();
     const dir = rt.env.sun;
     const up = elev > 0;
     const lx = (up ? dir.x : -dir.x) * 34;
@@ -111,23 +137,11 @@ function Environment() {
     windowMat.emissiveIntensity = Math.pow(rt.env.night, 0.7);
     glowMat.color.copy(GLOW_OFF).lerp(GLOW_ON, rt.env.night);
     starMat.opacity = Math.max(0, rt.env.night * 0.95 - dusk * 0.4);
-
     // celestial bodies drift with the player so they never leave the view
     sunDisc.current.position.set(p.x + dir.x * 78, p.y + dir.y * 78 + 6, p.z + dir.z * 78);
     sunDisc.current.visible = elev > -0.15;
     moonDisc.current.position.set(p.x - dir.x * 78, p.y - dir.y * 78 + 6, p.z - dir.z * 78);
     moonDisc.current.visible = elev < 0.15;
-
-
-    // HUD clock (rounded so React doesn't rerender every frame)
-    clockAcc.current += dt;
-    if (clockAcc.current > 0.25) {
-      clockAcc.current = 0;
-      const mins = Math.floor(t * 24 * 60);
-      const hh = Math.floor(mins / 60);
-      const mm = Math.floor((mins % 60) / 10) * 10;
-      ui.setClock(`${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`);
-    }
   }, -2);
 
   return (
@@ -215,6 +229,7 @@ export function Scene() {
   if (currentArea === "cave") {
     return (
       <>
+        <WorldClock />
         <CaveScene />
         <ObjectiveMarker />
         <EldervillePlayer />
@@ -224,11 +239,17 @@ export function Scene() {
 
   return (
     <>
-      <Environment />
+      <WorldClock />
+      {/* Interiors light themselves (InteriorRoom has its own ambient + hemisphere).
+          Mounting <Environment/> here too stacked the outdoor sun, its 2048px shadow
+          map and the sky/star meshes on top of a sealed room — washing out the
+          interior at noon, tinting it blue at night, and rendering shadow casters
+          nobody can see. */}
       {isInterior ? (
         <InteriorRoom />
       ) : (
         <>
+          <Environment />
           <Terrain />
           <Foliage />
           <Water />

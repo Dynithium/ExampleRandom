@@ -1,4 +1,9 @@
 @import "tailwindcss";
+/* Bundled locally (latin subset, ~12 kB) rather than pulled from Google Fonts.
+   vite-plugin-singlefile inlines it into dist/index.html, so the build really is
+   one self-contained file that renders correctly offline; with the CDN <link>
+   the whole UI silently fell back to Courier with no network. */
+@import "@fontsource/press-start-2p/latin.css";
 
 html,
 body,

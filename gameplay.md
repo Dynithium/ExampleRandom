@@ -95,11 +95,11 @@ Four linked zones with an escalating boss. The **compass guides you through all 
 - **Lesson:** patience. The fight is won by *not* swinging first.
 
 ### The Elemental Box (scripted scene)
-- No combat. Walking to the pedestal triggers a cutscene: the grove goes silent, the suit's hum and the **compass eye dim**, then both lean toward the box. The compass needle spins wildly, then stops dead, pointing straight at the pedestal. The box opens on its own.
+- No combat. Walking to the pedestal triggers a cutscene: the grove goes silent, the suit's hum and the **compass eye dim**, then both lean toward the box. The compass needle spins wildly, then stops dead, pointing straight at the pedestal. The box opens on its own. It's just auraful
 - The voice speaks: *"You were told this was a vessel of power... The ones who sent you will show you what they truly serve."*
 - The return trip has **no random encounters** — the machines go still, as if waiting. The compass is dead weight on the way back, needle fixed, voices gone. This should feel *wrong*.
 
-## Act 3 — The Ambush (the turn)
+## Act 3 — The Ambush (the turn) 
 
 ### The Blue House Confrontation
 - Entering the Blue House with the box locks the doors and triggers the scene: Moss cold, Sage reading from the recovered vault screen, Thorn silent. On the vault map table, your pin is still blinking where you stand — they watched you the whole way home.

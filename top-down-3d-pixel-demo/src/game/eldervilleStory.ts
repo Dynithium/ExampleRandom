@@ -193,6 +193,11 @@ export const elderThornCompleteDialog: Dialog = {
     "(Elder Thorn steps forward from the doorway, his weathered face filled with profound respect)",
     "You asked for no silver. You served a widow with honor, dignity, and grace.",
     "Your father would be deeply proud, Minslaire. You have passed the Third Trial: The Widow's Task!",
+    // Thorn is the only elder who voted against sending Minslaire. He can't say
+    // so yet, but he can let one crack show — and immediately close it. This is
+    // the first seed of the betrayal, planted by the man who will pay for it.
+    "(He holds your gaze a moment too long, then glances toward the Blue House)",
+    "...Minslaire. When they give you a gift, look at it twice. That is all I will say.",
     "Only one trial remains: The Honest Change at the Southern Marketplace Bazaar.",
   ],
 };
@@ -211,6 +216,24 @@ export const traderIntroDialog: Dialog = {
     "There you are, all squared away! Safe travels into the wilds!",
   ],
 };
+
+/**
+ * Trial 4 is the only trial the player faces with Tinslaire beside them. The
+ * elders are testing Minslaire's honesty; Minslaire is unknowingly teaching his
+ * brother what to do with power he wasn't supposed to have. Act II turns on
+ * Tinslaire deciding the elders' betrayal justified his own ruthlessness — so
+ * he needs a memory of his brother choosing the other way, with a specific
+ * number attached to it.
+ */
+export const tinslaireTemptationDialog: Dialog = {
+  name: "Tinslaire",
+  lines: [
+    "(Tinslaire tugs your sleeve, eyes huge, whispering behind his hand)",
+    "Brother. Brother. He gave you fifty extra. FIFTY. I counted twice.",
+    "He didn't even look. Nobody saw. We could get the good bread. The soft kind, from the Gardens.",
+    "...You're going to give it back, aren't you. You always do the hard one.",
+  ],
+};
 export const traderHonestyReturnDialog: Dialog = {
   name: "Bazaar Trader",
   lines: [
@@ -219,6 +242,15 @@ export const traderHonestyReturnDialog: Dialog = {
     "Most runners in the outer districts would have pocketed that without a second thought!",
     "The Council of Elders was observing from the arcade. You have passed the Fourth Trial: The Honest Change!",
     "Take this trader's blessing, Minslaire: 'The suit's hum will guide you home.' Now report to the Council Hall for your blade trial!",
+  ],
+};
+export const tinslaireHonestyWitnessDialog: Dialog = {
+  name: "Tinslaire",
+  lines: [
+    "(He watches the pouch go back across the counter, very quiet for once)",
+    "Fifty silver. And you just... handed it over.",
+    "Nobody would have known, Minslaire. Nobody. That's what I keep thinking about.",
+    "I'm going to remember this. I don't know why. I just am.",
   ],
 };
 export const traderCompletedRepeat: Dialog = {
@@ -285,6 +317,7 @@ export const forgeDeliverDialog: Dialog = {
     "At dawn he sets a brass disc in your palm. The red eye, now a compass needle, tugs east.",
     "Elder Sage: 'We made this from what you brought us. It will point the way — and let us speak, even in the deep forest. If you fall, we'll see where.'",
     "Elder Moss: (hand too firm on your shoulder) 'For your safety, Minslaire. So you never have to be alone.'",
+    "Elder Thorn does not come to the anvil. He stands at the edge of the firelight, watching the eye, and says nothing at all.",
     "Tinslaire, at your elbow, touches the eye and whispers: 'It's watching.'",
     "★ ACT I: THE CALLING — the trials are complete. The needle points east, to the forest.",
     "(Rest now, Minslaire. The Eastern Forest awaits in the next expedition.)",
@@ -296,7 +329,11 @@ export const lifeSuitRespawnDialog: Dialog = {
   lines: [
     "Darkness. Then — the hum.",
     "Your life suit has carried you home to the Red House. You do not remember the road.",
-    "The suit returns fallen wanderers to the Safe Camp. No one in Elderville can explain the mercy. It is simply never spoken of.",
+    // Deliberately unexplained. The Safe Camp failsafe is the world's
+    // inexplicable mercy and the seam Act III's reveal is sewn through; the
+    // moment the text calls it mysterious, the player starts waiting for an
+    // answer instead of sitting in the not-knowing. State it flatly and move on.
+    "Your wounds are closed. The suit hums on, the way it always has.",
   ],
 };
 

@@ -84,7 +84,11 @@ Before they hand you a sword, the elders want to know what kind of person they'r
 
 3. **The Widow's Task — with Elder Thorn (tests the heart).** Thorn sends you to carry grain sacks for old Widow Oren, or to fetch her water from the well. It's not your problem. He watches whether you do it with resentment or with grace. *(Seed: your strength is a debt; service without reward.)*
 
-4. **The Honest Change — with the whole council watching (tests honesty).** A trader at the Bazaar overpays you by mistake. Do you pocket it, or walk it back? The elders see it either way—someone always sees. *(Seed: integrity; being seen by something higher.)*
+4. **The Honest Change — with the whole council watching, and Tinslaire at your elbow (tests honesty).** A trader at the Bazaar overpays you by fifty silver. Do you pocket it, or walk it back? The elders see it either way—someone always sees.
+
+   This is the one trial Tinslaire follows you into, and he argues for keeping it: *"He didn't even look. Nobody saw."* When you hand the pouch back, he goes quiet — *"Nobody would have known, Minslaire. That's what I keep thinking about. I'm going to remember this."*
+
+   *(Seed: integrity; being seen by something higher. And the load-bearing one — Minslaire II turns on Tinslaire deciding the elders' betrayal justified his own ruthlessness. He needs a specific memory of his brother choosing the other way, with a number attached to it, so that when he becomes Neegabla the player knows exactly which lesson he threw away.)*
 
 When the four tasks are done, the elders confer in low voices behind the Blue House door. Whatever they decide, they come out with a nod.
 

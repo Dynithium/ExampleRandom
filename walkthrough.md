@@ -66,8 +66,9 @@ Before they hand you a sword, the elders want to know what kind of person they'r
 
 - **The Well's Echo (with Elder Moss).** Check the rope at the Central Well. What you find is a low, grinding rumble under the earth. When you report it, Moss is quick, too quick: *"Nothing. There's nothing down there. Forget it."* *(Tests observation — and whether you can drop it.)*
 - **The Scholar's Request (with Elder Sage).** A jar of rare herbs on the top shelf of his study, "too high for old bones" — or a scroll wedged behind the bookcase he "never quite figured out." A small, quiet puzzle. He watches how long you'll sit with it. *(Tests wits and patience.)*
-- **The Widow's Task (with Elder Thorn).** Carry grain for old Widow Oren, fetch her water. Not your problem. He watches whether you do it with resentment or grace. *(Tests the heart.)*
-- **The Honest Change (the council watching).** A trader at the Bazaar overpays you by mistake. Keep it, or walk it back? The elders see it either way — someone always sees. *(Tests honesty.)*
+- **The Widow's Task (with Elder Thorn).** Carry grain for old Widow Oren, fetch her water. Not your problem. He watches whether you do it with resentment or grace. Widow Oren offers you silver for the trouble and Minslaire refuses it — the same coins, refused quietly and alone, that Tinslaire will beg you to keep an hour later at the Bazaar. *(Tests the heart.)*
+  - Thorn breaks character for exactly one line here, glancing at the Blue House: *"When they give you a gift, look at it twice. That is all I will say."* He is the only elder who voted against what is coming, and this is the only warning he can afford to give.
+- **The Honest Change (the council watching — and Tinslaire).** A trader at the Bazaar overpays you by fifty silver. Keep it, or walk it back? The elders see it either way — someone always sees. This is the one trial your brother tags along for, and he wants the money: *"He didn't even look. Nobody saw."* Hand it back and he stops arguing — *"I'm going to remember this."* He will. *(Tests honesty.)*
 
 When the four tasks are done, the elders confer in low voices behind the Blue House door. Whatever they decide, they come out with a nod.
 

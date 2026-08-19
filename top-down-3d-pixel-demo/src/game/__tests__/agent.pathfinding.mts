@@ -3,52 +3,16 @@
  * No browser: we stub the DOM/WebGL bits the modules touch, then run the
  * observation builder + pathfinder over genuine world data.
  */
-const { eldervilleWorldPos, isBlocked, groundAtWorld, interiors, caveMap, caveSolidAt, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } =
+const { eldervilleWorldPos, isBlocked, groundAtWorld, CAVE_LANDMARKS, CAVE_TILE, FORGE_TILE } =
   await import("../world.ts");
 
-// --- reimplement the two pure helpers exactly as agent.ts defines them, then
-// --- assert they agree with the real world data.
-type Grid = { w: number; h: number; walk: (tx: number, ty: number) => boolean };
-function gridFor(area: string): Grid {
-  if (area === "village") {
-    return { w: 72, h: 48, walk: (tx, ty) => {
-      if (tx<0||ty<0||tx>=72||ty>=48) return false;
-      const p = eldervilleWorldPos(tx, ty);
-      return !isBlocked(p.x, p.z) && groundAtWorld(p.x, p.z) > 1.5;
-    }};
-  }
-  const map = area === "cave" ? caveMap : (interiors as any)[area]?.map;
-  if (!map) return { w: 0, h: 0, walk: () => false };
-  const solid = (v: number) => (area === "cave" ? caveSolidAt(v) : [7,8,9,17,18,19].includes(v));
-  return { w: map[0].length, h: map.length,
-    walk: (tx, ty) => tx>=0&&ty>=0&&tx<map[0].length&&ty<map.length&&!solid(map[ty][tx]) };
-}
-function findPath(area: string, from:{tx:number;ty:number}, to:{tx:number;ty:number}) {
-  const g = gridFor(area);
-  if (!g.w||!g.h) return null;
-  if (from.tx<0||from.ty<0||from.tx>=g.w||from.ty>=g.h) return null;
-  from = {tx: Math.floor(from.tx), ty: Math.floor(from.ty)};
-  to = {tx: Math.floor(to.tx), ty: Math.floor(to.ty)};
-  const goals = new Set<number>();
-  if (g.walk(to.tx,to.ty)) goals.add(to.ty*g.w+to.tx);
-  else for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) {
-    const nx=to.tx+dx, ny=to.ty+dy; if (g.walk(nx,ny)) goals.add(ny*g.w+nx);
-  }
-  if (!goals.size) return null;
-  const start = from.ty*g.w+from.tx;
-  const prev = new Map<number,number>(); prev.set(start,-1);
-  const q=[start]; let hit=-1;
-  while(q.length){ const c=q.shift()!; if(goals.has(c)){hit=c;break;}
-    const cx=c%g.w, cy=Math.floor(c/g.w);
-    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
-      const nx=cx+dx, ny=cy+dy; if(!g.walk(nx,ny))continue;
-      const n=ny*g.w+nx; if(prev.has(n))continue; prev.set(n,c); q.push(n);
-    }}
-  if(hit===-1)return null;
-  const path=[]; let c=hit;
-  while(c!==-1){path.push({tx:c%g.w,ty:Math.floor(c/g.w)});c=prev.get(c)!;}
-  return path.reverse();
-}
+// Import the REAL pathfinder rather than reimplementing it. This file used to
+// carry a hand-copied duplicate of gridFor/findPath, and that copy silently
+// inherited a `h: 48` village grid -- so the tests happily passed while the
+// shipping pathfinder could not route to the southern strip of the map. Test
+// the real thing or you are only testing your copy of the bug.
+const { findPath, gridFor } = await import("../pathfinding.ts");
+const { SPAWN, SIZE } = await import("../world.ts");
 
 let fail = 0;
 const ok = (cond: boolean, msg: string) => { console.log((cond?"  PASS  ":"  FAIL  ")+msg); if(!cond)fail++; };
@@ -91,4 +55,55 @@ for (const [name,tx,ty] of [["Central Well",58,36],["Forge",FORGE_TILE.tx,FORGE_
   const p = findPath("village", spawn, {tx,ty});
   ok(solid && !!p, `${name} is solid(${solid}) but reachable via adjacency: ${!!p}`);
 }
+
+console.log("\n=== the village grid must cover the whole world, not a slice of it ===");
+{
+  const g = gridFor("village");
+  ok(g.w === SIZE && g.h === SIZE, `village grid is ${g.w}x${g.h} (world is ${SIZE}x${SIZE})`);
+
+  // Flood-fill the true walkable region from the player's spawn, then assert the
+  // pathfinder can reach every tile of it. A grid that under-declares its bounds
+  // shows up here as a pile of NO PATH results in the southern rows.
+  const walk = (tx: number, ty: number) => {
+    const w = eldervilleWorldPos(tx, ty);
+    return !isBlocked(w.x, w.z) && groundAtWorld(w.x, w.z) > 1.5;
+  };
+  const stx = Math.round(SPAWN.x + 35.5);
+  const sty = Math.round(SPAWN.z + 35.5 - 11);
+  const seen = new Set<number>([sty * SIZE + stx]);
+  const queue = [[stx, sty]];
+  let maxTy = 0;
+  while (queue.length) {
+    const [x, y] = queue.shift()!;
+    if (y > maxTy) maxTy = y;
+    for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= SIZE || ny >= SIZE) continue;
+      const k = ny * SIZE + nx;
+      if (seen.has(k) || !walk(nx, ny)) continue;
+      seen.add(k);
+      queue.push([nx, ny]);
+    }
+  }
+  ok(maxTy >= 48, `walkable region extends to ty=${maxTy} (must be inside the grid)`);
+
+  let unreachable = 0;
+  const missed: string[] = [];
+  for (const k of seen) {
+    const tx = k % SIZE, ty = Math.floor(k / SIZE);
+    const path = findPath("village", { tx: stx, ty: sty }, { tx, ty });
+    // The path must actually END on the requested tile. Checking only for a
+    // non-null result is too weak: findPath falls back to "a walkable neighbour
+    // of the goal", so an out-of-bounds goal one row past the grid edge still
+    // returns a path to the row above it and looks like success.
+    const last = path?.[path.length - 1];
+    if (!last || last.tx !== tx || last.ty !== ty) {
+      unreachable++;
+      if (missed.length < 6) missed.push(`(${tx},${ty})`);
+    }
+  }
+  ok(unreachable === 0,
+    `all ${seen.size} spawn-reachable tiles are pathable${unreachable ? " -- missed " + missed.join(" ") : ""}`);
+}
+
 console.log(fail===0 ? "\nALL PATHFINDING CHECKS PASSED" : `\n${fail} FAILURE(S)`);

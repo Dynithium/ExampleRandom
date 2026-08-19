@@ -12,6 +12,8 @@ import {
   tinslaireVillageRepeat,
   tinslaireNightDialog,
   tinslaireNightRepeat,
+  tinslaireTemptationDialog,
+  tinslaireHonestyWitnessDialog,
   elderMossDoorDialog,
   elderMossDoorRepeat,
   elderMossWellIntroDialog,
@@ -932,9 +934,22 @@ export function EldervillePlayer() {
         const d=Math.hypot(rt.tinslaire.pos.x - p.pos.x, rt.tinslaire.pos.z - p.pos.z);
         if(d<bestDist){
           bestDist=d;
-          const spoken=elder.spoken.has("tinslaireVillage");
-          bestDialog={ dlg: spoken? tinslaireVillageRepeat : tinslaireVillageDialog, source: "tinslaireVillage" };
-          prompt="E · Talk to Tinslaire";
+          // Trial 4 is the one trial Tinslaire is present for. While the extra
+          // silver is in your pouch he argues to keep it; once you hand it back
+          // he goes quiet and tells you he'll remember. That memory is what
+          // Act II's fall is measured against, so it takes priority over his
+          // ordinary village chatter.
+          if (elder.marketTrialState === "overpaid") {
+            bestDialog={ dlg: tinslaireTemptationDialog, source: "tinslaireTemptation" };
+            prompt="E · Tinslaire is tugging your sleeve";
+          } else if (elder.marketTrialState === "completed" && !elder.spoken.has("tinslaireHonestyWitness")) {
+            bestDialog={ dlg: tinslaireHonestyWitnessDialog, source: "tinslaireHonestyWitness" };
+            prompt="E · Tinslaire is unusually quiet";
+          } else {
+            const spoken=elder.spoken.has("tinslaireVillage");
+            bestDialog={ dlg: spoken? tinslaireVillageRepeat : tinslaireVillageDialog, source: "tinslaireVillage" };
+            prompt="E · Talk to Tinslaire";
+          }
         }
       }
     }

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { eldervilleWorldPos, groundAtWorld } from "./world";
+import { findPath } from "./pathfinding";
 import {
   useElder,
   villageNPCsData,
@@ -99,6 +100,9 @@ function TinslaireVillage() {
 
   const wpIdx = useRef(0);
   const waitTimer = useRef(1.0);
+  const followPath = useRef<{ tx: number; ty: number }[] | null>(null);
+  const lastGoal = useRef({ tx: -1, ty: -1 });
+  const repathTimer = useRef(0);
   const phase = useRef(0);
   const pos = useRef(new THREE.Vector3(eldervilleWorldPos(12, 13).x, 2, eldervilleWorldPos(12, 13).z));
   const yaw = useRef(0);
@@ -123,6 +127,65 @@ function TinslaireVillage() {
       while (diff > Math.PI) diff -= Math.PI * 2;
       while (diff < -Math.PI) diff += Math.PI * 2;
       yaw.current += diff * (1 - Math.exp(-dt * 10));
+    } else if (elder.marketTrialState === "overpaid") {
+      // Trial 4: Tinslaire tags along while the extra silver is in your pouch,
+      // so the temptation beat can't be missed by him wandering off on his
+      // waypoint loop. He trails a couple of paces behind rather than standing
+      // on top of you (the player has collision against him).
+      //
+      // This follows a real BFS path rather than steering straight at the
+      // player: the market stalls at (15,40)/(16,40) sit directly between him
+      // and the trader during this exact trial, and naive steering grinds into
+      // their side instead of walking around.
+      const px = rt.player.pos.x, pz = rt.player.pos.z;
+      const goalDist = Math.hypot(px - pos.current.x, pz - pos.current.z);
+
+      if (goalDist > 1.9) {
+        // Recompute the route a few times a second, and whenever the player has
+        // moved a tile away from what we last pathed to. BFS on a 72x48 grid is
+        // cheap, but not something to run every frame for a background NPC.
+        repathTimer.current -= dt;
+        const goalTx = Math.round(px + 35.5);
+        const goalTy = Math.round(pz + 35.5 - 11);
+        const stale =
+          !followPath.current ||
+          goalTx !== lastGoal.current.tx ||
+          goalTy !== lastGoal.current.ty;
+        if (repathTimer.current <= 0 || stale) {
+          repathTimer.current = 0.35;
+          lastGoal.current = { tx: goalTx, ty: goalTy };
+          const fromTx = Math.round(pos.current.x + 35.5);
+          const fromTy = Math.round(pos.current.z + 35.5 - 11);
+          const path = findPath("village", { tx: fromTx, ty: fromTy }, { tx: goalTx, ty: goalTy });
+          // Drop the first node: it's the tile he is already standing on.
+          followPath.current = path && path.length > 1 ? path.slice(1) : null;
+        }
+
+        const step = followPath.current?.[0];
+        if (step) {
+          const wp = eldervilleWorldPos(step.tx, step.ty);
+          const sdx = wp.x - pos.current.x;
+          const sdz = wp.z - pos.current.z;
+          const sdist = Math.hypot(sdx, sdz);
+          if (sdist < 0.25) {
+            followPath.current!.shift();
+          } else {
+            moving = true;
+            const speed = 2.2; // a touch faster than the player's walk so he keeps up
+            pos.current.x += (sdx / sdist) * speed * dt;
+            pos.current.z += (sdz / sdist) * speed * dt;
+          }
+        }
+      } else {
+        followPath.current = null;
+      }
+
+      // Always face the player, whether closing the gap or waiting beside you.
+      const targetYaw = Math.atan2(px - pos.current.x, pz - pos.current.z);
+      let diff = targetYaw - yaw.current;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      yaw.current += diff * (1 - Math.exp(-dt * 9));
     } else {
       if (waitTimer.current > 0) {
         waitTimer.current -= dt;

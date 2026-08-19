@@ -45,7 +45,7 @@ Before they hand you a sword, the elders test *who you are*, not what you can sw
 | **The Well's Echo** | Elder Moss | Check the rope at the Central Well; find the rumble beneath | Observation; obedience (do you drop it?) | The elders are hiding something |
 | **The Scholar's Request** | Elder Sage | Retrieve rare herbs / a stuck scroll from his study | Wits; patience | Knowledge is a trust, not a trophy |
 | **The Widow's Task** | Elder Thorn | Carry grain / fetch water for Widow Oren | The heart; grace in service | Your strength is a debt; service without reward |
-| **The Honest Change** | The Council | A trader overpays you at the Bazaar — keep it or return it? | Honesty | Integrity; being seen by something higher |
+| **The Honest Change** | The Council | A trader overpays you 50 silver at the Bazaar — keep it or return it? **Tinslaire follows you for this one and argues to keep it.** | Honesty | Integrity; being seen by something higher — and the memory Tinslaire betrays in Act II |
 
 ### The Elders' Test (combat tutorial)
 Now they test your skills in the training clearing behind the Blue House:

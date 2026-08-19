@@ -426,20 +426,20 @@ export const musterIntroDialog: Dialog = {
     "Enough errands. If they are sending you anywhere, you are going to know how to not die on the way.",
     "This is a drill, not a duel. I call, you answer. Three calls.",
     "GUARD when I swing — hold R. DODGE when I lunge — tap SHIFT. STRIKE when I open — SPACE.",
-    "(Answer Thorn's three calls correctly.)",
+    "(Stand on the muster ground and answer each call with the move itself. Answer wrong and we start from the top.)",
   ],
 };
 export const musterCallGuardDialog: Dialog = {
   name: "Elder Thorn",
-  lines: ["GUARD!", "(Hold R as the blow comes in.)"],
+  lines: ["First call — GUARD!", "(Hold R as the blow comes in.)"],
 };
 export const musterCallDodgeDialog: Dialog = {
   name: "Elder Thorn",
-  lines: ["Good. DODGE — now!", "(Tap SHIFT to roll clear of the lunge.)"],
+  lines: ["Good. Second call — DODGE!", "(Tap SHIFT to roll clear of the lunge.)"],
 };
 export const musterCallStrikeDialog: Dialog = {
   name: "Elder Thorn",
-  lines: ["I'm open. STRIKE!", "(Hit him with SPACE.)"],
+  lines: ["Last call — I'm open. STRIKE!", "(Hit him with SPACE.)"],
 };
 export const musterCompleteDialog: Dialog = {
   name: "Elder Thorn",
@@ -588,6 +588,10 @@ export const eldersAtDoorPositions = [
 ];
 
 export type TrialState = "not_started" | "assigned" | "inspected" | "desk_read" | "puzzle_solved" | "grain_picked" | "delivered" | "overpaid" | "completed";
+/** The moves Thorn's drill can call for, and the order he calls them in. */
+export type MusterMove = "guard" | "dodge" | "strike";
+export const MUSTER_CALLS: MusterMove[] = ["guard", "dodge", "strike"];
+
 export type CaveStage = "not_entered" | "entered" | "boss_awake" | "boss_defeated" | "delivered";
 
 export type ElderState = {
@@ -665,7 +669,7 @@ export type ElderState = {
   setTallyTrialState: (v: TrialState) => void;
   weighSack: (i: number) => void;
   setMusterTrialState: (v: TrialState) => void;
-  advanceMuster: () => void;
+  answerMuster: (move: MusterMove) => "ok" | "wrong" | "done" | "ignored";
   setScrapTrialState: (v: TrialState) => void;
   damageScrap: (i: number, dmg: number) => void;
   setScholarPuzzleOpen: (v: boolean) => void;
@@ -797,12 +801,28 @@ export const useElder = create<ElderState>((set, get) => ({
 
   // ---- Trial 9: The Muster ------------------------------------------------
   setMusterTrialState: (v) => set({ musterTrialState: v }),
-  /** Thorn calls three moves; each correct answer advances the drill. */
-  advanceMuster: () => {
+  /**
+   * Answer Thorn's current call with an actual combat move.
+   *
+   * The drill names GUARD / DODGE / STRIKE, so it has to be *performed* — an
+   * earlier version advanced on the interact key, which made the three combat
+   * verbs decorative and turned the only mid-game combat tutorial into dialog
+   * mashing. Wrong move resets the drill to the first call, so the sequence has
+   * to be answered cleanly.
+   */
+  answerMuster: (move) => {
     const s = get();
-    if (s.musterTrialState !== "assigned") return;
+    if (s.musterTrialState !== "assigned") return "ignored";
+    const expected = MUSTER_CALLS[Math.min(s.musterStep, MUSTER_CALLS.length - 1)];
+    if (move !== expected) {
+      if (s.musterStep === 0) return "wrong";
+      set({ musterStep: 0 });
+      return "wrong";
+    }
     const step = s.musterStep + 1;
-    set({ musterStep: step, musterTrialState: step >= 3 ? "inspected" : s.musterTrialState });
+    const done = step >= MUSTER_CALLS.length;
+    set({ musterStep: step, musterTrialState: done ? "inspected" : s.musterTrialState });
+    return done ? "done" : "ok";
   },
 
   // ---- Trial 10: The Scrap in the Quarry ----------------------------------

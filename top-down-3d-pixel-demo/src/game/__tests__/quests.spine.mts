@@ -89,7 +89,23 @@ const advance: { id: string; run: () => void }[] = [
   },
   { id: "blight", run: () => { s().setBlightTrialState("assigned"); [0, 1, 2].forEach((i) => s().inspectRow(i)); s().setBlightTrialState("completed"); } },
   { id: "tally", run: () => { s().setTallyTrialState("assigned"); [0, 1, 2, 3].forEach((i) => s().weighSack(i)); s().setTallyTrialState("completed"); } },
-  { id: "muster", run: () => { s().setMusterTrialState("assigned"); for (let i = 0; i < 3; i++) s().advanceMuster(); s().setMusterTrialState("completed"); } },
+  {
+    id: "muster",
+    run: () => {
+      s().setMusterTrialState("assigned");
+      // answering with the wrong move must not advance the drill
+      if (s().answerMuster("strike") !== "wrong") throw new Error("wrong muster move was accepted");
+      if (s().musterStep !== 0) throw new Error("a wrong first move should leave the drill at step 0");
+      // a wrong move mid-sequence resets to the first call
+      s().answerMuster("guard");
+      if (s().musterStep !== 1) throw new Error("correct move did not advance the drill");
+      s().answerMuster("strike");
+      if (s().musterStep !== 0) throw new Error("a wrong move mid-drill should reset to the first call");
+      for (const m of ["guard", "dodge", "strike"] as const) s().answerMuster(m);
+      if (s().musterTrialState !== "inspected") throw new Error("clean drill did not complete the muster");
+      s().setMusterTrialState("completed");
+    },
+  },
   {
     id: "scrap",
     run: () => {

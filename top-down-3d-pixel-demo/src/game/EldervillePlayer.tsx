@@ -41,7 +41,9 @@ import {
   scrapEngageDialog,
   scrapClearedDialog,
   scrapCompleteDialog,
+  MUSTER_CALLS,
   type Dialog,
+  type MusterMove,
   elderMossDoorDialog,
   elderMossDoorRepeat,
   elderMossWellIntroDialog,
@@ -281,6 +283,26 @@ function Arrows() {
   );
 }
 
+/**
+ * Route a performed combat move into Thorn's drill (Trial 9).
+ *
+ * The muster is the game's mid-Act combat tutorial, so it has to be answered
+ * with the real GUARD / DODGE / STRIKE keys rather than the interact key. This
+ * is called from all three input sites; it no-ops unless the drill is live and
+ * the player is actually standing on the muster ground.
+ */
+function tryMusterMove(move: MusterMove) {
+  const elder = useElder.getState();
+  if (elder.musterTrialState !== "assigned") return;
+  const ground = eldervilleWorldPos(44, 12);
+  const d = Math.hypot(ground.x - rt.player.pos.x, ground.z - rt.player.pos.z);
+  if (d > 4.5) return; // must be at the plaza, not answering from across town
+  const res = elder.answerMuster(move);
+  if (res === "wrong") sfx.puzzleError();
+  else if (res === "ok") sfx.hit();
+  else if (res === "done") sfx.questComplete();
+}
+
 export function EldervillePlayer() {
   const group = useRef<THREE.Group>(null!);
   const carryingBody = useElder((s) => s.carryingBody);
@@ -322,6 +344,7 @@ export function EldervillePlayer() {
         if (attackTimer.current <= 0) {
           attackTimer.current = 0.35;
           sfx.slash();
+          tryMusterMove("strike");
           const p = rt.player;
           const facingX = Math.sin(p.yaw), facingZ = Math.cos(p.yaw);
 
@@ -385,6 +408,7 @@ export function EldervillePlayer() {
       if (e.code === "KeyR" && !e.repeat && !blockHeld.current) {
         blockHeld.current = true;
         sfx.block();
+        tryMusterMove("guard");
       }
 
       // Bow Shoot (K) — real arrow projectile
@@ -495,6 +519,7 @@ export function EldervillePlayer() {
       p.dodgeIframes = 0.5;
       stVal -= 25;
       sfx.dodge();
+      tryMusterMove("dodge");
     }
     prevShift.current = rt.input.shift;
 
@@ -1048,8 +1073,10 @@ export function EldervillePlayer() {
         gate("muster", eldervilleWorldPos(44, 12), "E · Report to the Muster", () => {
           if (elder.musterTrialState === "not_started") return { dlg: musterIntroDialog, source: "musterIntro" };
           if (elder.musterTrialState === "assigned") {
+            // Talking only repeats the current call; the drill advances when the
+            // player actually performs the move (see the combat key handler).
             const call = [musterCallGuardDialog, musterCallDodgeDialog, musterCallStrikeDialog][Math.min(elder.musterStep, 2)];
-            prompt = `E · Thorn's call (${elder.musterStep}/3)`;
+            prompt = `E · Thorn's call: ${MUSTER_CALLS[Math.min(elder.musterStep, 2)].toUpperCase()} (${elder.musterStep}/3)`;
             return { dlg: call, source: `musterCall:${elder.musterStep}` };
           }
           if (elder.musterTrialState === "inspected") return { dlg: musterCompleteDialog, source: "musterComplete" };
@@ -1199,12 +1226,6 @@ export function EldervillePlayer() {
           const i = Number(bestDialog.source.split(":")[1]);
           useElder.getState().weighSack(i);
           sfx.puzzleClick();
-          useElder.getState().showDialog(bestDialog.dlg!, bestDialog.source);
-        } else if (bestDialog.source.startsWith("musterCall:")) {
-          // Trial 9 — Thorn's drill. Each call is answered by performing the
-          // move; talking to him advances to the next call.
-          useElder.getState().advanceMuster();
-          sfx.talk();
           useElder.getState().showDialog(bestDialog.dlg!, bestDialog.source);
         } else {
           useElder.getState().showDialog(bestDialog.dlg, bestDialog.source);

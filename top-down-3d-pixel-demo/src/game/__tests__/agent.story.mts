@@ -78,7 +78,7 @@ step("Trial 8 the tally", () => {
 
 step("Trial 9 the muster", () => {
   s().setMusterTrialState("assigned");
-  for(let i=0;i<3;i++) s().advanceMuster();
+  for(const m of ["guard","dodge","strike"] as const) s().answerMuster(m);
   s().setMusterTrialState("completed");
 }, () => s().musterTrialState==="completed");
 

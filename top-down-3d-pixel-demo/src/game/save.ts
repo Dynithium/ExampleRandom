@@ -181,6 +181,26 @@ export function loadGame(key = SAVE_KEY): boolean {
       marketTrialState: data.elderState.marketTrialState as any,
       combatTrialState: data.elderState.combatTrialState as any,
       dummiesHealth: data.elderState.dummiesHealth || [60, 60, 60],
+      // Trials 5-10. These are written by saveGame and MUST be read back here:
+      // omitting them silently rolled a loaded game back to the end of trial 4,
+      // because the quest spine derives the active trial purely from these
+      // fields. Every one is defaulted so a partially-written save degrades to
+      // "that trial not started" rather than to `undefined`, which the spine
+      // would read as neither done nor in progress.
+      watchTrialState: (data.elderState.watchTrialState as any) || "not_started",
+      braziersLit: data.elderState.braziersLit ?? [false, false, false],
+      watchOrder: data.elderState.watchOrder ?? [0, 2, 1],
+      sluiceTrialState: (data.elderState.sluiceTrialState as any) || "not_started",
+      sluiceGates: data.elderState.sluiceGates ?? [0, 0, 0],
+      blightTrialState: (data.elderState.blightTrialState as any) || "not_started",
+      rowsInspected: data.elderState.rowsInspected ?? [false, false, false],
+      blightRow: data.elderState.blightRow ?? 1,
+      tallyTrialState: (data.elderState.tallyTrialState as any) || "not_started",
+      sacksWeighed: data.elderState.sacksWeighed ?? [false, false, false, false],
+      musterTrialState: (data.elderState.musterTrialState as any) || "not_started",
+      musterStep: data.elderState.musterStep ?? 0,
+      scrapTrialState: (data.elderState.scrapTrialState as any) || "not_started",
+      scrapHealth: data.elderState.scrapHealth ?? [40, 40, 40],
       carryingGrain: data.elderState.carryingGrain,
       hasSword: data.elderState.hasSword,
       scholarDials: data.elderState.scholarDials ?? [2, 0, 3, 1],

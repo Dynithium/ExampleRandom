@@ -152,7 +152,7 @@ const drive: { id: string; stages: (() => void)[] }[] = [
       () => { useElder.setState({ currentArea: "village" }); s().setTallyTrialState("completed"); },
     ],
   },
-  { id: "muster", stages: [() => s().setMusterTrialState("assigned"), () => { for (let i = 0; i < 3; i++) s().advanceMuster(); }, () => s().setMusterTrialState("completed")] },
+  { id: "muster", stages: [() => s().setMusterTrialState("assigned"), () => { for (const m of ["guard", "dodge", "strike"] as const) s().answerMuster(m); }, () => s().setMusterTrialState("completed")] },
   {
     id: "scrap",
     stages: [

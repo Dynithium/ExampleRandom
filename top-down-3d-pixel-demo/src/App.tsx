@@ -5,6 +5,7 @@ import { HUD } from "./components/HUD";
 import { EldervilleHUD } from "./components/EldervilleHUD";
 import { AgentPanel } from "./components/AgentPanel";
 import { useKeyboard } from "./game/input";
+import { registerGameCanvas } from "./game/agentVision";
 import { rt, useUI } from "./game/state";
 
 export default function App() {
@@ -38,6 +39,14 @@ export default function App() {
           antialias: false,
           powerPreference: "high-performance",
           stencil: false,
+          // Agent Mode's vision path grabs frames with canvas.toDataURL(). WebGL
+          // clears the drawing buffer after each composite, so without this the
+          // capture is a fully black image. Costs a little VRAM/bandwidth; worth
+          // it to keep screenshot capture working for the benchmark.
+          preserveDrawingBuffer: true,
+        }}
+        onCreated={({ gl }) => {
+          registerGameCanvas(gl.domElement);
         }}
       >
         <Scene />

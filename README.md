@@ -26,7 +26,19 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **E**: Talk / Inspect / Advance dialogue
 - **P / ESC**: Pause menu (save, load, settings)
 - **Mouse wheel / +/-**: Zoom · **Q / C**: Rotate camera
+- **G**: Agent Mode panel (LLM benchmark)
 - Walk into doors to enter buildings; every prop has a hitbox
+
+## Agent Mode
+The game doubles as an LLM benchmark. Press **G** (or the ⌁ button, top-right) to open the
+Agent Mode panel, point it at any OpenAI-compatible endpoint, and let a model play Act I.
+
+The agent receives a structured text observation (tile position, objective, open dialog,
+nearby points of interest) and replies with one JSON action per step. Actions run through
+the same pipeline a human uses — synthetic key events and a pathfinding autopilot that
+walks real routes at normal speed. No teleports, no direct state edits. Progress is scored
+out of 11 points across the four virtue trials, the blade trial, the cave, and the compass.
+Endpoint/model/key are stored in `localStorage` only and never leave the browser.
 
 ## Run
 ```bash
@@ -34,7 +46,15 @@ cd top-down-3d-pixel-demo
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` in your browser. `npm run build` produces a single self-contained `dist/index.html`.
+Open `http://localhost:5173` in your browser.
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run build       # single self-contained dist/index.html
+```
+
+Pushes to `main` build the game and publish `top-down-3d-pixel-demo/dist` to GitHub Pages
+via [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
 
 ## Full Vision
 Act I ends as the compass needle tugs east. The trilogy roadmap — the forest gauntlet, the elders' betrayal, and the themes it all serves — is documented in the design docs:

@@ -226,8 +226,14 @@ for (let y = 7; y <= 11; y++) for (let x = 63; x <= 67; x++) {
   blocked[villageIdx(x, y)] = 0;
 }
 
-// Lamps along avenues
-[[6, 16], [20, 16], [36, 16], [52, 16], [6, 32], [20, 32], [36, 32], [52, 32], [58, 36]].forEach(([tx, ty]) => {
+// Lamps along avenues. (57,36) sits beside the Central Well rather than inside it —
+// the well occupies (58,36) and a lamp post on the same tile speared through its roof.
+const LAMP_TILES: [number, number][] = [
+  [6, 16], [20, 16], [36, 16], [52, 16],
+  [6, 32], [20, 32], [36, 32], [52, 32],
+  [57, 36],
+];
+LAMP_TILES.forEach(([tx, ty]) => {
   const i = OX + tx, j = OZ + ty;
   lamps.push({ x: gx(i), z: gx(j), y: topOf(heights[idx(i, j)]) });
 });
@@ -240,8 +246,8 @@ setTile(67, 12, KIND.DIRT);
 // lamps, the Central Well, the Forge, market stalls, the watchtower, training dummies,
 // archery boards, the grain sack, and the cave mouth's rock mound.
 const SOLID_PROPS: [number, number][] = [
-  ...[[6, 16], [20, 16], [36, 16], [52, 16], [6, 32], [20, 32], [36, 32], [52, 32], [58, 36]].map(([x, y]) => [x, y] as [number, number]),
-  [58, 36],       // Central Well (shares the lamp tile)
+  ...LAMP_TILES,
+  [58, 36],       // Central Well
   [51, 7], [52, 7],  // Forge & chimney
   [15, 40], [16, 40], // Bazaar stall & counter
   [66, 12],       // watchtower
@@ -271,13 +277,16 @@ for (let j = 1; j < SIZE - 1; j++) for (let i = 1; i < SIZE - 1; i++) {
   }
 }
 
-// Rocks
+// Rocks — mossy boulders scattered through the walkable outskirts woodland.
+// (KIND.ROCK is never painted onto the map, so the original `kinds[n] === KIND.ROCK`
+// test could never match and the rock mesh always rendered zero instances.)
 for (let j = 1; j < SIZE - 1; j++) for (let i = 1; i < SIZE - 1; i++) {
   const n = idx(i, j);
   if (blocked[n]) continue;
-  if (kinds[n] === KIND.ROCK && hash2(i, j) > 0.94) {
-    rocks.push({ x: gx(i), z: gx(j), y: topOf(heights[n]), s: 0.3 + hash2(i, j) * 0.35 });
-  }
+  if (kinds[n] !== KIND.FOREST) continue;
+  if (hash2(i * 31 + 7, j * 17 + 11) < 0.94) continue;
+  rocks.push({ x: gx(i), z: gx(j), y: topOf(heights[n]), s: 0.34 + hash2(i, j) * 0.34 });
+  blocked[n] = 1; // every prop gets a hitbox
 }
 
 // Spawn at Red House door outside (12, 11) world
@@ -432,8 +441,8 @@ export const caveMap: number[][] = CAVE_ROWS.map((row) => [...row].map((ch) => C
 export const CAVE_LANDMARKS = {
   /** spawn just north of the entrance mat */
   spawn: { tx: 7, ty: 19 },
-  /** the exit mat at the cave mouth */
-  exitMat: { tx: 7, ty: 20 },
+  /** the exit mat at the cave mouth — matches the 'X' tile in CAVE_ROWS (row 21) */
+  exitMat: { tx: 7, ty: 21 },
   /** the Cave Machine's dormant anchor in the north chamber */
   boss: { tx: 7.5, ty: 3.5 },
 };

@@ -13,10 +13,11 @@ export function ScholarPuzzleModal() {
   const scholarTrialState = useElder((s) => s.scholarTrialState);
   const setScholarTrialState = useElder((s) => s.setScholarTrialState);
   const setScholarPuzzleOpen = useElder((s) => s.setScholarPuzzleOpen);
+  // dial positions live in the store, so closing the panel mid-puzzle keeps your progress
+  const dials = useElder((s) => s.scholarDials);
+  const setDials = useElder((s) => s.setScholarDials);
 
-  // 4 dials, initially scrambled
-  const [dials, setDials] = useState<number[]>([2, 0, 3, 1]);
-  const [solved, setSolved] = useState(false);
+  const solved = scholarTrialState === "puzzle_solved" || scholarTrialState === "completed";
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const deskRead = ["desk_read", "puzzle_solved", "completed"].includes(scholarTrialState);
   const [showNotes, setShowNotes] = useState(deskRead);
@@ -25,11 +26,9 @@ export function ScholarPuzzleModal() {
     if (solved) return;
     sfx.puzzleClick();
     setErrorMsg(null);
-    setDials((prev) => {
-      const next = [...prev];
-      next[index] = (next[index] + 1) % ELEMENTS.length;
-      return next;
-    });
+    const next = [...dials];
+    next[index] = (next[index] + 1) % ELEMENTS.length;
+    setDials(next);
   };
 
   const handlePullLever = () => {
@@ -38,7 +37,6 @@ export function ScholarPuzzleModal() {
     const isCorrect = dials[0] === 0 && dials[1] === 1 && dials[2] === 2 && dials[3] === 3;
     if (isCorrect) {
       sfx.puzzleUnlock();
-      setSolved(true);
       setScholarTrialState("puzzle_solved");
     } else {
       sfx.puzzleError();
@@ -132,8 +130,8 @@ export function ScholarPuzzleModal() {
           {deskRead ? (
             showNotes && (
               <div className="mt-2 text-[7.5px] italic leading-relaxed text-[#c0d0e8]">
-                "1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the foundation.<br />
-                2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8">Blue</span>) filled the trenches.<br />
+                "1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the bedrock.<br />
+                2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8]">Blue</span>) filled the hollows.<br />
                 3. Third, the Molten Core (<span className="font-bold text-[#d03838]">Red</span>) warmed the bio-membrane.<br />
                 4. Fourth, the Golden Sun (<span className="font-bold text-[#e8b040]">Gold</span>) illuminated the seal."
               </div>

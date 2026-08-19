@@ -110,7 +110,7 @@ function npcBlockedWorld(x: number, z: number) {
     }
   } else if (s.currentArea==="homesteadA") {
     const offX=INT_OFF_X, offZ=INT_OFF_Z;
-    const nx = offX + 6 + 0.5, nz = offZ + 5 + 0.5;
+    const nx = offX + 6 + 0.5, nz = offZ + 6 + 0.5;
     if(Math.hypot(nx - x, nz - z) < 0.7) return true;
   }
   return false;
@@ -154,8 +154,12 @@ function stepArrows(dt: number) {
     } else if (elder.currentArea === "village") {
       dummyCoords.forEach((c, idx) => {
         if (!dead && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
+          const wasAssigned = elder.combatTrialState === "assigned";
           elder.damageDummy(idx, ARROW_DMG);
           sfx.hit();
+          if (wasAssigned && useElder.getState().combatTrialState === "completed") {
+            sfx.questComplete();
+          }
           dead = true;
         }
       });
@@ -270,9 +274,11 @@ export function EldervillePlayer() {
             if (dist < 1.8 && elder.dummiesHealth[idx] > 0) {
               const dot = ((dPos.x - p.pos.x) * facingX + (dPos.z - p.pos.z) * facingZ) / (dist || 1);
               if (dot > 0.34) {
+                const wasAssigned = elder.combatTrialState === "assigned";
                 elder.damageDummy(idx, 20);
                 sfx.hit();
-                if (elder.dummiesHealth.filter(h => h > 0).length <= 1) {
+                // read the post-hit store: the fanfare belongs to the trial actually completing
+                if (wasAssigned && useElder.getState().combatTrialState === "completed") {
                   sfx.questComplete();
                 }
               }
@@ -336,6 +342,45 @@ export function EldervillePlayer() {
     right.set(Math.cos(yaw),0,-Math.sin(yaw));
     let mx = right.x * ix + fwd.x * iy;
     let mz = right.z * ix + fwd.z * iy;
+
+    // ---- autopilot (Agent Mode): consume the pathfound route in rt.agent ----
+    // The agent writes world-space waypoints; we steer toward them in world space
+    // (not camera space) and clear the path on arrival so `move_to` can resolve.
+    if (!blockedByStory && rt.agent.path) {
+      const route = rt.agent.path;
+      let wp = route[rt.agent.pathIdx];
+      // pop every waypoint we are already standing on
+      while (wp && Math.hypot(wp.x - p.pos.x, wp.z - p.pos.z) < 0.28) {
+        rt.agent.pathIdx++;
+        wp = route[rt.agent.pathIdx];
+      }
+      if (!wp) {
+        rt.agent.path = null;
+        rt.agent.pathIdx = 0;
+        mx = 0;
+        mz = 0;
+      } else {
+        const dx = wp.x - p.pos.x;
+        const dz = wp.z - p.pos.z;
+        const d = Math.hypot(dx, dz) || 1;
+        mx = dx / d;
+        mz = dz / d;
+      }
+    } else if (!blockedByStory && rt.agent.faceTarget) {
+      // turn in place toward the requested point without translating
+      const dx = rt.agent.faceTarget.x - p.pos.x;
+      const dz = rt.agent.faceTarget.z - p.pos.z;
+      if (Math.hypot(dx, dz) > 0.01) {
+        const targetYaw = Math.atan2(dx, dz);
+        let diff = targetYaw - p.yaw;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        p.yaw += diff * (1 - Math.exp(-dt * 14));
+      }
+      mx = 0;
+      mz = 0;
+    }
+
     const mlen = Math.hypot(mx, mz);
     if (mlen > 1) { mx/=mlen; mz/=mlen; }
     const wantsMove = !blockedByStory && mlen > 0.05;
@@ -641,7 +686,7 @@ export function EldervillePlayer() {
     } else if (elder.currentArea === "homesteadA") {
       // Widow Oren inside her home
       const offX = INT_OFF_X, offZ = INT_OFF_Z;
-      const widowDist = Math.hypot(offX + 6 + 0.5 - p.pos.x, offZ + 5 + 0.5 - p.pos.z);
+      const widowDist = Math.hypot(offX + 6 + 0.5 - p.pos.x, offZ + 6 + 0.5 - p.pos.z);
       if (widowDist < 1.6 && widowDist < bestDist) {
         bestDist = widowDist;
         if (elder.carryingGrain) {

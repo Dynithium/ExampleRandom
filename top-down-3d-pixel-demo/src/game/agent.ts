@@ -145,10 +145,10 @@ function poisFor(s: ReturnType<typeof useElder.getState>): { name: string; tx: n
     add("archive bookcase", 7, 2);
     add("exit mat (leave hall)", 7, 9);
   } else if (s.currentArea === "homesteadA") {
-    add("Widow Oren", 6, 5);
+    add("Widow Oren", 6, 6);
     add("exit mat", 7, 9);
   } else if (s.currentArea === "cave") {
-    add("cave entrance mat (exit)", 7, 20);
+    add("cave entrance mat (exit)", 7, 21);
     if (s.caveStage !== "boss_defeated") add("deep chamber (the machine)", 7, 6);
   }
   return out;

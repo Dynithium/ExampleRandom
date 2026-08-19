@@ -287,7 +287,7 @@ function TitleScreen() {
             MINSLAIRE
           </div>
           <div className="mt-1 text-[9px] font-bold tracking-[0.25em] text-[#8fb7ff]">
-            ACT I: THE BETRAYAL · ELDERVILLE PROLOGUE
+            ACT I: THE CALLING · ELDERVILLE PROLOGUE
           </div>
           <div className="mt-2 text-[7.5px] tracking-widest text-[#7f92c4]">
             A RETRO 3D PIXEL-ART ACTION RPG

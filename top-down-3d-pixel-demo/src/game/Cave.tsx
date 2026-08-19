@@ -245,10 +245,6 @@ function CaveMachine() {
       if (canBe(pos.current.x, nz)) pos.current.z = nz;
       yaw.current = Math.atan2(dirX, dirZ);
 
-    // publish live position for sword/arrow hit checks
-    rt.boss.pos.copy(pos.current);
-    rt.boss.yaw = yaw.current;
-
       // touch damage — dodging, guarding, or i-frames protect (handled in hurt())
       if (dist < 1.05) {
         elder.hurt(12);
@@ -259,6 +255,13 @@ function CaveMachine() {
         if (canBe(p.x, kz)) p.z = kz;
       }
     }
+
+    // Publish the live position every frame, for sword/arrow hit checks *and* for
+    // the "E · Lift the Machine Body" hotspot. Previously this only ran inside the
+    // boss_awake branch, so the wreck's interaction point stayed at its dormant
+    // anchor while the mesh lay where it actually fell.
+    rt.boss.pos.copy(pos.current);
+    rt.boss.yaw = yaw.current;
 
     // pose + animation
     if (g.current) {

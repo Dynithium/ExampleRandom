@@ -4,6 +4,9 @@ let ctx: AudioContext | null = null;
 let suitHumGain: GainNode | null = null;
 let suitHumOsc: OscillatorNode | null = null;
 
+/** Resting volume of the ever-present life-suit hum. */
+const HUM_GAIN = 0.008;
+
 function ac() {
   if (typeof window === "undefined") return null;
   if (!ctx) {
@@ -107,11 +110,21 @@ export const sfx = {
       suitHumGain = a.createGain();
       suitHumOsc.type = "sine";
       suitHumOsc.frequency.setValueAtTime(55, a.currentTime); // low 55Hz life suit hum
-      suitHumGain.gain.setValueAtTime(0.008, a.currentTime);
+      // start silent if the player has muted; setSuitHumMuted keeps it in sync afterwards
+      suitHumGain.gain.setValueAtTime(useUI.getState().muted ? 0 : HUM_GAIN, a.currentTime);
       suitHumOsc.connect(suitHumGain).connect(a.destination);
       suitHumOsc.start();
     } catch {
       // audio context not yet unlocked
+    }
+  },
+  /** Mirror the mute toggle onto the continuously running suit hum. */
+  setSuitHumMuted(muted: boolean) {
+    if (!suitHumGain || !ctx) return;
+    try {
+      suitHumGain.gain.setTargetAtTime(muted ? 0 : HUM_GAIN, ctx.currentTime, 0.05);
+    } catch {
+      // context closed
     }
   },
   stopSuitHum() {

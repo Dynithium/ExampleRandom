@@ -286,10 +286,11 @@ export function EldervilleNPCs() {
     return null;
   }
 
-  // Inside Farmer's Homestead (homesteadA) — Widow Oren
+  // Inside Farmer's Homestead (homesteadA) — Widow Oren.
+  // She stands at (6,6), the open floor in front of her table; (6,5) is the table itself.
   if (currentArea === "homesteadA") {
     const offX = 72.5, offZ = 75;
-    const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 5 + 0.5);
+    const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 6 + 0.5);
     return <NpcMesh pos={pos} color="#a87860" name="Widow Oren" yaw={Math.PI} />;
   }
 

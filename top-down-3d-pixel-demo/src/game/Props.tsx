@@ -1,12 +1,19 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { houses, lamps, rocks, trees, SIZE } from "./world";
+import { houses, lamps, rocks, trees, eldervilleWorldPos } from "./world";
 import { rt } from "./state";
 import { fireflyMat, glowMat, windowMat } from "./mats";
 
 const dummy = new THREE.Object3D();
 const col = new THREE.Color();
+
+/**
+ * The rowboat moored on the Village Pond (village tiles 46..51 x 38..43).
+ * It used to sit at (SIZE/2 - 3.5, -2), which is a blocked forest hill on the
+ * far map border — the boat was buried inside a hillside, on dry land.
+ */
+const BOAT_POS = eldervilleWorldPos(49, 41);
 
 const LEAF = ["#4fbf5a", "#3da34e", "#68cf63", "#2f8f52", "#8ac94f"];
 const AUTUMN = ["#e0913a", "#d4633a", "#e8b74c"];
@@ -231,7 +238,7 @@ export function Boat() {
     ref.current.rotation.x = Math.cos(t * 0.7) * 0.04;
   });
   return (
-    <group ref={ref} position={[SIZE / 2 - 3.5, 1.28, -2]} rotation-y={0.6}>
+    <group ref={ref} position={[BOAT_POS.x, 1.28, BOAT_POS.z]} rotation-y={0.6}>
       <mesh castShadow>
         <boxGeometry args={[1.1, 0.35, 2.2]} />
         <meshLambertMaterial color="#8a5a34" />

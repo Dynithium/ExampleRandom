@@ -413,9 +413,15 @@ export const useElder = create<ElderState>((set, get) => ({
   setMarketTrialState: (v) => set({ marketTrialState: v }),
   setCombatTrialState: (v) => set({ combatTrialState: v }),
   setScholarPuzzleOpen: (v) => set({ scholarPuzzleOpen: v }),
+  setScholarDials: (scholarDials) => set({ scholarDials }),
 
   damageDummy: (index: number, dmg: number) => {
     const s = get();
+    // The dummies only count once the Council has actually set the blade trial.
+    // Without this guard a player could wander behind the Blue House at minute one,
+    // fell all three, flip combatTrialState to "completed", collect their father's
+    // blade and walk into the cave — skipping all four virtue trials.
+    if (s.combatTrialState !== "assigned") return;
     const nextH = [...s.dummiesHealth];
     nextH[index] = Math.max(0, nextH[index] - dmg);
     const allDefeated = nextH.every((h) => h <= 0);
@@ -538,8 +544,3 @@ export const useElder = create<ElderState>((set, get) => ({
   setArea: (area, interior) => set({ currentArea: area, currentInterior: interior }),
   setOpeningBlack: (v) => set({ openingBlack: v }),
 }));
-
-export function isInside() {
-  const s = useElder.getState();
-  return s.currentArea !== "village";
-}

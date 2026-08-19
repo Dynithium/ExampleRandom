@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Scene } from "./game/Scene";
 import { HUD } from "./components/HUD";
 import { EldervilleHUD } from "./components/EldervilleHUD";
+import { AgentPanel } from "./components/AgentPanel";
 import { useKeyboard } from "./game/input";
 import { rt, useUI } from "./game/state";
 
@@ -43,6 +44,7 @@ export default function App() {
       </Canvas>
       <HUD />
       <EldervilleHUD />
+      <AgentPanel />
     </div>
   );
 }

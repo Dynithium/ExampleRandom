@@ -25,14 +25,15 @@ function targetFor(s: ReturnType<typeof useElder.getState>): { x: number; z: num
     return null;
   }
   if (s.currentArea === "homesteadA") {
-    if (s.carryingGrain) return i(6, 5);
+    if (s.carryingGrain) return i(6, 6);
     return null;
   }
   if (s.currentArea === "cave") {
-    if (s.caveStage === "entered") return i(7, 7); // deeper into the dark
+    // (7,7) is solid rock — the corridor runs down columns 5..10 at row 6.
+    if (s.caveStage === "entered") return i(7, 6); // deeper into the dark
     if (s.caveStage === "boss_awake") return i(7.5, 3.5); // the machine
     if (s.caveStage === "boss_defeated" && !s.carryingBody) return null; // lift where it fell (nearby)
-    if (s.carryingBody) return i(7, 20); // entrance mat
+    if (s.carryingBody) return i(7, 21); // the exit mat itself
     return null;
   }
   if (s.currentArea !== "village") return null;

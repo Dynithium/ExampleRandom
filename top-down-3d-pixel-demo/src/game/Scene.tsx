@@ -9,7 +9,7 @@ import { InteriorRoom } from "./EldervilleInterior";
 import { EldervillePlayer } from "./EldervillePlayer";
 import { EldervilleNPCs } from "./EldervilleNPCs";
 import { EldervilleProps } from "./EldervilleProps";
-import { fireflyMat, glowMat, starMat, windowMat } from "./mats";
+import { glowMat, starMat, windowMat } from "./mats";
 import { ObjectiveMarker } from "./ObjectiveMarker";
 import { CaveScene } from "./Cave";
 
@@ -111,7 +111,6 @@ function Environment() {
     windowMat.emissiveIntensity = Math.pow(rt.env.night, 0.7);
     glowMat.color.copy(GLOW_OFF).lerp(GLOW_ON, rt.env.night);
     starMat.opacity = Math.max(0, rt.env.night * 0.95 - dusk * 0.4);
-    fireflyMat.needsUpdate = false;
 
     // celestial bodies drift with the player so they never leave the view
     sunDisc.current.position.set(p.x + dir.x * 78, p.y + dir.y * 78 + 6, p.z + dir.z * 78);

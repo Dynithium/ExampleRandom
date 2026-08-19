@@ -83,7 +83,13 @@ export const useUI = create<UIState>((set) => ({
   pauseMenu: false,
   setPrompt: (prompt) => set((s) => (s.prompt === prompt ? s : { prompt })),
   setPixel: (pixel) => set({ pixel }),
-  toggle: (k) => set((s) => ({ [k]: !s[k] }) as never),
+  toggle: (k) =>
+    set((s) => {
+      const next = !s[k];
+      // the life-suit hum is a continuous oscillator, so it has to be told about mute
+      if (k === "muted") void import("./audio").then((m) => m.sfx.setSuitHumMuted(next));
+      return { [k]: next } as never;
+    }),
   setDaySpeed: (daySpeed) => set({ daySpeed }),
   setClock: (clock) => set((s) => (s.clock === clock ? s : { clock })),
   setPauseMenu: (pauseMenu) => set({ pauseMenu }),

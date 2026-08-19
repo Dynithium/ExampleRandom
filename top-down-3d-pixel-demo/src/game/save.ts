@@ -29,6 +29,7 @@ export type SaveData = {
     dummiesHealth: number[];
     carryingGrain: boolean;
     hasSword: boolean;
+    scholarDials: number[];
     caveStage: string;
     bossHp: number;
     carryingBody: boolean;
@@ -79,6 +80,7 @@ export function saveGame(key = SAVE_KEY): boolean {
         dummiesHealth: elder.dummiesHealth,
         carryingGrain: elder.carryingGrain,
         hasSword: elder.hasSword,
+        scholarDials: elder.scholarDials,
         caveStage: elder.caveStage,
         bossHp: elder.bossHp,
         carryingBody: elder.carryingBody,
@@ -138,6 +140,7 @@ export function loadGame(key = SAVE_KEY): boolean {
       dummiesHealth: data.elderState.dummiesHealth || [60, 60, 60],
       carryingGrain: data.elderState.carryingGrain,
       hasSword: data.elderState.hasSword,
+      scholarDials: data.elderState.scholarDials ?? [2, 0, 3, 1],
       caveStage: (data.elderState.caveStage as any) || "not_entered",
       bossHp: data.elderState.bossHp ?? 40,
       carryingBody: data.elderState.carryingBody,
@@ -243,6 +246,7 @@ export function startNewGame(): void {
     dummiesHealth: [60, 60, 60],
     carryingGrain: false,
     hasSword: false,
+    scholarDials: [2, 0, 3, 1],
     caveStage: "not_entered",
     bossHp: 40,
     carryingBody: false,

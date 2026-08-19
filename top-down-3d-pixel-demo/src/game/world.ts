@@ -40,11 +40,20 @@ function fbm(x: number, y: number) {
   return s;
 }
 
+/**
+ * Terrain kinds. The numbering is deliberately sparse: 0 (DEEP) and 3 (SAND)
+ * were part of an earlier island-style generator and are never assigned by the
+ * Elderville map, so they are gone. The remaining ids keep their original
+ * values so saved maps and KIND_COLORS stay aligned.
+ */
 export const KIND = {
-  DEEP: 0, SILT: 1, SHOAL: 2, SAND: 3, GRASS: 4, GRASS_DARK: 5, FOREST: 6, ROCK: 7, DIRT: 8, PLAZA: 9,
+  /** Damp walkable ground: channel beds, quarry floor. */
+  SILT: 1,
+  /** Standing water. Always blocked, always painted with the water tint. */
+  SHOAL: 2, GRASS: 4, GRASS_DARK: 5, FOREST: 6, ROCK: 7, DIRT: 8, PLAZA: 9,
 } as const;
 export const KIND_COLORS: Record<number, string> = {
-  0: "#2a4a5e", 1: "#4d6a63", 2: "#a89768", 3: "#e3cd8e", 4: "#79c257", 5: "#57a749", 6: "#3d8a45", 7: "#98a2ab", 8: "#b98c58", 9: "#c9c3ae",
+  1: "#4d6a63", 2: "#4a7f96", 4: "#79c257", 5: "#57a749", 6: "#3d8a45", 7: "#98a2ab", 8: "#b98c58", 9: "#c9c3ae",
 };
 
 export const heights = new Uint8Array(SIZE * SIZE);
@@ -192,7 +201,7 @@ rectKind(50, 6, 5, 3, KIND.DIRT); // Forge & Workshops
 rectKind(26, 34, 14, 8, KIND.GRASS_DARK); // Grand Gardens crop terraces
 setTile(58, 36, KIND.DIRT); // Central Well tile
 rectKind(12, 38, 8, 4, KIND.DIRT); // Southern Marketplace & Bazaar
-rectKind(46, 38, 6, 6, KIND.SHOAL, 2); // Village Pond
+rectKind(46, 38, 6, 6, KIND.SHOAL, WATER_LEVEL); // Village Pond — at/below WATER_LEVEL so it tints and reads as water
 for (let y = 38; y < 44; y++) for (let x = 46; x < 52; x++) blocked[villageIdx(x, y)] = 1; // pond water blocked
 
 // --- New districts for the expanded settlement ---
@@ -207,7 +216,9 @@ for (let x = 38; x <= 58; x++) { setTile(x, 46, KIND.ROCK, 5); blocked[villageId
 for (const [gx0, gy0] of [[42, 46], [48, 46], [54, 46]] as [number, number][]) {
   setTile(gx0, gy0, KIND.ROCK, 5); // sluice gates (interactable, stay solid)
 }
-rectKind(38, 47, 21, 2, KIND.SHOAL, 3); // the channel basin below
+// The channel bed is walkable, so it uses SILT (damp stone) rather than SHOAL:
+// SHOAL is reserved for actual standing water, which is always blocked.
+rectKind(38, 47, 21, 2, KIND.SILT, 3);
 
 // The Orchard — old fruit terraces on the western slope. Trial 7 (the Blight).
 rectKind(6, 36, 14, 8, KIND.GRASS_DARK);

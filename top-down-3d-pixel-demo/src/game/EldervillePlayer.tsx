@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 import { rt, useUI } from "./state";
-import { isUnlocked, lockedHint, type TrialId } from "./quests";
+import { isUnlocked, lockedHint, LOC, type TrialId } from "./quests";
 import {
   useElder,
   eldersAtDoorPositions,
@@ -294,7 +294,7 @@ function Arrows() {
 function tryMusterMove(move: MusterMove) {
   const elder = useElder.getState();
   if (elder.musterTrialState !== "assigned") return;
-  const ground = eldervilleWorldPos(44, 12);
+  const ground = eldervilleWorldPos(LOC.plaza[0], LOC.plaza[1]);
   const d = Math.hypot(ground.x - rt.player.pos.x, ground.z - rt.player.pos.z);
   if (d > 4.5) return; // must be at the plaza, not answering from across town
   const res = elder.answerMuster(move);

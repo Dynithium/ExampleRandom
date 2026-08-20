@@ -578,7 +578,15 @@ export const villageNPCsData: { id: string; name: string; tx: number; ty: number
 
 export const swordCaseDialog: Dialog = {
   name: "Sword Case",
-  lines: ["Your father's blade...", "Encased in glass the day he and mother vanished.", "It waits for its master. Pass the trials, and the glass will open."],
+  // Canon (see story.md / the Ashveil bible): the two losses were years apart --
+  // mother died first, father was exiled afterwards. Elderville tells it as one
+  // vague story about parents lost to the forest, but the blade remembers the
+  // order. Minslaire never questions the gap; Act III explains it.
+  lines: [
+    "Your father's blade...",
+    "Encased in glass the day he walked east. Mother was already a year gone by then.",
+    "It waits for its master. Pass the trials, and the glass will open.",
+  ],
 };
 
 // Door elders positions (village tiles around Red House door at [12, 10])

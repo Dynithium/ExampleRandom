@@ -135,7 +135,15 @@ A remote settlement in the western hills, reached only by cutscene after the exi
 A small clearing west of the village where fallen wanderers wake up. The life suits have a failsafe—when the wearer's body gives out, the suit pulls them back here, repairing the damage and restarting the heart. No one knows how or why it works, but every villager has woken up at the Safe Camp at least once. In the current prototype, the Safe Camp is located inside the **Red House**.
 
 > **Theme note:** The Safe Camp is the world's unexplainable mercy — the seam through which Minslaire III: Transcendence's truth is sewn. It is never flagged as strange in the fiction; the player is simply left to wonder why the suit loves them enough to bring them back. The compass, by contrast, is explainable mercy that breaks — a counterfeit guidance.
+>
+> **Canon note (see *Ashveil*):** unexplainable *to Elderville*, not unexplained in canon. This is the same infrastructure the Ashveil calls **Grace**: emergency suit repair and extraction that recovers a body from collapse before death becomes irreversible. It is a **means** through which someone is saved, never the giver of life — it grants no immortality, and it did not save the brothers' mother. Keep the villagers' wonder; do not let the narration imply the machine is merciful in itself.
 
-## Minslaire III: The Faraway Place
+## Minslaire III: The Faraway Place — the Ashveil
 
-A distant, isolated location where Minslaire and Tinslaire find their **father**, trapped but alive. This area is far from Elderville, hidden in the ruins of the old world. It is here that the truth of Islam is revealed, and the purpose of their journey becomes clear — and where the compass's false guidance is revealed as the shadow of true Guidance that needs no eye and no beacon.
+The distant land where Minslaire and Tinslaire find their **father** — alive, and **free**. It lies far east of Elderville, a ruined old-world restoration territory whose people remember its machinery as myth; its own story is told in the *Ashveil* lore bible, where the father is known only as the **Ashbearer**.
+
+The brothers arrive expecting a prison and find a settled community instead. They hear the **adhan**, and their father is the **imam** of its **masjid** — a place of worship, learning, charity and reconciliation, not a throne with religious decoration and not a monument built over old-world ruins. He stayed because he had a community to serve, and because the council's threat against his sons made any attempt at contact look like a danger to them.
+
+It is here that the truth of Islam is revealed, and the purpose of their journey becomes clear — and where the compass's false guidance is revealed as the shadow of true Guidance that needs no eye and no beacon.
+
+> **Canon note:** the older description of the father as *trapped* is superseded. The only prison was the lies, fear and false authority that kept the family apart. Nothing in the Ashveil — no Grace node, Flame, Choir or Crown — may be presented as divine; they are created, finite, fallible technology.

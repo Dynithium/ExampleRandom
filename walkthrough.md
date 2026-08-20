@@ -38,6 +38,8 @@ And as your feet touch the floor, his words come back — the last time he ever 
 >
 > *The memory fades. You're standing in the red house, grown, with your hand on the doorframe.*
 
+> **Canon note (see the *Ashveil* bible):** this lesson predates the father's acceptance of Islam — it is the question already forming in him, not the answer he later found. It is also load-bearing across both games. The blade is capability; the sheath is restraint. Power does not decide when it is right to use power. The same lesson governs his refusal of Kingsfall's throne in *Ashveil* and the elemental force his sons inherit in *The Betrayal*. He made this blade himself, and it stays in its case when he is exiled — deliberately, so that some part of him remains with his sons.
+
 The blade stays in its case. Not time, yet.
 
 The morning is quiet. In the kitchen, Tinslaire is awake, wooden bird in his hands — and he's been waiting for you.

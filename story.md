@@ -1,12 +1,16 @@
 # Story
 
 > **Note:** This document describes the full vision for the *Minslaire* trilogy. Features and lore will be added incrementally as development progresses.
+>
+> **Canon source:** *Minslaire* shares one world and one timeline with the companion game ***Ashveil***, whose unified lore bible is authoritative where the two disagree. The protagonist of *Ashveil* — known there only as the **Ashbearer** — is Minslaire and Tinslaire's father. Sections corrected against that bible are marked with a **Canon note** below. The load-bearing corrections are: the mother **died first** and the father was **exiled afterwards** for questioning the council (not both parents wandering off together); the father **was not a Muslim the whole time** but accepted Islam years later in the Ashveil through the dawah of survivors there; the brothers find him **free and serving as an imam**, not trapped; their purpose is **worship of Allah**, with dawah as the calling through which they serve it; and every piece of apparent magic — suits, Box, Choir, Flame, Grace, Scrap Bots — is **created, finite technology**, never divine.
 
 ## The World
 
 The world is uninhabitable due to **toxic air** from nuclear war (World War 3). The only way to survive is with **life suits**—bio-synthetic membranes engineered by governments as a last resort. They bond to the skin at birth, filtering the air and sustaining life. **If you take it off, you die.** The suits hum softly, a constant reminder of their dependence on this technology.
 
-No one remembers a time before the suits. No one knows how they work, or why they never fail. Children ask where they came from; the elders answer with the same story: *"They were given to us. That is all we know."*
+No one remembers a time before the suits. No one knows how they work, or why they hold as long as they do. Children ask where they came from; the elders answer with the same story: *"They were given to us. That is all we know."*
+
+> **Canon note (see *Ashveil*):** the suits are **finite, fallible technology** — created means, not a guarantee of life. They do fail, and one of them failed Minslaire's mother; that death is what set his father asking the questions that got him exiled. The old line "no one knows why they never fail" is superseded: Elderville's confidence in the suits is a comfortable assumption the village makes, not a fact about the world, and the story depends on it being wrong. Villagers may still say the suits "love us too much to let us go" — that is characters speaking poetically about a machine, never the narration endorsing it.
 
 ## The Village of Elderville
 
@@ -20,6 +24,8 @@ Every villager is born into a life suit. Different models exist, but all serve t
 
 The suits have a **failsafe**: when a wearer's body gives out, the suit pulls them back to the **Safe Camp**, repairing damage and restarting the heart. No one can explain it. Some villagers joke that the suits love us too much to let us go. Others go quiet and say nothing at all.
 
+> **Canon note (see *Ashveil*):** objectively this is the same class of old-world technology as the Ashveil's **Grace** nodes — an emergency medical and extraction system that can stabilise a failing wearer, repair the suit, and stop and restart a heart *before death becomes irreversible*. It is recovery, not resurrection, and it has a limit: it could not save the brothers' mother. The villagers' explanation is allowed to stay mystical, because their not knowing is the point; the narration must not promise more than the machine does.
+
 ## The Coming of the Scrap
 
 The machines are a secret the village has not yet woken to. In the **cave on the outskirts of town**, where the forest begins, the elders have awakened one of them—a rusted thing with red eyes, placed there to test whoever comes. When it falls, its remains can be salvaged — its **eye and core still humming on the same frequency as the blue light beacon** that revealed the Box. The elders intend to use that salvage. Deeper in the eastern forest, more of them stir: broken drones, rusted walkers, and heavy mechs with glowing crimson eyes. The villagers will come to call them **Scrap Bots**. No one in Elderville has seen one yet.
@@ -28,7 +34,9 @@ The dark truth is a plot twist: the elders of the village **activated the Scrap 
 
 ## Minslaire
 
-You are **Minslaire**, a young villager who lives in a small **red house** just west of the Blue House. Your parents are gone—they walked into the eastern forest years ago and never came back—and the blade they left behind is all you have of them. Your life suit hums quietly against your skin, a constant reminder of your survival.
+You are **Minslaire**, a young villager who lives in a small **red house** just west of the Blue House. Your parents are gone—the village says they walked into the eastern forest years ago and never came back—and the blade your father left behind is all you have of them. Your life suit hums quietly against your skin, a constant reminder of your survival.
+
+> **Canon note (see *Ashveil*):** That is the council's story, not the truth, and Minslaire does not learn otherwise until *Transcendence*. In fact the two losses happened separately and years apart. **The mother died first**, despite her life suit — the failure that first made the father doubt everything the elders taught. **The father was exiled afterwards**, and not for wandering: he asked who made the suits, why the records were sealed, why something hums beneath the Central Well, and what lies beyond the eastern forest. The council dressed his removal up as an honour — *chosen to explore the world for Elderville* — and privately warned him that if he ever returned or sent word, his sons would lose the council's protection. He left the blade in its case and went east to keep them safe. Elderville then compressed a death and a banishment into one vague sentence about parents lost in the forest. Minslaire grows up knowing the absence but not the council's hand in it.
 
 You live with your younger brother **Tinslaire**, a bright-eyed boy who looks up to you. He's too young for chores, too quick for trouble, and the best thing about the red house. His innocence hides a future you cannot imagine.
 
@@ -36,7 +44,9 @@ You live with your younger brother **Tinslaire**, a bright-eyed boy who looks up
 
 The elders come to your door at sunrise—a rare honor, and a stranger one. They say they heard sounds from the **cave on the outskirts of town**, where the forest begins, and they want you to investigate. Take your sword, they say.
 
-Only after that cave is cleared—only after something rusted and red-eyed falls to your blade **and its body is dragged back to the Forge**—does the path to the **Elemental Box** open. At the Forge, **Elder Sage salvages its eye and core to forge a compass** — a brass disc that tugs toward the Box, lets the elders speak to you like a phone, and lets them see your pin moving on their vault map. It is an artifact from the old world, before the suits, before the scrap, sealed deep in the eastern forest. Elder Moss says the old records mention it only in fragments: *"a vessel of power, sealed by those who came before."* The true secret of the Elemental Box is that it can be used to **upgrade the life suits**, granting people powerful elemental abilities.
+Only after that cave is cleared—only after something rusted and red-eyed falls to your blade **and its body is dragged back to the Forge**—does the path to the **Elemental Box** open. At the Forge, **Elder Sage salvages its eye and core to forge a compass** — a brass disc that tugs toward the Box, lets the elders speak to you like a phone, and lets them see your pin moving on their vault map. It is an artifact from the old world, sealed deep in the eastern forest. Elder Moss says the old records mention it only in fragments: *"a vessel of power, sealed by those who came before."* The true secret of the Elemental Box is that it can be used to **upgrade the life suits**, granting people powerful elemental abilities.
+
+> **Canon note (see *Ashveil*):** the Box is *not* older than the suits — objectively it is a **mobile, hardened life-suit adaptation vault**, built by the same pre-war effort that built the suits themselves, and it cannot predate the thing it is designed to upgrade. Its five "elements" are human names for engineering packages: thermal (fire), pressure and atmospheric (air), fluid and temperature (water), mineral and material (earth), electromagnetic and radiative (light). Elderville's "before the suits, before the scrap" is villagers guessing at something older than living memory, and it should stay in the mouths of characters rather than the narration.
 
 Someone must retrieve it. That someone is you — and the compass will make sure you cannot get lost, cannot go silent, cannot say no.
 
@@ -191,6 +201,8 @@ Inside, there is no treasure. There is a light, and a voice that is not a voice:
 
 The box closes. The hum of the forest returns. The compass is dead weight — needle fixed, eye dark. You carry the Box back through the dead zones, and the machines do not rise against you this time—as if they, too, are waiting for what happens next. No voices follow you home.
 
+> **Canon note (see *Ashveil*):** the Box's voice is **not** divine, prophetic, or any form of revelation, and must never be written as though it were. Objectively it is an old authorization and diagnostic protocol reading the situation through suit and network data. It "knows" about the council because it can detect their beacon activation, their unauthorized access attempts, and the surveillance link riding on Minslaire's compass — not because it sees into hearts. It opens for him because his suit line is compatible, not because he is chosen. The reason it *feels* like more than a machine is the point of the scene, and the reason that feeling is mistaken is the point of the trilogy. The same guardrail covers the Stillness: it is silence, not a speaker.
+
 ## Act 3 — The Ambush
 
 ### Scene 9: The Return
@@ -245,12 +257,22 @@ You reconcile, and Tinslaire regains his sanity. Together, you vow to find the t
 
 # Minslaire III: Transcendence
 
-Your journey leads you to a **faraway place**, where you find your **father**—alive, but trapped. He reveals that he was **Muslim the entire time** and explains the truth:
-- The life suits, the Elemental Box, and even the Scrap Bots were part of a **divine test**.
-- The toxic air is a **trial**, and the suits are a **temporary mercy**.
-- The compass that watched you, the hum that guided you falsely, was the counterfeit of the Guidance he now calls you to — the true compass that needs no eye.
-- Your powers are a gift, but your true purpose is **dawah**—guiding others to the truth of Islam.
+Your journey leads you to a **faraway place** — the ruined restoration territory called **the Ashveil**, the land your father crossed into after his exile and where he was known only as the **Ashbearer** (see the *Ashveil* lore bible for his full story).
 
-Your doubts are destroyed, and you finally understand the meaning behind your journey.
+You expect a prisoner. You find a community. You hear the adhan, and you find your father alive and free, serving as the **imam** of its masjid. He was never locked in a cell waiting to explain things to you; he lived, erred, learned, repented, and served for all the years you were apart. The only prison was the lies, fear and false authority that kept the family apart.
+
+He did **not** know all of this when he left. He tells you what actually happened:
+- The elders exiled him for questioning them, and threatened you both to keep him from coming back. His silence was the price of your safety, and it cost him everything.
+- In the Ashveil he was manipulated by another throne exactly as you were by the council — sent to kill a man called Malenkar who turned out to be the only one preventing a catastrophe, and made to carry a scattered power home to a king who was consuming it.
+- When that power was finally his, he **scattered** it rather than become its next owner. But refusing a false answer is not the same as finding the true one.
+- **He accepted Islam there**, years later, through the **dawah** of Muslims already surviving across the region — their conduct, their patience, their teaching, and his own long study. He did not arrive a believer, and no machine revealed it to him.
+- The suits, the Box, the Scrap Bots, the Choir and the compass are **created, finite things** built by human hands. They are not divine artefacts. They form part of a divine test only in the way that all worldly power, suffering and trust is a test.
+- The toxic air is a **trial**, and the suits are a **temporary mercy** — a means, never the giver of life. Your mother's death is the proof.
+- The compass that watched you, the hum that guided you falsely, was the counterfeit of the Guidance he now calls you to — the true compass that needs no eye.
+- Your powers are a gift, but your purpose is **worship of Allah alone**. **Dawah** is the particular calling through which you serve that purpose — not a replacement for it.
+
+Crucially, you are not converted by your father's command; that would only repeat the council's method of demanding obedience. You ask, observe, study and decide sincerely for yourselves. Your doubts are destroyed, and you finally understand the meaning behind your journey.
 
 > **Theme seeding note:** The following threads are planted in Minslaire so Minslaire III's reveal lands as a sunrise, not a pivot: the **hum** (a gifted life you never earned, never thanked), the **compass's false guidance** vs. true Guidance (a tracker that pretended to love you, broken the moment truth arrived), the **Stillness** (a moment outside *both* hums — a moment the world chose for you), the **Safe Camp failsafe** (mercy you cannot explain), the **elders' fall** (the heart, not the machine, is the enemy), the **box's warning** ("a test... and you passed the wrong way"), and **Tinslaire's bird** (love that returns). Every one of these resolves in the father's reveal.
+>
+> **Guardrail (from the *Ashveil* bible):** none of these threads may resolve by making Islam the strongest signal in the same mechanical hierarchy. The Safe Camp is the same class of old-world technology as Ashveil's **Grace** nodes — it recovers a body from collapse before death becomes irreversible; it does not grant immortality and it is not the source of mercy. The Stillness is not a voice, a system, or a revelation: it is the *absence* of every artificial hum for one breath, and it must never be explained as a machine speaking. When the adhan finally arrives in *Transcendence*, it is categorically different from the hum — a meaningful human call to worship, answered freely, not a better frequency.

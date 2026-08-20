@@ -30,7 +30,7 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **Elder Sage** — the scholar. Forgets nothing, forges the compass.
 - **Elder Thorn** — the protector. Tests the heart before the blade.
 - **Widow Oren** and the **Bazaar Trader** — the village you serve.
-- **The Father** — remembered in the yard, blade flat on his palm.
+- **The Father** — remembered in the yard, blade flat on his palm. Exiled by the council for asking who made the life suits; the protagonist of the companion game *Ashveil*, where he is known only as the **Ashbearer**.
 
 ## Controls
 - **WASD / Arrows**: Move · **SHIFT (hold)**: Sprint · **SHIFT (tap)**: Dodge roll

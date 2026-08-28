@@ -592,7 +592,16 @@ export function EldervillePlayer() {
         if(Math.hypot(cx-p.pos.x, cz-p.pos.z) < 1.2){
           if(1.0 < bestDist){
             bestDist=1.0;
-            if (elder.combatTrialState === "completed") {
+            if (elder.hasSword) {
+              prompt = "E · Inspect Sword Case";
+              bestDialog = {
+                dlg: {
+                  name: "Sword Case",
+                  lines: ["The case stands open and empty.", "The blade rides at your hip now — where it belongs."],
+                },
+                source: "swordCaseEmpty",
+              };
+            } else if (elder.combatTrialState === "completed") {
               prompt = "E · Take Father's Blade";
               bestDialog = {
                 dlg: {

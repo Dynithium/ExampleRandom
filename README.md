@@ -11,6 +11,9 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **Death and mercy**: fall, and the life suit returns you to the Safe Camp — the machine keeps its wounds
 - A sprawling village with districts, day/night cycle, wandering NPCs with pixel portraits, save/load, and an objective marker that points the way
 
+## AI Agent Benchmark
+Press **F4** in game to open the agent panel. Point it at any OpenAI-compatible endpoint (base URL, model, API key, step cap — config is stored locally), hit **START RUN**, and an LLM plays Act I as a benchmark: it receives a structured text observation (position, objectives, dialog, points of interest) and answers with one JSON action, executed through the same input pipeline as a human — synthetic key events and BFS-pathfound walking at normal game speed. No teleports, no state edits. Steps, deaths, run time, and the action log stream in the panel; the run ends when the compass is received.
+
 ## Characters
 - **Minslaire** — you. Young, quick, and about to be tested.
 - **Tinslaire** — your little brother. Giddy about the elders, fond of the Grand Gardens, unnervingly attached to the compass eye.
@@ -25,6 +28,7 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **SPACE / J**: Sword attack · **K**: Bow · **R (hold)**: Guard
 - **E**: Talk / Inspect / Advance dialogue
 - **P / ESC**: Pause menu (save, load, settings)
+- **F4**: AI agent benchmark panel
 - **Mouse wheel / +/-**: Zoom · **Q / C**: Rotate camera
 - Walk into doors to enter buildings; every prop has a hitbox
 

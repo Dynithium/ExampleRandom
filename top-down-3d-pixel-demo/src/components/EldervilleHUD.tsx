@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useElder } from "../game/eldervilleStory";
 import { rt, useUI } from "../game/state";
 import { MemoryCutsceneOverlay } from "../game/MemoryCutscene3D";
@@ -116,6 +116,19 @@ export function EldervilleHUD() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // red vignette flash whenever HP drops (damage feedback)
+  const [hurtFlash, setHurtFlash] = useState(false);
+  const prevHp = useRef(hp);
+  useEffect(() => {
+    if (hp < prevHp.current) {
+      setHurtFlash(true);
+      const id = setTimeout(() => setHurtFlash(false), 320);
+      prevHp.current = hp;
+      return () => clearTimeout(id);
+    }
+    prevHp.current = hp;
+  }, [hp]);
+
   // If on Title Screen, do not render HUD or opening black
   if (!started) return null;
 
@@ -182,6 +195,15 @@ export function EldervilleHUD() {
           <span className="font-bold text-[#e06810]">◆ QUEST:</span> <span className="font-bold text-[#181818]">{objective}</span>
         </div>
       </div>
+
+      {/* Hurt vignette */}
+      <div
+        className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-300"
+        style={{
+          opacity: hurtFlash ? 1 : 0,
+          background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(190,26,26,0.5) 100%)",
+        }}
+      />
 
       {/* Opening black */}
       {openingBlack && !memoryActive && <OpeningBlack onWake={handleWake} />}

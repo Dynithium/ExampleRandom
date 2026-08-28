@@ -26,6 +26,7 @@ import {
   elderSageStudyCompletedRepeat,
   elderThornIntroDialog,
   elderThornAssignedRepeat,
+  elderThornGrainCarriedRepeat,
   gardenGrainPickupDialog,
   widowOrenDeliverDialog,
   widowOrenBlessedDialog,
@@ -661,7 +662,7 @@ export function EldervillePlayer() {
           bestDialog = { dlg: widowOrenBlessedDialog, source: "widowBlessed" };
         } else {
           prompt = "E · Talk to Widow Oren";
-          bestDialog = { dlg: { name: "Widow Oren", lines: ["Welcome, child. The winter chill creeps through the floorboards..."] }, source: "widowNormal" };
+          bestDialog = { dlg: { name: "Widow Oren", lines: ["Welcome, child. The winter chill creeps through the floorboards...", "Elder Thorn means well, sending you to me. My grain sack still waits on the Grand Gardens terraces — these old knees cannot fetch it."] }, source: "widowNormal" };
         }
       }
     } else if (elder.currentArea === "cave") {
@@ -734,7 +735,7 @@ export function EldervillePlayer() {
           prompt = "E · Talk to Elder Sage";
           if (elder.wellTrialState !== "completed") {
             bestDialog = {
-              dlg: { name: "Elder Sage", lines: ["First, you must complete Elder Moss's trial at the Central Well on the southern outskirts."] },
+              dlg: { name: "Elder Sage", lines: ["First, you must complete Elder Moss's trial at the Central Well on the far south-eastern outskirts."] },
               source: "sageWait",
             };
           } else if (elder.scholarTrialState === "not_started") {
@@ -761,8 +762,10 @@ export function EldervillePlayer() {
             };
           } else if (elder.widowTrialState === "not_started") {
             bestDialog = { dlg: elderThornIntroDialog, source: "elderThornIntro" };
-          } else if (elder.widowTrialState === "assigned" || elder.widowTrialState === "grain_picked") {
+          } else if (elder.widowTrialState === "assigned") {
             bestDialog = { dlg: elderThornAssignedRepeat, source: "elderThornAssigned" };
+          } else if (elder.widowTrialState === "grain_picked") {
+            bestDialog = { dlg: elderThornGrainCarriedRepeat, source: "elderThornGrainCarried" };
           } else if (elder.widowTrialState === "delivered") {
             bestDialog = { dlg: elderThornCompleteDialog, source: "elderThornComplete" };
           } else {

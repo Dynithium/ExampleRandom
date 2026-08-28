@@ -158,6 +158,10 @@ export const elderThornAssignedRepeat: Dialog = {
   name: "Elder Thorn",
   lines: ["Go to the Grand Gardens, lift the grain sack, and bring it to Widow Oren in the western homestead."],
 };
+export const elderThornGrainCarriedRepeat: Dialog = {
+  name: "Elder Thorn",
+  lines: ["You carry it well. Deliver the grain to Widow Oren's home — and refuse anything she offers in return."],
+};
 export const gardenGrainPickupDialog: Dialog = {
   name: "Harvest Grain",
   lines: [
@@ -219,7 +223,7 @@ export const traderHonestyReturnDialog: Dialog = {
     "By the heavens above... you returned fifty silver coins?!",
     "Most runners in the outer districts would have pocketed that without a second thought!",
     "The Council of Elders was observing from the arcade. You have passed the Fourth Trial: The Honest Change!",
-    "Take this trader's blessing, Minslaire: 'The suit's hum will guide you home.' Now report to the Council Hall for your blade trial!",
+    "Take this trader's blessing, Minslaire: 'The suit's hum will guide you home.' Now report to the training clearing behind the Blue House for your blade trial!",
   ],
 };
 export const traderCompletedRepeat: Dialog = {

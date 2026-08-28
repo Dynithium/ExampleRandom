@@ -310,9 +310,12 @@ export function EldervilleNPCs() {
           return <NpcMesh key={e.id} pos={new THREE.Vector3(wp.x, wp.y, wp.z)} color={e.color} name={e.name} isElder />;
         })}
 
-      {/* Village Elders (Marcus, Sarah) */}
+      {/* Trial-station elders (Moss at the well, Sage at the hall, Thorn at the homestead path, the trader at the bazaar).
+          While the door meeting is underway the three elders stand at the Red House doorstep instead,
+          so they must not also render at their stations. */}
       {villageNPCsData
         .filter((npc) => npc.id !== "tinslaire")
+        .filter((npc) => !(isDoorVisible && npc.id.startsWith("elder")))
         .map((npc) => {
           const wp = eldervilleWorldPos(npc.tx, npc.ty);
           const isElder = npc.id.includes("elder");

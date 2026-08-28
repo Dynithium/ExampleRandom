@@ -276,6 +276,21 @@ function TitleScreen() {
     loadGame();
   };
 
+  // Enter starts a new game (or continues the save) — but never while typing in a panel field
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      sfx.unlock();
+      if (hasSave()) loadGame();
+      else handleNewGame();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-[#070a14]/90 p-4 font-pixel">
       {showLore && <LoreModal onClose={() => setShowLore(false)} />}
@@ -338,7 +353,7 @@ function TitleScreen() {
 
         {/* Footer controls hint */}
         <div className="border-t border-[#1e2a52] pt-2 text-[7.5px] text-[#5f719e]">
-          WASD MOVE · E TALK/INTERACT · SPACE ATTACK · P PAUSE/SAVE · F4 AGENT
+          WASD MOVE · ENTER START · E TALK/INTERACT · SPACE ATTACK · P PAUSE/SAVE · F4 AGENT
         </div>
       </div>
     </div>

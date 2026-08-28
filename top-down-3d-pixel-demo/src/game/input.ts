@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { rt, useUI } from "./state";
 import { sfx } from "./audio";
+import { useElder } from "./eldervilleStory";
 
 const held = new Set<string>();
 
@@ -45,7 +46,12 @@ export function useKeyboard() {
         if (e.code === "KeyC") rt.cam.targetYaw -= Math.PI / 2;
         if (e.code === "KeyE") rt.input.interact = true;
         if (e.code === "KeyP" || e.code === "Escape") {
-          ui.toggle("pauseMenu");
+          if (useElder.getState().scholarPuzzleOpen) {
+            // ESC over the archive puzzle closes the puzzle instead of stacking the pause menu
+            useElder.getState().setScholarPuzzleOpen(false);
+          } else {
+            ui.toggle("pauseMenu");
+          }
           sfx.ui();
         }
         if (e.code === "Equal" || e.code === "NumpadAdd")

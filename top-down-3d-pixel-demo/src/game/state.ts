@@ -76,13 +76,25 @@ export type UIState = {
   start: () => void;
 };
 
+// UI preferences persist across sessions independently of save games
+const PREFS_KEY = "minslaire_ui_prefs";
+type UIPrefs = { pixel?: number; scanlines?: boolean; muted?: boolean; daySpeed?: number };
+function loadPrefs(): UIPrefs {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") as UIPrefs;
+  } catch {
+    return {};
+  }
+}
+const prefs = loadPrefs();
+
 export const useUI = create<UIState>((set) => ({
   prompt: null,
-  pixel: 4, // upscale factor: dpr = 1 / pixel
-  scanlines: true,
-  muted: false,
+  pixel: prefs.pixel ?? 4, // upscale factor: dpr = 1 / pixel
+  scanlines: prefs.scanlines ?? true,
+  muted: prefs.muted ?? false,
   paused: false,
-  daySpeed: 1,
+  daySpeed: prefs.daySpeed ?? 1,
   clock: "06:14",
   started: false,
   pauseMenu: false,
@@ -94,3 +106,20 @@ export const useUI = create<UIState>((set) => ({
   setPauseMenu: (pauseMenu) => set({ pauseMenu }),
   start: () => set({ started: true }),
 }));
+
+// write display/audio prefs whenever one of them changes
+useUI.subscribe((s, prev) => {
+  if (
+    s.pixel !== prev.pixel ||
+    s.scanlines !== prev.scanlines ||
+    s.muted !== prev.muted ||
+    s.daySpeed !== prev.daySpeed
+  ) {
+    try {
+      localStorage.setItem(
+        PREFS_KEY,
+        JSON.stringify({ pixel: s.pixel, scanlines: s.scanlines, muted: s.muted, daySpeed: s.daySpeed }),
+      );
+    } catch {}
+  }
+});

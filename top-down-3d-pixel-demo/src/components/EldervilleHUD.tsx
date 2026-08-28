@@ -26,7 +26,7 @@ function DialogBox({ name, line, index, total }: { name: string; line: string; i
               </div>
             </div>
             <div className="mt-2 text-right text-[7.5px] font-bold text-[#687888]">
-              PAGE {index + 1}/{total} <span className="ml-2 inline-block animate-pulse text-[#2868c0]">▼</span> [PRESS E / CLICK]
+              PAGE {index + 1}/{total} <span className="ml-2 inline-block animate-pulse text-[#2868c0]">▼</span> [PRESS E / SPACE / CLICK]
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@ function OpeningBlack({ onWake }: { onWake: () => void }) {
         </div>
         {blink && (
           <div className="mt-7 text-[12px] font-bold text-[#98d0f8]" style={{ fontFamily: "monospace" }}>
-            [ PRESS E TO WAKE ]
+            [ PRESS E / SPACE TO WAKE ]
           </div>
         )}
       </div>
@@ -95,7 +95,8 @@ export function EldervilleHUD() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "e" && !e.repeat) {
+      // E, Space, or Enter all wake / advance dialogue
+      if (["e", " ", "enter"].includes(e.key.toLowerCase()) && !e.repeat) {
         const ui = useUI.getState();
         if (!ui.started || ui.pauseMenu) return;
         const s = useElder.getState();
@@ -128,6 +129,26 @@ export function EldervilleHUD() {
     }
     prevHp.current = hp;
   }, [hp]);
+
+  // milestone toast when a trial (or Act I itself) completes
+  const [toast, setToast] = useState<string | null>(null);
+  const prevMilestone = useRef({ wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass });
+  useEffect(() => {
+    const p = prevMilestone.current;
+    let msg: string | null = null;
+    if (wellTrialState === "completed" && p.wellTrialState !== "completed") msg = "TRIAL PASSED — The Well's Echo (1/4)";
+    else if (scholarTrialState === "completed" && p.scholarTrialState !== "completed") msg = "TRIAL PASSED — The Scholar's Request (2/4)";
+    else if (widowTrialState === "completed" && p.widowTrialState !== "completed") msg = "TRIAL PASSED — The Widow's Task (3/4)";
+    else if (marketTrialState === "completed" && p.marketTrialState !== "completed") msg = "TRIAL PASSED — The Honest Change (4/4)";
+    else if (combatTrialState === "completed" && p.combatTrialState !== "completed") msg = "BLADE TRIAL PASSED — Claim your father's blade";
+    else if (hasCompass && !p.hasCompass) msg = "THE COMPASS IS YOURS — ACT I COMPLETE";
+    prevMilestone.current = { wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass };
+    if (msg) {
+      setToast(msg);
+      const id = setTimeout(() => setToast(null), 3400);
+      return () => clearTimeout(id);
+    }
+  }, [wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass]);
 
   // If on Title Screen, do not render HUD or opening black
   if (!started) return null;
@@ -190,11 +211,24 @@ export function EldervilleHUD() {
           <div className="flex items-center gap-1.5">
             <span className="text-[#e89020]">📍</span> <span className="text-[#181818]">{locationName}</span>
           </div>
+          {(carryingGrain || carryingBody) && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-[#8fe06a]">🎒</span>
+              <span className="text-[#181818]">{carryingBody ? "Machine body" : "Grain sack"}</span>
+            </div>
+          )}
         </div>
         <div className="border-t border-[#b09058] pt-1 text-[10.5px] text-[#704820]">
           <span className="font-bold text-[#e06810]">◆ QUEST:</span> <span className="font-bold text-[#181818]">{objective}</span>
         </div>
       </div>
+
+      {/* Trial / milestone toast */}
+      {toast && (
+        <div className="pointer-events-none absolute left-1/2 top-24 z-20 -translate-x-1/2">
+          <div className="panel pop px-4 py-2 text-center text-[10px] font-bold tracking-widest text-[#ffd75e]">★ {toast}</div>
+        </div>
+      )}
 
       {/* Hurt vignette */}
       <div

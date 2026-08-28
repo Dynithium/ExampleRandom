@@ -26,7 +26,7 @@ Press **F4** in game to open the agent panel. Point it at any OpenAI-compatible 
 ## Controls
 - **WASD / Arrows**: Move · **SHIFT (hold)**: Sprint · **SHIFT (tap)**: Dodge roll
 - **SPACE / J**: Sword attack · **K**: Bow · **R (hold)**: Guard
-- **E**: Talk / Inspect / Advance dialogue
+- **E / SPACE**: Talk / Inspect / Advance dialogue
 - **P / ESC**: Pause menu (save, load, settings)
 - **F4**: AI agent benchmark panel
 - **Mouse wheel / +/-**: Zoom · **Q / C**: Rotate camera

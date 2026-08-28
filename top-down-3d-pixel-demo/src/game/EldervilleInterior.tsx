@@ -1,4 +1,4 @@
-import { interiors } from "./world";
+import { interiors, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 import { useElder } from "./eldervilleStory";
 
 const floorColor = "#c89858";
@@ -18,13 +18,13 @@ export function InteriorRoom() {
   const map = data.map;
   const W = map[0].length;
   const H = map.length;
-  // offset so room centered far away at (80,80) so village remains visible and not overlapping
-  const offX = 80 - W / 2;
-  const offZ = 80 - H / 2;
+  // rendered at the shared virtual interior offset, far from the village,
+  // so the village is not visible while inside
+  const offX = INT_OFF_X;
+  const offZ = INT_OFF_Z;
 
   const centerX = offX + W / 2;
   const centerZ = offZ + H / 2;
-  const INT_Y = 2; // floor height = village ground (topOf 4), above water 1.24
   return (
     <group position={[0, INT_Y, 0]}>
       {/* floor — sits on ground, not below water */}

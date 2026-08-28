@@ -1,6 +1,7 @@
 import { rt, useUI } from "./state";
 import { useElder } from "./eldervilleStory";
 import { sfx } from "./audio";
+import { INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 
 const SAVE_KEY = "minslaire_save_slot_1";
 
@@ -222,8 +223,7 @@ export function getSaveSummary(key = SAVE_KEY) {
 
 export function startNewGame(): void {
   // reset to fresh initial state in bedroom
-  const offX = 72.5, offZ = 75;
-  rt.player.pos.set(offX + 4 + 0.5, 2, offZ + 5 + 0.5);
+  rt.player.pos.set(INT_OFF_X + 4 + 0.5, INT_Y, INT_OFF_Z + 5 + 0.5);
   rt.player.yaw = Math.PI;
   rt.env.time = 0.26;
 

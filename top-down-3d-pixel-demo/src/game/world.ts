@@ -291,6 +291,16 @@ export const villageDoors = [
   { tx: 32, ty: 28, interior: "homesteadB", x: villageGx(32), z: villageGz(28) },
 ];
 
+/**
+ * Virtual world offset where interiors and the cave render — far from the
+ * village so only one area is ever on screen. A tile (tx, ty) inside an
+ * interior/cave sits at world (INT_OFF_X + tx + 0.5, INT_OFF_Z + ty + 0.5).
+ */
+export const INT_OFF_X = 72.5;
+export const INT_OFF_Z = 75;
+/** Floor height for interiors and the cave (matches the village plateau, topOf(4)). */
+export const INT_Y = 2;
+
 // Interiors (virtual 15x10)
 export const interiors: Record<string, { name: string; map: number[][]; outside: [number, number] }> = {
   home: {

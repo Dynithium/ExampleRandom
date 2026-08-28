@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { eldervilleWorldPos, groundAtWorld } from "./world";
+import { eldervilleWorldPos, groundAtWorld, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 import {
   useElder,
   villageNPCsData,
@@ -271,15 +271,15 @@ export function EldervilleNPCs() {
 
   // Inside home interior:
   if (currentArea === "home") {
-    const offX = 72.5, offZ = 75;
+    const offX = INT_OFF_X, offZ = INT_OFF_Z;
     // 1. Before talking to door elders: Tinslaire is at (6, 5) waiting
     if (!eldersDoorDialogDone) {
-      const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 5 + 0.5);
+      const pos = new THREE.Vector3(offX + 6 + 0.5, INT_Y, offZ + 5 + 0.5);
       return <NpcMesh pos={pos} color="#4a90d9" name="Tinslaire" yaw={Math.PI} />;
     }
     // 2. After talking to door elders, at NIGHT: Tinslaire rests near his bed at (4, 4)
     if (eldersDoorDialogDone && isNight) {
-      const pos = new THREE.Vector3(offX + 4 + 0.5, 2, offZ + 4 + 0.5);
+      const pos = new THREE.Vector3(offX + 4 + 0.5, INT_Y, offZ + 4 + 0.5);
       return <NpcMesh pos={pos} color="#4a90d9" name="Tinslaire" yaw={0} />;
     }
     // 3. After talking to door elders, during DAY: Tinslaire is NOT inside (0 inside)
@@ -288,8 +288,8 @@ export function EldervilleNPCs() {
 
   // Inside Farmer's Homestead (homesteadA) — Widow Oren
   if (currentArea === "homesteadA") {
-    const offX = 72.5, offZ = 75;
-    const pos = new THREE.Vector3(offX + 6 + 0.5, 2, offZ + 5 + 0.5);
+    const offX = INT_OFF_X, offZ = INT_OFF_Z;
+    const pos = new THREE.Vector3(offX + 6 + 0.5, INT_Y, offZ + 5 + 0.5);
     return <NpcMesh pos={pos} color="#a87860" name="Widow Oren" yaw={Math.PI} />;
   }
 

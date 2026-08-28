@@ -4,30 +4,31 @@
 
 ## Current In-Game Layout (Village Prototype)
 
-The playable village is a **48x30 tile map**. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles**. The four buildings and their front doors:
+The playable village is a **72x50 tile map** set inside a **72x72 world** ringed by forest and hills. Building exteriors are compact **5x5 footprints** — much smaller than their interiors, which stay **15x10 tiles** and render at a shared virtual offset far from the village (`INT_OFF_X`/`INT_OFF_Z` in `world.ts`), so only one area is ever on screen. The four buildings and their front doors:
 
 | Building | Exterior Footprint (x, y) | Door Tile (x, y) | Interior Size |
 |---|---|---|---|
-| Council of Elders (Blue House) | (6, 3) | (8, 7) | 15x10 (`council`) |
-| Minslaire & Tinslaire's House (Red House) | (28, 3) | (30, 7) | 15x10 (`home`) |
-| Farmer's Homestead | (6, 16) | (8, 20) | 15x10 (`homesteadA`) |
-| Weaver's Homestead | (28, 16) | (30, 20) | 15x10 (`homesteadB`) |
+| Council of Elders (Blue House) | (30, 6) | (32, 10) | 15x10 (`council`) |
+| Minslaire & Tinslaire's House (Red House) | (10, 6) | (12, 10) | 15x10 (`home`) |
+| Farmer's Homestead | (10, 24) | (12, 28) | 15x10 (`homesteadA`) |
+| Weaver's Homestead | (30, 24) | (32, 28) | 15x10 (`homesteadB`) |
 
-Walk into a door tile to enter; walk onto the door mat inside to exit back to the same spot outside.
+Walk into a door tile to enter (and recover 40 HP); walk onto the interior door mat to exit back outside.
 
 District tiles currently placed on the map:
 
 - **Red House (home)** — interior has two beds and the heirloom sword in its glass case; Minslaire wakes up here.
-- **Blue House (council)** — interior has the council table, benches, and bookshelves.
-- **Grand Gardens** — crop terraces at (22, 18) using tile `10`.
-- **The Forge & Workshops** — at (22, 4), tile `12`. **After the Cave, this is where Sage forges the compass from the machine's remains.**
-- **Central Well** — at (24, 16), tile `11`.
-- **Southern Marketplace & Bazaar** — stalls at (22, 26), tile `13`.
-- **Watchtower & Eastern Gate** — watchtower at (44, 6), tile `14`; the gate gap in the eastern tree line is the path at rows 8–9.
-- **Village Pond** — water at (40, 26), tile `5`.
-- **Roads** — dirt paths at row 13, row 25, and columns 2, 18, 21 connecting all districts.
+- **Blue House (council)** — interior has the council table, benches, bookshelves, and the archive-dial puzzle for Trial 2.
+- **The Forge & Workshops** — at (52, 7). **After the Cave, this is where Sage forges the compass from the machine's remains.**
+- **Grand Gardens** — crop terraces at (26, 34)–(40, 42); the grain sack for Trial 3 sits at (30, 36).
+- **Central Well** — at (58, 36). Elder Moss watches here (Trial 1).
+- **Southern Marketplace & Bazaar** — stalls at (15, 40). The Bazaar Trader runs the honesty trial (Trial 4).
+- **Training clearing** — behind the Blue House at (36, 4), with archery boards at (33, 1) and (39, 1) for the Trial of Steel.
+- **Village Pond** — water at (46, 38).
+- **Watchtower & Eastern Gate** — watchtower at (66, 12); the eastern forest wall (columns 68–70) has its gate gap at rows 16–18, and the **Outskirts Cave** mouth sits at (66, 8) at the end of the gate road.
+- **Roads** — dirt arteries along rows 16 and 32 and columns 6, 20, 36, and 52, plus spur paths to every district.
 
-NPCs currently stand at: **Tinslaire** (30, 9), **Elder Marcus** (8, 9), **Elder Sarah** (23, 14). NPCs are solid and block player movement.
+NPCs currently placed: **Tinslaire** (wanders the road network by day, rests at home at night), **Elder Moss** (59, 35), **Elder Sage** (32, 12), **Elder Thorn** (16, 26), **Bazaar Trader** (15, 40), and **Widow Oren** inside the Farmer's Homestead. Before the door meeting, Moss, Sage, and Thorn stand at the Red House doorstep at (11, 11), (13, 11), and (12, 12). NPCs are solid and block player movement.
 
 ---
 

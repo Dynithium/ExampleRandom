@@ -132,10 +132,10 @@ export function ScholarPuzzleModal() {
           {deskRead ? (
             showNotes && (
               <div className="mt-2 text-[7.5px] italic leading-relaxed text-[#c0d0e8]">
-                "1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the foundation.<br />
-                2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8">Blue</span>) filled the trenches.<br />
+                1. First, the Mountain Earth (<span className="font-bold text-[#48a028]">Green</span>) anchored the foundation.<br />
+                2. Second, the Deep Ocean (<span className="font-bold text-[#3890c8]">Blue</span>) filled the trenches.<br />
                 3. Third, the Molten Core (<span className="font-bold text-[#d03838]">Red</span>) warmed the bio-membrane.<br />
-                4. Fourth, the Golden Sun (<span className="font-bold text-[#e8b040]">Gold</span>) illuminated the seal."
+                4. Fourth, the Golden Sun (<span className="font-bold text-[#e8b040]">Gold</span>) illuminated the seal.
               </div>
             )
           ) : (

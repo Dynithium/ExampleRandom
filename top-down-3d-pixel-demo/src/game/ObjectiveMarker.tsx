@@ -3,9 +3,8 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useElder } from "./eldervilleStory";
 import { rt, useUI } from "./state";
-import { eldervilleWorldPos } from "./world";
+import { eldervilleWorldPos, INT_OFF_X, INT_OFF_Z } from "./world";
 
-const INT_OFF_X = 72.5, INT_OFF_Z = 75;
 const intPos = (tx: number, ty: number) => ({ x: INT_OFF_X + tx + 0.5, z: INT_OFF_Z + ty + 0.5 });
 
 /** Where the current objective lives, in world coordinates (null = no marker). */

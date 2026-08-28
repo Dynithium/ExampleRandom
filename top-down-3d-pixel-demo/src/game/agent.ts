@@ -8,6 +8,8 @@ import {
   interiors,
   caveMap,
   caveSolidAt,
+  INT_OFF_X,
+  INT_OFF_Z,
 } from "./world";
 import { startNewGame } from "./save";
 
@@ -98,7 +100,7 @@ function playerTile(): { tx: number; ty: number } {
     // inverse of eldervilleWorldPos (tile centers, OX=0 / OZ=11 offsets)
     return { tx: Math.round(p.x + 35.5), ty: Math.round(p.z + 35.5 - 11) };
   }
-  return { tx: Math.floor(p.x - 72.5), ty: Math.floor(p.z - 75) };
+  return { tx: Math.floor(p.x - INT_OFF_X), ty: Math.floor(p.z - INT_OFF_Z) };
 }
 
 function tileToWorld(tx: number, ty: number): { x: number; z: number } {
@@ -106,7 +108,7 @@ function tileToWorld(tx: number, ty: number): { x: number; z: number } {
     const p = eldervilleWorldPos(tx, ty);
     return { x: p.x, z: p.z };
   }
-  return { x: 72.5 + tx + 0.5, z: 75 + ty + 0.5 };
+  return { x: INT_OFF_X + tx + 0.5, z: INT_OFF_Z + ty + 0.5 };
 }
 
 /** POIs the observation offers, per area, with contextual filtering. */

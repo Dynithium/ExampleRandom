@@ -152,7 +152,7 @@ function stepArrows(dt: number) {
       }
     } else if (elder.currentArea === "village") {
       dummyCoords.forEach((c, idx) => {
-        if (!dead && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
+        if (!dead && elder.combatTrialState === "assigned" && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
           elder.damageDummy(idx, ARROW_DMG);
           sfx.hit();
           dead = true;
@@ -258,13 +258,14 @@ export function EldervillePlayer() {
             }
           }
 
-          // Training dummies behind Blue House
+          // Training dummies behind Blue House (only count during the blade trial)
           const dummyCoords = [
             eldervilleWorldPos(34, 3),
             eldervilleWorldPos(36, 3),
             eldervilleWorldPos(38, 3),
           ];
           dummyCoords.forEach((dPos, idx) => {
+            if (elder.combatTrialState !== "assigned") return;
             const dist = Math.hypot(dPos.x - p.pos.x, dPos.z - p.pos.z);
             if (dist < 1.8 && elder.dummiesHealth[idx] > 0) {
               const dot = ((dPos.x - p.pos.x) * facingX + (dPos.z - p.pos.z) * facingZ) / (dist || 1);

@@ -418,6 +418,9 @@ export const useElder = create<ElderState>((set, get) => ({
 
   damageDummy: (index: number, dmg: number) => {
     const s = get();
+    // training dummies only take damage during the Council's blade trial —
+    // no shortcut past the briefing
+    if (s.combatTrialState !== "assigned") return;
     const nextH = [...s.dummiesHealth];
     nextH[index] = Math.max(0, nextH[index] - dmg);
     const allDefeated = nextH.every((h) => h <= 0);

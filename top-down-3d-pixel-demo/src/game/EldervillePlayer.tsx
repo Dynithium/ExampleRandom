@@ -870,7 +870,9 @@ export function EldervillePlayer() {
     // Handle Interact
     if(rt.input.interact){
       rt.input.interact=false;
-      if (elder.scholarPuzzleOpen) {
+      if (ui.pauseMenu) {
+        // pause menu is open — the press is consumed but ignored
+      } else if(elder.scholarPuzzleOpen){
         // modal handles inputs
       } else if(elder.activeDialog){
         useElder.getState().advanceDialog();

@@ -96,6 +96,8 @@ export function EldervilleHUD() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "e" && !e.repeat) {
+        const ui = useUI.getState();
+        if (!ui.started || ui.pauseMenu) return;
         const s = useElder.getState();
         if (s.openingBlack && !s.memoryActive) {
           e.preventDefault();

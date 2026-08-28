@@ -243,9 +243,9 @@ function CaveMachine() {
       if (canBe(pos.current.x, nz)) pos.current.z = nz;
       yaw.current = Math.atan2(dirX, dirZ);
 
-    // publish live position for sword/arrow hit checks
-    rt.boss.pos.copy(pos.current);
-    rt.boss.yaw = yaw.current;
+      // publish live position for sword/arrow hit checks
+      rt.boss.pos.copy(pos.current);
+      rt.boss.yaw = yaw.current;
 
       // touch damage — dodging, guarding, or i-frames protect (handled in hurt())
       if (dist < 1.05) {

@@ -57,6 +57,7 @@ function Environment() {
     const elder = useElder.getState();
     // ~5 real minutes per full day at 1x; freeze while menus/dialogs/story hold the game
     const frozen =
+      !ui.started ||
       ui.paused ||
       ui.pauseMenu ||
       !!elder.activeDialog ||

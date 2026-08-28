@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { create } from "zustand";
-import { SPAWN } from "./world";
+import { SPAWN, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
 
 /** Mutable, non-reactive runtime state (mutated every frame, read by anything). */
 export const rt = {
@@ -19,8 +19,13 @@ export const rt = {
     yaw: 0,
   },
   boss: {
-    /** live Cave Machine position, maintained by the boss component */
-    pos: new THREE.Vector3(80, 2, 80.5),
+    /** live Cave Machine position, maintained by the boss component;
+        initialized to its dormant anchor in the Outskirts Cave */
+    pos: new THREE.Vector3(
+      INT_OFF_X + CAVE_LANDMARKS.boss.tx + 0.5,
+      INT_Y,
+      INT_OFF_Z + CAVE_LANDMARKS.boss.ty + 0.5,
+    ),
     yaw: 0,
   },
   agent: {

@@ -28,6 +28,10 @@ export const rt = {
     ),
     yaw: 0,
   },
+  drones: [
+    { pos: new THREE.Vector3(), yaw: 0 },
+    { pos: new THREE.Vector3(), yaw: 0 },
+  ],
   agent: {
     /** active autopilot route (world-space waypoints), consumed by the player frame */
     path: null as { x: number; z: number }[] | null,

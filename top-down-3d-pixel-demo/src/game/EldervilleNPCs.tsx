@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { eldervilleWorldPos, groundAtWorld, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
+import { eldervilleWorldPos, groundAtWorld, INT_OFF_X, INT_OFF_Z, INT_Y, THORN_WATCHTOWER_TILE } from "./world";
 import {
   useElder,
   villageNPCsData,
@@ -265,6 +265,8 @@ export function EldervilleNPCs() {
   const currentArea = useElder((s) => s.currentArea);
   const eldersAtDoorReady = useElder((s) => s.eldersAtDoorReady);
   const eldersDoorDialogDone = useElder((s) => s.eldersDoorDialogDone);
+  const crateState = useElder((s) => s.crateState);
+  const watchtowerSceneDone = useElder((s) => s.watchtowerSceneDone);
   // the clock ticks every few seconds of play, keeping the render-time night check fresh
   useUI((s) => s.clock);
   const isNight = rt.env.night > 0.45;
@@ -319,7 +321,13 @@ export function EldervilleNPCs() {
         .map((npc) => {
           const wp = eldervilleWorldPos(npc.tx, npc.ty);
           const isElder = npc.id.includes("elder");
-          return <NpcMesh key={npc.id} pos={new THREE.Vector3(wp.x, wp.y, wp.z)} color={npc.color} name={npc.name} isElder={isElder} />;
+          // Thorn waits beside the Watchtower at night for the end-of-Act scene
+          const thornAtTower =
+            npc.id === "elderThorn" && isNight && crateState === "delivered" && !watchtowerSceneDone;
+          const pos = thornAtTower
+            ? eldervilleWorldPos(THORN_WATCHTOWER_TILE.tx, THORN_WATCHTOWER_TILE.ty)
+            : wp;
+          return <NpcMesh key={npc.id} pos={new THREE.Vector3(pos.x, pos.y, pos.z)} color={npc.color} name={npc.name} isElder={isElder} />;
         })}
 
       {/* Tinslaire in village: only after door dialog is done AND during daytime */}

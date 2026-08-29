@@ -34,6 +34,12 @@ export type SaveData = {
     bossHp: number;
     carryingBody: boolean;
     hasCompass: boolean;
+    keepsakeState: "not_started" | "accepted" | "bird_found" | "returned";
+    droneState: "not_started" | "assigned" | "completed";
+    dronesHealth: number[];
+    crateState: "not_started" | "carrying" | "delivered";
+    watchtowerSceneDone: boolean;
+    gateEpilogueDone: boolean;
     currentArea: string;
     currentInterior: string | null;
     hp: number;
@@ -84,6 +90,12 @@ export function saveGame(key = SAVE_KEY): boolean {
         bossHp: elder.bossHp,
         carryingBody: elder.carryingBody,
         hasCompass: elder.hasCompass,
+        keepsakeState: elder.keepsakeState,
+        droneState: elder.droneState,
+        dronesHealth: elder.dronesHealth,
+        crateState: elder.crateState,
+        watchtowerSceneDone: elder.watchtowerSceneDone,
+        gateEpilogueDone: elder.gateEpilogueDone,
         currentArea: elder.currentArea,
         currentInterior: elder.currentInterior,
         hp: elder.hp,
@@ -143,6 +155,12 @@ export function loadGame(key = SAVE_KEY): boolean {
       bossHp: data.elderState.bossHp ?? 40,
       carryingBody: data.elderState.carryingBody,
       hasCompass: data.elderState.hasCompass,
+      keepsakeState: data.elderState.keepsakeState ?? "not_started",
+      droneState: data.elderState.droneState ?? "not_started",
+      dronesHealth: data.elderState.dronesHealth ?? [20, 20],
+      crateState: data.elderState.crateState ?? "not_started",
+      watchtowerSceneDone: data.elderState.watchtowerSceneDone ?? false,
+      gateEpilogueDone: data.elderState.gateEpilogueDone ?? false,
       currentArea: data.elderState.currentArea,
       currentInterior: data.elderState.currentInterior,
       hp: data.elderState.hp,
@@ -247,6 +265,12 @@ export function startNewGame(): void {
     bossHp: 40,
     carryingBody: false,
     hasCompass: false,
+    keepsakeState: "not_started",
+    droneState: "not_started",
+    dronesHealth: [20, 20],
+    crateState: "not_started",
+    watchtowerSceneDone: false,
+    gateEpilogueDone: false,
     scholarPuzzleOpen: false,
     currentArea: "home",
     currentInterior: "home",

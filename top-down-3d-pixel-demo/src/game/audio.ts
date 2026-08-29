@@ -1,8 +1,10 @@
-import { useUI } from "./state";
+import { rt, useUI } from "./state";
 
 let ctx: AudioContext | null = null;
 let suitHumGain: GainNode | null = null;
 let suitHumOsc: OscillatorNode | null = null;
+let ambience: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
+let cricketTimer: ReturnType<typeof setInterval> | null = null;
 
 function ac() {
   if (typeof window === "undefined") return null;
@@ -122,6 +124,56 @@ export const sfx = {
       } catch {}
       suitHumOsc = null;
       suitHumGain = null;
+    }
+  },
+  /** soft day wind bed + night crickets — follows the day/night clock */
+  startAmbience() {
+    const a = ac();
+    if (!a || ambience) return;
+    try {
+      const len = 2 * a.sampleRate;
+      const buf = a.createBuffer(1, len, a.sampleRate);
+      const data = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        const w = Math.random() * 2 - 1;
+        last = (last + 0.02 * w) / 1.02;
+        data[i] = last * 3.5;
+      }
+      const src = a.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const filter = a.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 320;
+      const g = a.createGain();
+      g.gain.value = 0;
+      src.connect(filter).connect(g).connect(a.destination);
+      src.start();
+      ambience = { src, gain: g };
+      cricketTimer = setInterval(() => {
+        if (ambience) ambience.gain.gain.value = Math.max(0, (1 - rt.env.night) * 0.014);
+        if (!useUI.getState().muted && rt.env.night > 0.5 && Math.random() < 0.5) {
+          const f = 4100 + Math.random() * 500;
+          blip(f, 0.03, "triangle", 0.008);
+          blip(f, 0.03, "triangle", 0.006, 0.07);
+        }
+      }, 400);
+    } catch {
+      // audio not available
+    }
+  },
+  stopAmbience() {
+    if (cricketTimer) {
+      clearInterval(cricketTimer);
+      cricketTimer = null;
+    }
+    if (ambience) {
+      try {
+        ambience.src.stop();
+        ambience.src.disconnect();
+      } catch {}
+      ambience = null;
     }
   },
   unlock() {

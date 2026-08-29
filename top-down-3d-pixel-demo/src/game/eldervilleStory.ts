@@ -305,6 +305,90 @@ export const lifeSuitRespawnDialog: Dialog = {
   ],
 };
 
+// ---- Village tasks (post-compass, completing Act I) ----
+
+export const tinslaireKeepsakeBriefDialog: Dialog = {
+  name: "Tinslaire",
+  lines: [
+    "Brother! The compass — it hums even warmer than the suit. Can I hold— no? Okay, okay.",
+    "Listen... I lost my wooden bird in the Grand Gardens terraces. Father carved it for me before he left.",
+    "Elder Sage says compass needles tremble near things that matter. Yours will flutter when you're close.",
+    "Will you find him? You always find it. You always bring it back.",
+  ],
+};
+export const tinslaireKeepsakeRepeat: Dialog = {
+  name: "Tinslaire",
+  lines: ["The bird is in the Grand Gardens, south-west corner. The needle will tremble when you're close!"],
+};
+export const birdPickupDialog: Dialog = {
+  name: "Wooden Bird",
+  lines: [
+    "A small wooden bird, half-buried between the crop rows. Your father's knife-marks still show in the wings.",
+    "(Take him back to Tinslaire.)",
+  ],
+};
+export const tinslaireKeepsakeReturnDialog: Dialog = {
+  name: "Tinslaire",
+  lines: [
+    "(You press the wooden bird into his hands.)",
+    "You found him! You always find it. You always bring it back.",
+    "(Tinslaire tucks the bird carefully into his suit pack, humming.)",
+  ],
+};
+
+export const droneContactDialog: Dialog = {
+  name: "The Compass",
+  lines: [
+    "The red eye flares. Static crackles in your ear — the elders are watching through the needle.",
+    "Elder Sage: 'Scrap drones on the gate road! Left! Now!'",
+    "Elder Moss: 'Strike with SPACE when they close. Loose arrows with K while they drift.'",
+  ],
+};
+export const droneSweepDoneDialog: Dialog = {
+  name: "Elder Sage",
+  lines: [
+    "Static clears. 'Both drones down — well fought, Minslaire.'",
+    "'The gate road is quiet again. One more task: the Bazaar waits on a crate from the Gardens.'",
+  ],
+};
+
+export const cratePickupDialog: Dialog = {
+  name: "Harvest Crate",
+  lines: [
+    "A sturdy crate of garden produce, roped for carrying. The Bazaar ordered it for market day.",
+    "(Sling it on — the walk south will test your stamina.)",
+  ],
+};
+export const crateDeliverDialog: Dialog = {
+  name: "Bazaar Market",
+  lines: [
+    "(You set the crate down at the market counter, arms burning.)",
+    "A villager: 'Right on time for market day! The hum must keep you strong, runner.'",
+    "'The trader was right — the suit's hum will guide you home.'",
+  ],
+};
+
+export const thornWatchtowerDialog: Dialog = {
+  name: "Elder Thorn",
+  lines: [
+    "(Elder Thorn is already at the barricade, watching the dark treeline. He doesn't look at you — he looks at the compass on your belt.)",
+    "I voted against this.",
+    "I don't know what's out there. I don't know what the box really is. But I know the elders' hands, Minslaire. And I've seen them shake.",
+    "They can hear you through that thing. They can see where you stand. Remember that when you come back.",
+    "(He turns away. The gate is open.)",
+  ],
+};
+
+export const gateEpilogueDialog: Dialog = {
+  name: "The Compass",
+  lines: [
+    "You step through the gate gap. The village is behind you; the forest breathes ahead.",
+    "On your belt, the red eye brightens — and the needle tugs east, firm and patient.",
+    "Elder Moss (over the link): 'For your safety, Minslaire. So you never have to be alone.'",
+    "★ ACT I: THE CALLING — complete. The Eastern Forest awaits in the next expedition.",
+  ],
+};
+
 export const villageNPCsData: { id: string; name: string; tx: number; ty: number; color: string }[] = [
   { id: "tinslaire", name: "Tinslaire", tx: 12, ty: 13, color: "#4a90d9" },
   { id: "elderMoss", name: "Elder Moss", tx: 59, ty: 35, color: "#8b7355" },
@@ -353,6 +437,13 @@ type ElderState = {
   bossHp: number;
   carryingBody: boolean;
   hasCompass: boolean;
+  // Village tasks (post-compass, completing Act I)
+  keepsakeState: "not_started" | "accepted" | "bird_found" | "returned";
+  droneState: "not_started" | "assigned" | "completed";
+  dronesHealth: number[];
+  crateState: "not_started" | "carrying" | "delivered";
+  watchtowerSceneDone: boolean;
+  gateEpilogueDone: boolean;
   currentArea: string;
   currentInterior: string | null;
   hp: number;
@@ -377,6 +468,8 @@ type ElderState = {
   damageDummy: (index: number, dmg: number) => void;
   setCaveStage: (v: CaveStage) => void;
   damageBoss: (dmg: number) => void;
+  damageDrone: (index: number, dmg: number) => void;
+  notifyDroneContact: () => void;
   hurt: (dmg: number) => void;
 };
 
@@ -402,6 +495,12 @@ export const useElder = create<ElderState>((set, get) => ({
   bossHp: 40,
   carryingBody: false,
   hasCompass: false,
+  keepsakeState: "not_started",
+  droneState: "not_started",
+  dronesHealth: [20, 20],
+  crateState: "not_started",
+  watchtowerSceneDone: false,
+  gateEpilogueDone: false,
   currentArea: "home",
   currentInterior: "home",
   hp: 100,
@@ -432,6 +531,28 @@ export const useElder = create<ElderState>((set, get) => ({
   },
 
   setCaveStage: (v) => set({ caveStage: v }),
+
+  notifyDroneContact: () => {
+    const s = get();
+    if (s.droneState !== "not_started") return;
+    set({ droneState: "assigned" });
+    sfx.machineRumble();
+    get().showDialog(droneContactDialog, "droneContact");
+  },
+
+  damageDrone: (index, dmg) => {
+    const s = get();
+    if (s.droneState !== "assigned") return;
+    const nextH = [...s.dronesHealth];
+    nextH[index] = Math.max(0, nextH[index] - dmg);
+    const allDown = nextH.every((h) => h <= 0);
+    set({ dronesHealth: nextH });
+    if (allDown) {
+      set({ droneState: "completed" });
+      sfx.questComplete();
+      get().showDialog(droneSweepDoneDialog, "droneSweepDone");
+    }
+  },
 
   damageBoss: (dmg) => {
     const s = get();
@@ -496,6 +617,13 @@ export const useElder = create<ElderState>((set, get) => ({
       const wasCaveEnter = src === "caveEnter";
       const wasBodyLift = src === "bodyLift";
       const wasForgeDeliver = src === "forgeDeliver";
+      const wasTinslaireKeepsake = src === "tinslaireKeepsake";
+      const wasBirdPickup = src === "birdPickup";
+      const wasTinslaireKeepsakeReturn = src === "tinslaireKeepsakeReturn";
+      const wasCratePickup = src === "cratePickup";
+      const wasCrateDeliver = src === "crateDeliver";
+      const wasThornWatchtower = src === "thornWatchtower";
+      const wasGateEpilogue = src === "gateEpilogue";
 
       const next: Partial<ElderState> = { activeDialog: null, dialogSourceId: null };
       if (wasMemory) { next.memoryActive = false; next.memoryDone = true; next.openingBlack = false; }
@@ -510,6 +638,13 @@ export const useElder = create<ElderState>((set, get) => ({
       }
       if (wasBodyLift) { next.carryingBody = true; }
       if (wasForgeDeliver) { next.carryingBody = false; next.hasCompass = true; next.caveStage = "delivered"; }
+      if (wasTinslaireKeepsake) { next.keepsakeState = "accepted"; }
+      if (wasBirdPickup) { next.keepsakeState = "bird_found"; }
+      if (wasTinslaireKeepsakeReturn) { next.keepsakeState = "returned"; }
+      if (wasCratePickup) { next.crateState = "carrying"; }
+      if (wasCrateDeliver) { next.crateState = "delivered"; }
+      if (wasThornWatchtower) { next.watchtowerSceneDone = true; }
+      if (wasGateEpilogue) { next.gateEpilogueDone = true; }
       if (wasTinslaireInside) { next.tinslaireInsideTalked = true; next.eldersAtDoorReady = true; }
       if (wasMossDoor) { next.eldersDoorDialogDone = true; }
       if (wasMossWellIntro) { next.wellTrialState = "assigned"; }

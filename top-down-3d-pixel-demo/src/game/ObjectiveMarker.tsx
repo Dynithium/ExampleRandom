@@ -52,6 +52,17 @@ function targetFor(s: ReturnType<typeof useElder.getState>): { x: number; z: num
   if (s.combatTrialState === "not_started") return v(36, 6);
   if (s.combatTrialState === "assigned") return v(36, 4); // dummies
   if (s.combatTrialState === "completed" && !s.hasSword) return v(12, 10); // red house door
+  // Village tasks — learning to follow the compass (completing Act I)
+  if (s.hasCompass) {
+    if (s.keepsakeState === "accepted") return v(31, 35);
+    if (s.keepsakeState === "bird_found") return { x: rt.tinslaire.pos.x, z: rt.tinslaire.pos.z };
+    if (s.keepsakeState === "returned" && s.droneState !== "completed") return v(64, 14);
+    if (s.droneState === "completed" && s.crateState === "not_started") return v(27, 37);
+    if (s.crateState === "carrying") return v(16, 40);
+    if (s.crateState === "delivered" && !s.watchtowerSceneDone) return v(66, 13);
+    if (s.watchtowerSceneDone && !s.gateEpilogueDone) return v(69, 17);
+    return null;
+  }
   if (s.hasSword) return v(66, 9); // outskirts cave
   return null;
 }

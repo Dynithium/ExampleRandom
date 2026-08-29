@@ -10,6 +10,10 @@ import {
   caveSolidAt,
   INT_OFF_X,
   INT_OFF_Z,
+  FORGE_TILE,
+  CAVE_TILE,
+  WATCHTOWER_TILE,
+  DUMMY_TILES,
 } from "./world";
 import { startNewGame } from "./save";
 
@@ -125,13 +129,21 @@ function poisFor(s: ReturnType<typeof useElder.getState>): { name: string; tx: n
     add("Elder Sage", 32, 12);
     add("Elder Thorn", 16, 26);
     add("Bazaar Trader", 15, 40);
-    add("Forge", 52, 7);
-    add("Training dummies", 36, 4);
-    add("Outskirts Cave mouth", 66, 9);
-    add("Watchtower", 66, 13);
+    add("Forge", FORGE_TILE.tx, FORGE_TILE.ty);
+    add("Training dummies", DUMMY_TILES[1][0], DUMMY_TILES[1][1] + 1);
+    add("Outskirts Cave mouth", CAVE_TILE.tx, CAVE_TILE.ty + 1);
+    add("Watchtower", WATCHTOWER_TILE.tx, WATCHTOWER_TILE.ty + 1);
     if (s.widowTrialState === "assigned" && !s.carryingGrain) add("Grain sack", 30, 36);
     if (s.marketTrialState === "completed" && s.combatTrialState === "not_started") add("Council blade-trial spot", 36, 6);
-    if (s.carryingBody) add("Forge (deliver body)", 52, 8);
+    if (s.carryingBody) add("Forge (deliver body)", FORGE_TILE.tx, FORGE_TILE.ty + 1);
+    if (s.hasCompass) {
+      if (s.keepsakeState === "accepted") add("Wooden bird (Grand Gardens)", 31, 35);
+      if (s.keepsakeState === "returned" && s.droneState !== "completed") add("Perimeter sweep (gate road)", 64, 14);
+      if (s.droneState === "completed" && s.crateState === "not_started") add("Supply crate", 27, 37);
+      if (s.crateState === "carrying") add("Bazaar counter (deliver crate)", 16, 40);
+      if (s.crateState === "delivered" && !s.watchtowerSceneDone) add("Watchtower (Thorn at night)", WATCHTOWER_TILE.tx, WATCHTOWER_TILE.ty + 1);
+      if (s.watchtowerSceneDone && !s.gateEpilogueDone) add("Eastern gate gap (finish)", 69, 17);
+    }
     if (s.eldersDoorDialogDone && rt.env.night < 0.45) {
       const t = playerTile();
       const dx = rt.tinslaire.pos.x + 35.5 - t.tx;
@@ -170,6 +182,9 @@ export function buildObservation(): string {
   lines.push(
     `TRIALS: well=${s.wellTrialState} scholar=${s.scholarTrialState} widow=${s.widowTrialState} market=${s.marketTrialState} combat=${s.combatTrialState} cave=${s.caveStage}`,
   );
+  lines.push(
+    `TASKS: keepsake=${s.keepsakeState} drones=${s.droneState} crate=${s.crateState} watchtower=${s.watchtowerSceneDone ? "done" : "pending"} gate=${s.gateEpilogueDone ? "done" : "pending"}`,
+  );
   lines.push(`OBJECTIVE: ${objectiveText(s)}`);
   lines.push(`PROMPT: ${ui.prompt ?? "(none)"}`);
   if (s.activeDialog) {
@@ -181,6 +196,14 @@ export function buildObservation(): string {
     const b = rt.boss.pos;
     const dx = b.x - rt.player.pos.x, dz = b.z - rt.player.pos.z;
     lines.push(`BOSS: Cave Machine HP ${s.bossHp}/40, ${Math.hypot(dx, dz).toFixed(1)} units ${compassDir(dx, dz)} of you`);
+  }
+  if (s.currentArea === "village" && s.droneState === "assigned") {
+    rt.drones.forEach((d, i) => {
+      if (s.dronesHealth[i] > 0) {
+        const dx = d.pos.x - rt.player.pos.x, dz = d.pos.z - rt.player.pos.z;
+        lines.push(`DRONE ${i + 1}: HP ${s.dronesHealth[i]}/20, ${Math.hypot(dx, dz).toFixed(1)} units ${compassDir(dx, dz)} of you`);
+      }
+    });
   }
   const pois = poisFor(s);
   if (pois.length) {
@@ -211,6 +234,17 @@ function objectiveText(s: ReturnType<typeof useElder.getState>): string {
   if (s.caveStage === "boss_awake") return "Defeat the Cave Machine.";
   if (!s.carryingBody) return "Lift the machine body (E).";
   if (s.currentArea === "cave") return "Carry the body out of the cave.";
+  if (s.hasCompass) {
+    if (s.keepsakeState === "not_started") return "Village task 1: talk to Tinslaire about his lost wooden bird.";
+    if (s.keepsakeState === "accepted") return "Village task 1: find the wooden bird in the Grand Gardens (31, 35).";
+    if (s.keepsakeState === "bird_found") return "Village task 1: return the bird to Tinslaire.";
+    if (s.droneState !== "completed") return "Village task 2: destroy both Scrap Drones on the gate road.";
+    if (s.crateState === "not_started") return "Village task 3: lift the supply crate (27, 37).";
+    if (s.crateState === "carrying") return "Village task 3: deliver the crate to the Bazaar (16, 40).";
+    if (!s.watchtowerSceneDone) return "Meet Elder Thorn at the Watchtower (66, 13) at night.";
+    if (!s.gateEpilogueDone) return "Walk east through the gate gap (69, 17) to finish Act I.";
+    return "Act I complete.";
+  }
   return "Carry the body to the Forge.";
 }
 
@@ -371,7 +405,7 @@ async function executeAction(action: string, args: any): Promise<{ ok: boolean; 
 // ---------------------------------------------------------------- LLM + loop
 
 const SYSTEM_PROMPT = `You are an AI agent playing Minslaire, a retro top-down action RPG. Your goal: complete Act I.
-Beat of the story: wake up -> talk to Tinslaire -> meet the elders outside -> pass the four virtue trials (well, scholar, widow, market) -> pass the blade trial on training dummies -> take your father's sword at home -> enter the Outskirts Cave -> defeat the Cave Machine -> carry its body to the Forge and receive the compass.
+Beat of the story: wake up -> talk to Tinslaire -> meet the elders outside -> pass the four virtue trials (well, scholar, widow, market) -> pass the blade trial on training dummies -> take your father's sword at home -> enter the Outskirts Cave -> defeat the Cave Machine -> carry its body to the Forge and receive the compass -> village tasks (Tinslaire's wooden bird, destroy 2 Scrap Drones on the gate road, deliver the supply crate to the Bazaar) -> meet Elder Thorn at the Watchtower at night -> walk east through the gate gap.
 Reply with ONE JSON object only, no markdown:
 {"thought": "one short sentence", "action": "<name>", ...args}
 Actions:
@@ -383,7 +417,7 @@ Actions:
 - {"action":"dodge","dir":"n|s|e|w|ne|nw|se|sw"} quick dodge roll
 - {"action":"guard","on":true} hold your guard (false to release)
 - {"action":"wait","seconds":0.5}
-- {"action":"stop"} end the run when Act I is complete (compass received)
+- {"action":"stop"} end the run when Act I is complete (the gate epilogue has played)
 Tips: when DIALOG OPEN appears, your only useful action is interact (once per line). Move to a POI adjacent to a person before interacting. The well trial: talk to Moss, inspect the well, talk to Moss. The scholar trial: talk to Sage, read the desk inside, interact with the bookcase and solve dials in the order Green, Blue, Red, Gold (interact cycles each dial; the puzzle opens a panel — when the archive panel is open, actions are suspended, so just wait 1s steps until it closes). Attack the dummies/boss only while facing them.`;
 
 function extractJson(text: string): any | null {
@@ -510,8 +544,8 @@ async function runLoop() {
       return;
     }
     const s = useElder.getState();
-    if (s.hasCompass) {
-      stopRun("★ RUN COMPLETE — compass received (Act I finished)");
+    if (s.gateEpilogueDone) {
+      stopRun("★ RUN COMPLETE — gate epilogue played (Act I finished)");
       return;
     }
     await stepOnce();

@@ -397,6 +397,29 @@ export function eldervilleWorldPos(tx: number, ty: number) {
 /** Wooden archery boards flanking the training clearing (bow practice, Trial of Steel) */
 export const archeryTargets = [eldervilleWorldPos(33, 1), eldervilleWorldPos(39, 1)];
 
+/** Training dummies behind the Blue House (Trial of Steel) */
+export const DUMMY_TILES: [number, number][] = [
+  [34, 3],
+  [36, 3],
+  [38, 3],
+];
+
+/** Tinslaire's wooden bird, resting in the Grand Gardens terraces (village task 1) */
+export const BIRD_TILE = { tx: 31, ty: 35 };
+
+/** Scrap Drones drifting on the gate road during the Perimeter Sweep (village task 2) */
+export const DRONE_TILES: [number, number][] = [
+  [63, 14],
+  [66, 15],
+];
+
+/** Supply crate for the Marketplace run, at the gardens' edge (village task 3) */
+export const CRATE_TILE = { tx: 27, ty: 37 };
+
+/** The Watchtower, and the tile where Elder Thorn waits beside it at night */
+export const WATCHTOWER_TILE = { tx: 66, ty: 12 };
+export const THORN_WATCHTOWER_TILE = { tx: 66, ty: 13 };
+
 /** The Outskirts Cave mouth at the north end of the eastern gate road */
 export const CAVE_TILE = { tx: 66, ty: 8 };
 

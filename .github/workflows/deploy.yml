@@ -36,6 +36,10 @@ jobs:
         run: npm ci
         working-directory: top-down-3d-pixel-demo
 
+      - name: Type check
+        run: npx tsc --noEmit
+        working-directory: top-down-3d-pixel-demo
+
       - name: Build
         run: npm run build
         working-directory: top-down-3d-pixel-demo

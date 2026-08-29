@@ -85,6 +85,11 @@ export function EldervilleHUD() {
   const caveStage = useElder((s) => s.caveStage);
   const carryingBody = useElder((s) => s.carryingBody);
   const hasCompass = useElder((s) => s.hasCompass);
+  const keepsakeState = useElder((s) => s.keepsakeState);
+  const droneState = useElder((s) => s.droneState);
+  const crateState = useElder((s) => s.crateState);
+  const watchtowerSceneDone = useElder((s) => s.watchtowerSceneDone);
+  const gateEpilogueDone = useElder((s) => s.gateEpilogueDone);
   const scholarPuzzleOpen = useElder((s) => s.scholarPuzzleOpen);
   const currentArea = useElder((s) => s.currentArea);
   const currentInterior = useElder((s) => s.currentInterior);
@@ -132,7 +137,7 @@ export function EldervilleHUD() {
 
   // milestone toast when a trial (or Act I itself) completes
   const [toast, setToast] = useState<string | null>(null);
-  const prevMilestone = useRef({ wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass });
+  const prevMilestone = useRef({ wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass, keepsakeState, droneState, crateState, watchtowerSceneDone });
   useEffect(() => {
     const p = prevMilestone.current;
     let msg: string | null = null;
@@ -141,14 +146,18 @@ export function EldervilleHUD() {
     else if (widowTrialState === "completed" && p.widowTrialState !== "completed") msg = "TRIAL PASSED — The Widow's Task (3/4)";
     else if (marketTrialState === "completed" && p.marketTrialState !== "completed") msg = "TRIAL PASSED — The Honest Change (4/4)";
     else if (combatTrialState === "completed" && p.combatTrialState !== "completed") msg = "BLADE TRIAL PASSED — Claim your father's blade";
-    else if (hasCompass && !p.hasCompass) msg = "THE COMPASS IS YOURS — ACT I COMPLETE";
-    prevMilestone.current = { wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass };
+    else if (hasCompass && !p.hasCompass) msg = "THE COMPASS IS YOURS — ACT I'S VILLAGE TASKS BEGIN";
+    else if (keepsakeState === "returned" && p.keepsakeState !== "returned") msg = "VILLAGE TASK COMPLETE — Tinslaire's Keepsake (1/3)";
+    else if (droneState === "completed" && p.droneState !== "completed") msg = "VILLAGE TASK COMPLETE — Perimeter Sweep (2/3)";
+    else if (crateState === "delivered" && p.crateState !== "delivered") msg = "VILLAGE TASK COMPLETE — Supply Run (3/3)";
+    else if (watchtowerSceneDone && !p.watchtowerSceneDone) msg = "THE WAY EAST IS OPEN";
+    prevMilestone.current = { wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass, keepsakeState, droneState, crateState, watchtowerSceneDone };
     if (msg) {
       setToast(msg);
       const id = setTimeout(() => setToast(null), 3400);
       return () => clearTimeout(id);
     }
-  }, [wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass]);
+  }, [wellTrialState, scholarTrialState, widowTrialState, marketTrialState, combatTrialState, hasCompass, keepsakeState, droneState, crateState, watchtowerSceneDone]);
 
   // If on Title Screen, do not render HUD or opening black
   if (!started) return null;
@@ -186,7 +195,17 @@ export function EldervilleHUD() {
   else if (caveStage === "boss_defeated" && !carryingBody) objective = "Don't leave the body — lift the chassis (E)";
   else if (carryingBody && currentArea === "cave") objective = "Haul the body out of the cave and back to Elderville";
   else if (carryingBody) objective = "Carry the machine body to the Forge (east district, follow the needle)";
-  else if (caveStage === "delivered" || hasCompass) objective = "★ The compass needle tugs east... Rest now — the Eastern Forest awaits (next expedition)";
+  // Village tasks — learning to follow the compass (completing Act I)
+  else if (hasCompass && keepsakeState === "not_started") objective = "★ Compass received! Tinslaire wants a word — find him wandering the village";
+  else if (keepsakeState === "accepted") objective = "Village Task 1/3: Find Tinslaire's wooden bird in the Grand Gardens terraces";
+  else if (keepsakeState === "bird_found") objective = "Village Task 1/3: Bring the wooden bird back to Tinslaire";
+  else if (droneState === "not_started") objective = "Village Task 2/3: Perimeter Sweep — scout the gate road past the Watchtower";
+  else if (droneState === "assigned") objective = "Village Task 2/3: Bring down both Scrap Drones (SPACE strike · K arrows)";
+  else if (droneState === "completed" && crateState === "not_started") objective = "Village Task 3/3: Lift the supply crate at the Grand Gardens edge";
+  else if (crateState === "carrying") objective = "Village Task 3/3: Haul the crate to the Bazaar counter (mind your stamina)";
+  else if (crateState === "delivered" && !watchtowerSceneDone) objective = "★ Tasks done! Meet Elder Thorn at the Watchtower after nightfall";
+  else if (watchtowerSceneDone && !gateEpilogueDone) objective = "The gate is open — follow the needle east through the gap";
+  else if (caveStage === "delivered" || hasCompass) objective = "★ Act I complete — the Eastern Forest awaits (next expedition)";
 
   // wake handler
   const handleWake = () => {

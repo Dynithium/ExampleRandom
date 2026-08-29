@@ -8,6 +8,7 @@ A whimsical retro 3D pixel-art action RPG set in a post-WW3 world where humanity
 - **The Trial of Steel**: sword, bow, guard, and dodge against training dummies behind the Blue House
 - **The Outskirts Cave**: a torch-lit dark delve, glow-moss wayfinding, and the Cave Machine boss — first machine anyone in Elderville has ever seen
 - **The body and the compass**: haul the chassis back to the Forge and receive the elders' compass, its salvaged red eye already watching
+- **Act I's finale**: help Tinslaire find his wooden bird, clear the Scrap Drones at the Eastern Gate, run supplies to the Bazaar — then meet Elder Thorn at the Watchtower under cover of night, and step east through the gate
 - **Death and mercy**: fall, and the life suit returns you to the Safe Camp — the machine keeps its wounds
 - A sprawling village with districts, day/night cycle, wandering NPCs with pixel portraits, save/load, and an objective marker that points the way
 

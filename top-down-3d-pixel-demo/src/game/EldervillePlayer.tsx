@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y } from "./world";
+import { groundAtWorld, isBlocked, interiors, eldervilleWorldPos, villageDoors, archeryTargets, CAVE_TILE, FORGE_TILE, caveMap, caveSolidAt, CAVE_LANDMARKS, INT_OFF_X, INT_OFF_Z, INT_Y, DUMMY_TILES, BIRD_TILE, CRATE_TILE, THORN_WATCHTOWER_TILE } from "./world";
 import { rt, useUI } from "./state";
 import {
   useElder,
@@ -40,6 +40,14 @@ import {
   caveBodyLiftDialog,
   forgeDeliverDialog,
   swordCaseDialog,
+  tinslaireKeepsakeBriefDialog,
+  tinslaireKeepsakeRepeat,
+  tinslaireKeepsakeReturnDialog,
+  birdPickupDialog,
+  cratePickupDialog,
+  crateDeliverDialog,
+  thornWatchtowerDialog,
+  gateEpilogueDialog,
 } from "./eldervilleStory";
 import { sfx } from "./audio";
 
@@ -87,8 +95,9 @@ function npcBlockedWorld(x: number, z: number) {
       // Sage at Council
       const sp = eldervilleWorldPos(32, 12);
       positions.push({ x: sp.x, z: sp.z });
-      // Thorn at Homestead
-      const tp = eldervilleWorldPos(16, 26);
+      // Thorn at the homestead path — or at the Watchtower for the night scene
+      const thornAtTower = s.crateState === "delivered" && !s.watchtowerSceneDone && isNight;
+      const tp = thornAtTower ? eldervilleWorldPos(THORN_WATCHTOWER_TILE.tx, THORN_WATCHTOWER_TILE.ty) : eldervilleWorldPos(16, 26);
       positions.push({ x: tp.x, z: tp.z });
       // Trader at Market
       const trp = eldervilleWorldPos(15, 40);
@@ -137,7 +146,7 @@ function spawnArrow() {
 
 function stepArrows(dt: number) {
   const elder = useElder.getState();
-  const dummyCoords = [eldervilleWorldPos(34, 3), eldervilleWorldPos(36, 3), eldervilleWorldPos(38, 3)];
+  const dummyCoords = DUMMY_TILES.map(([tx, ty]) => eldervilleWorldPos(tx, ty));
   for (let i = arrows.length - 1; i >= 0; i--) {
     const a = arrows[i];
     a.x += a.dx * ARROW_SPEED * dt;
@@ -152,6 +161,16 @@ function stepArrows(dt: number) {
         dead = true;
       }
     } else if (elder.currentArea === "village") {
+      // Scrap Drones (Perimeter Sweep)
+      if (elder.droneState === "assigned") {
+        rt.drones.forEach((d, idx) => {
+          if (!dead && elder.dronesHealth[idx] > 0 && Math.hypot(d.pos.x - a.x, d.pos.z - a.z) < 0.7) {
+            elder.damageDrone(idx, ARROW_DMG);
+            sfx.hit();
+            dead = true;
+          }
+        });
+      }
       dummyCoords.forEach((c, idx) => {
         if (!dead && elder.combatTrialState === "assigned" && Math.hypot(c.x - a.x, c.z - a.z) < 0.55 && elder.dummiesHealth[idx] > 0) {
           elder.damageDummy(idx, ARROW_DMG);
@@ -226,7 +245,11 @@ export function EldervillePlayer() {
 
   useEffect(() => {
     sfx.startSuitHum();
-    return () => sfx.stopSuitHum();
+    sfx.startAmbience();
+    return () => {
+      sfx.stopSuitHum();
+      sfx.stopAmbience();
+    };
   }, []);
 
   // Keyboard attack / combat listeners
@@ -259,12 +282,24 @@ export function EldervillePlayer() {
             }
           }
 
+          // Scrap Drones (Perimeter Sweep)
+          if (elder.currentArea === "village" && elder.droneState === "assigned") {
+            for (let di = 0; di < rt.drones.length; di++) {
+              const d = rt.drones[di];
+              const dist = Math.hypot(d.pos.x - p.pos.x, d.pos.z - p.pos.z);
+              if (dist < 2.0 && elder.dronesHealth[di] > 0) {
+                const dot = ((d.pos.x - p.pos.x) * facingX + (d.pos.z - p.pos.z) * facingZ) / (dist || 1);
+                if (dot > 0.3) {
+                  elder.damageDrone(di, 20);
+                  sfx.hit();
+                  return;
+                }
+              }
+            }
+          }
+
           // Training dummies behind Blue House (only count during the blade trial)
-          const dummyCoords = [
-            eldervilleWorldPos(34, 3),
-            eldervilleWorldPos(36, 3),
-            eldervilleWorldPos(38, 3),
-          ];
+          const dummyCoords = DUMMY_TILES.map(([tx, ty]) => eldervilleWorldPos(tx, ty));
           dummyCoords.forEach((dPos, idx) => {
             if (elder.combatTrialState !== "assigned") return;
             const dist = Math.hypot(dPos.x - p.pos.x, dPos.z - p.pos.z);
@@ -371,7 +406,7 @@ export function EldervillePlayer() {
     p.blocking = guarding;
 
     let moveX = mx, moveZ = mz, moving = wantsMove;
-    let speed = elder.carryingGrain ? SPEED * 0.75 : elder.carryingBody ? SPEED * 0.55 : SPEED;
+    let speed = elder.carryingBody ? SPEED * 0.55 : elder.carryingGrain ? SPEED * 0.75 : elder.crateState === "carrying" ? SPEED * 0.7 : SPEED;
     if (sprinting) speed *= 1.45;
     if (dodgeTimer.current > 0) {
       dodgeTimer.current -= dt;
@@ -560,6 +595,19 @@ export function EldervillePlayer() {
       }
     }
 
+    // Gate epilogue — walk east through the gap once Thorn's night scene is done
+    if (
+      elder.currentArea === "village" &&
+      elder.hasCompass &&
+      elder.watchtowerSceneDone &&
+      !elder.gateEpilogueDone &&
+      !elder.activeDialog
+    ) {
+      if (Math.round(p.pos.x + 35.5) >= 69) {
+        useElder.getState().showDialog(gateEpilogueDialog, "gateEpilogue");
+      }
+    }
+
     // Interaction Detection
     let prompt: string | null = null;
     let bestDist = 1.7;
@@ -677,6 +725,8 @@ export function EldervillePlayer() {
         }
       }
     } else if (elder.currentArea==="village") {
+      // Elder Thorn waits at the Watchtower at night once the village tasks are done
+      const thornNight = elder.crateState === "delivered" && !elder.watchtowerSceneDone && isNight;
       // Door elders
       if(elder.eldersAtDoorReady && !elder.eldersDoorDialogDone){
         for(const e of eldersAtDoorPositions){
@@ -749,7 +799,8 @@ export function EldervillePlayer() {
           }
         }
 
-        // Elder Thorn @ Western Homestead Path [16, 26]
+        // Elder Thorn @ Western Homestead Path [16, 26] — unless he waits at the Watchtower tonight
+        if (!thornNight) {
         const thornPos = eldervilleWorldPos(16, 26);
         const thornDist = Math.hypot(thornPos.x - p.pos.x, thornPos.z - p.pos.z);
         if (thornDist < bestDist) {
@@ -771,6 +822,7 @@ export function EldervillePlayer() {
           } else {
             bestDialog = { dlg: elderThornCompletedRepeat, source: "elderThornCompleted" };
           }
+        }
         }
 
         // Grain Sack in Grand Gardens @ [30, 36]
@@ -864,14 +916,69 @@ export function EldervillePlayer() {
         }
       }
 
+        // Tinslaire's wooden bird in the Grand Gardens (village task 1)
+        if (elder.hasCompass && elder.keepsakeState === "accepted") {
+          const birdPos = eldervilleWorldPos(BIRD_TILE.tx, BIRD_TILE.ty);
+          const birdDist = Math.hypot(birdPos.x - p.pos.x, birdPos.z - p.pos.z);
+          if (birdDist < 1.6 && birdDist < bestDist) {
+            bestDist = birdDist;
+            prompt = "E · Pick up the Wooden Bird";
+            bestDialog = { dlg: birdPickupDialog, source: "birdPickup" };
+          }
+        }
+
+        // Supply crate pickup at the gardens' edge (village task 3)
+        if (elder.droneState === "completed" && elder.crateState === "not_started") {
+          const cratePos = eldervilleWorldPos(CRATE_TILE.tx, CRATE_TILE.ty);
+          const crateDist = Math.hypot(cratePos.x - p.pos.x, cratePos.z - p.pos.z);
+          if (crateDist < 1.6 && crateDist < bestDist) {
+            bestDist = crateDist;
+            prompt = "E · Lift the Supply Crate";
+            bestDialog = { dlg: cratePickupDialog, source: "cratePickup" };
+          }
+        }
+
+        // Crate delivery at the Bazaar counter
+        if (elder.crateState === "carrying") {
+          const bazaarPos = eldervilleWorldPos(16, 40);
+          const bazaarDist = Math.hypot(bazaarPos.x - p.pos.x, bazaarPos.z - p.pos.z);
+          if (bazaarDist < 1.8 && bazaarDist < bestDist) {
+            bestDist = bazaarDist;
+            prompt = "E · Deliver the Supply Crate";
+            bestDialog = { dlg: crateDeliverDialog, source: "crateDeliver" };
+          }
+        }
+
+        // Elder Thorn at the Watchtower — the night scene that ends Act I
+        if (thornNight) {
+          const towerThornPos = eldervilleWorldPos(THORN_WATCHTOWER_TILE.tx, THORN_WATCHTOWER_TILE.ty);
+          const towerThornDist = Math.hypot(towerThornPos.x - p.pos.x, towerThornPos.z - p.pos.z);
+          if (towerThornDist < bestDist) {
+            bestDist = towerThornDist;
+            prompt = "E · Elder Thorn (Watchtower)";
+            bestDialog = { dlg: thornWatchtowerDialog, source: "thornWatchtower" };
+          }
+        }
+
       // Tinslaire in Village during daytime
       if (elder.eldersDoorDialogDone && !isNight) {
         const d=Math.hypot(rt.tinslaire.pos.x - p.pos.x, rt.tinslaire.pos.z - p.pos.z);
         if(d<bestDist){
           bestDist=d;
-          const spoken=elder.spoken.has("tinslaireVillage");
-          bestDialog={ dlg: spoken? tinslaireVillageRepeat : tinslaireVillageDialog, source: "tinslaireVillage" };
-          prompt="E · Talk to Tinslaire";
+          if (elder.hasCompass && elder.keepsakeState === "not_started") {
+            bestDialog = { dlg: tinslaireKeepsakeBriefDialog, source: "tinslaireKeepsake" };
+            prompt = "E · Talk to Tinslaire";
+          } else if (elder.keepsakeState === "accepted") {
+            bestDialog = { dlg: tinslaireKeepsakeRepeat, source: "tinslaireKeepsakeRepeat" };
+            prompt = "E · Talk to Tinslaire";
+          } else if (elder.keepsakeState === "bird_found") {
+            bestDialog = { dlg: tinslaireKeepsakeReturnDialog, source: "tinslaireKeepsakeReturn" };
+            prompt = "E · Give Tinslaire the Bird";
+          } else {
+            const spoken=elder.spoken.has("tinslaireVillage");
+            bestDialog={ dlg: spoken? tinslaireVillageRepeat : tinslaireVillageDialog, source: "tinslaireVillage" };
+            prompt="E · Talk to Tinslaire";
+          }
         }
       }
     }
